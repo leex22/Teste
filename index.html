@@ -319,7 +319,7 @@
                     },
                     datalabels: {
                         display: true,
-                        color: isDark ? '#fff' : '#fff',
+                        color: isDark ? '#fff' : '#444',
                         anchor: 'end', align: 'top',
                         formatter: (val, ctx) => {
                             const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
@@ -345,7 +345,7 @@
                 indexAxis: t === 'bar-h' ? 'y' : 'x', 
                 plugins: { 
                     legend: { display: ['pie','doughnut'].includes(t), labels: { color: textColor } },
-                    datalabels: { display: true, color: isDark ? '#fff' : '#fff', font: { size: 10, weight: 'bold' } }
+                    datalabels: { display: true, color: isDark ? '#fff' : '#444', font: { size: 10, weight: 'bold' } }
                 },
                 scales: ['pie','doughnut'].includes(t) ? {} : { x: { ticks: { color: textColor } }, y: { ticks: { color: textColor } } }
             }; 
