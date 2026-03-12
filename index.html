@@ -39,6 +39,8 @@
         .dark th { background-color: #334155; color: #cbd5e1; }
         td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
         .dark td { border-bottom-color: #334155; }
+        .search-filter-input { position: sticky; top: 0; background: white; padding: 8px; z-index: 10; border-bottom: 1px solid #e2e8f0; }
+        .dark .search-filter-input { background: #1e293b; border-bottom-color: #475569; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 dark:bg-darkBg dark:text-slate-100 p-4 md:p-8">
@@ -46,11 +48,11 @@
     <header class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
             <h1 class="text-2xl font-bold text-primary dark:text-blue-400">📊 Dashboard de Treinamentos</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm">Selecione o arquivo Excel para iniciar</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">Controlo de Qualidade e Operação</p>
         </div>
         <div class="flex items-center gap-3">
-            <label class="bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition shadow-md font-medium text-sm cursor-pointer">
-                <span>📁 Abrir Excel</span>
+            <label class="bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition shadow-md font-medium text-sm cursor-pointer flex items-center gap-2">
+                <span>📁 Abrir Base de Dados</span>
                 <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(event)">
             </label>
             <button onclick="toggleTheme()" class="bg-slate-200 dark:bg-slate-700 p-2.5 rounded-lg">🌓</button>
@@ -62,26 +64,28 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
                 <div class="lg:col-span-2 bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-sm font-bold uppercase tracking-wider">🔍 Filtros Inteligentes</h3>
-                        <button onclick="resetAllFilters()" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase">Limpar Filtros</button>
+                        <h3 class="text-sm font-bold uppercase tracking-wider">🔍 Filtros</h3>
+                        <button onclick="resetAllFilters()" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase">Limpar</button>
                     </div>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="bg-white dark:bg-slate-800 border p-2 rounded w-full text-left text-sm">Selecionar...</button><div id="dropMethod" class="dropdown-content"></div></div>
                         <div class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="bg-white dark:bg-slate-800 border p-2 rounded w-full text-left text-sm">Selecionar...</button><div id="dropCourse" class="dropdown-content"></div></div>
                         <div class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="bg-white dark:bg-slate-800 border p-2 rounded w-full text-left text-sm">Selecionar...</button><div id="dropFac" class="dropdown-content"></div></div>
-                        <div id="statusFilterContainer" class="hidden"><label class="label-filter">Status</label><select id="filterStatus" onchange="updateDashboard()"><option value="all">Todos</option><option value="Completed">Concluído</option><option value="Enrolled">Inscrito</option></select></div>
+                        <div id="statusFilterContainer" class="hidden"><label class="label-filter">Status</label><select id="filterStatus" onchange="updateDashboard()"><option value="all">Todos</option><option value="Completed">Concluído ✅</option><option value="Enrolled">Inscrito 📝</option></select></div>
                     </div>
                 </div>
+
                 <div class="bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-amber-500">
-                    <h3 class="text-sm font-bold mb-4 uppercase">📅 Período</h3>
-                    <input type="date" id="dateStart" onchange="updateDashboard()" class="mb-2">
-                    <input type="date" id="dateEnd" onchange="updateDashboard()">
+                    <h3 class="text-sm font-bold mb-4 uppercase tracking-wider">📅 Período</h3>
+                    <div class="grid grid-cols-1 gap-3"><input type="date" id="dateStart" onchange="updateDashboard()"><input type="date" id="dateEnd" onchange="updateDashboard()"></div>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-blue-600 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Concluídos</p><h2 class="text-2xl font-bold text-green-600" id="kpiCompleted">0</h2></div>
-                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-purple-500 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Taxa</p><h2 class="text-2xl font-bold text-purple-600" id="kpiRate">0%</h2></div>
+                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-blue-600 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Total Inscritos</p><h2 class="text-2xl font-bold" id="kpiTotal">0</h2></div>
+                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-green-500 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Concluídos</p><h2 class="text-2xl font-bold text-green-600" id="kpiCompleted">0</h2></div>
+                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-purple-500 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Taxa de Conclusão</p><h2 class="text-2xl font-bold text-purple-600" id="kpiRate">0%</h2></div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -89,19 +93,175 @@
                     <h3 class="font-bold text-sm uppercase mb-4">🏆 Top 5 Treinamentos</h3>
                     <div class="h-80"><canvas id="chartCourses"></canvas></div>
                 </div>
+
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-96" id="cardFacilitators">
                     <h3 class="font-bold text-sm uppercase mb-4">👤 Top 5 Facilitadores (CBT)</h3>
                     <div class="h-80"><canvas id="chartFacilitators"></canvas></div>
                 </div>
             </div>
         </div>
+
+        <section class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
+            <h3 class="font-bold text-sm uppercase mb-4">📋 Lista de Participantes</h3>
+            <div class="overflow-x-auto"><table><thead><tr><th>FCP</th><th>Nome</th><th>Curso</th><th>Status</th><th>Facilitador</th><th>Método</th></tr></thead><tbody id="tableBody"></tbody></table></div>
+        </section>
     </main>
 
     <div id="noData" class="max-w-md mx-auto mt-32 text-center">
-        <div class="text-6xl mb-6">📂</div>
-        <h2 class="text-xl font-bold">Aguardando arquivo...</h2>
-        <p class="text-slate-500 mt-2">Clique no botão "Abrir Excel" acima para carregar os dados.</p>
+        <div class="text-6xl mb-6">📁</div>
+        <h2 class="text-xl font-bold">Aguardando Ficheiro</h2>
+        <p class="text-slate-500 mt-2">Clique no botão azul acima para selecionar o seu arquivo Excel e carregar o dashboard.</p>
     </div>
 
     <script>
-        Chart
+        Chart.register(ChartDataLabels);
+        let rawData = [], charts = {}, selectedFilters = { methods: [], courses: [], facilitators: [] };
+        let cols = { fcp: 'FCP_COMBINED', name: 'Name', email: 'Email', course: 'Course Name', status: 'STATUS', facilitator: 'Partnership Facilitator', method: 'Training Method', date: 'ACTIVITY_DATE_TIME' };
+
+        // Função que resolve o problema do erro de arquivo não encontrado
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                rawData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
+                
+                if(rawData.length > 0) {
+                    cols.status = ('ACTIVITY_CODE' in rawData[0]) ? 'ACTIVITY_CODE' : 'STATUS';
+                    document.getElementById('noData').classList.add('hidden');
+                    document.getElementById('dashboardContent').classList.remove('hidden');
+                    initDashboard();
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function initDashboard() { 
+            renderDropdown('dropMethod', 'methods', [...new Set(rawData.map(i => i[cols.method]))].sort()); 
+            updateCascade(); 
+            updateDashboard();
+        }
+
+        function toggleDropdown(id) { 
+            document.querySelectorAll('.dropdown-content').forEach(d => { if (d.id !== id) d.classList.remove('show'); });
+            document.getElementById(id).classList.toggle('show'); 
+        }
+
+        function renderDropdown(elementId, filterKey, options) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            options.filter(o => o).forEach(opt => {
+                const div = document.createElement('div');
+                div.className = 'p-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer text-sm';
+                const isChecked = selectedFilters[filterKey].includes(opt);
+                div.innerHTML = `<input type="checkbox" ${isChecked ? 'checked' : ''}> ${opt}`;
+                div.onclick = () => {
+                    const idx = selectedFilters[filterKey].indexOf(opt);
+                    if(idx > -1) selectedFilters[filterKey].splice(idx, 1);
+                    else selectedFilters[filterKey].push(opt);
+                    if(filterKey === 'methods') updateCascade();
+                    updateDashboard();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function updateCascade() {
+            const isCBT = selectedFilters.methods.includes("Computer Based Training");
+            document.getElementById('statusFilterContainer').className = isCBT ? 'block' : 'hidden';
+            const filtered = selectedFilters.methods.length > 0 ? rawData.filter(i => selectedFilters.methods.includes(i[cols.method])) : rawData;
+            renderDropdown('dropCourse', 'courses', [...new Set(filtered.map(i => i[cols.course]))].sort()); 
+            renderDropdown('dropFac', 'facilitators', [...new Set(filtered.map(i => i[cols.facilitator]))].sort()); 
+        }
+
+        function updateDashboard() {
+            const st = document.getElementById('filterStatus').value;
+            const filtered = rawData.filter(i => {
+                return (selectedFilters.methods.length===0 || selectedFilters.methods.includes(i[cols.method])) && 
+                       (selectedFilters.courses.length===0 || selectedFilters.courses.includes(i[cols.course])) &&
+                       (st==='all' || i[cols.status]===st);
+            });
+
+            renderKPIs(filtered); 
+            renderCharts(filtered); 
+            renderTable(filtered);
+        }
+
+        function renderKPIs(d) {
+            const total = d.length;
+            const completed = d.filter(i => i[cols.status] === 'Completed').length;
+            document.getElementById('kpiTotal').textContent = total;
+            document.getElementById('kpiCompleted').textContent = completed;
+            document.getElementById('kpiRate').textContent = total > 0 ? ((completed/total)*100).toFixed(1) + '%' : '0%';
+        }
+
+        function renderCharts(d) {
+            const isDark = document.documentElement.classList.contains('dark');
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
+
+            // GRÁFICO TOP TREINAMENTOS (Com Fonte Branca Manual)
+            const cCounts = {}; d.forEach(i => { if(i[cols.status]==='Completed') cCounts[i[cols.course]] = (cCounts[i[cols.course]]||0)+1; });
+            const topC = Object.keys(cCounts).sort((a,b)=>cCounts[b]-cCounts[a]).slice(0,5);
+            
+            updateChart('chartCourses', 'bar', {
+                labels: topC.map(n => n.substring(0,15)),
+                datasets: [{ data: topC.map(c => cCounts[c]), backgroundColor: '#005eb8' }]
+            }, {
+                indexAxis: 'y',
+                plugins: {
+                    datalabels: { 
+                        color: '#FFFFFF', // <--- COR MANUTAL DA FONTE NO MODO LIGHT E DARK
+                        font: { weight: 'bold', size: 10 },
+                        formatter: (val) => val
+                    }
+                }
+            });
+
+            // GRÁFICO FACILITADORES (Ranking CBT, Vertical, Qtd + %)
+            const isCBTFilter = selectedFilters.methods.includes("Computer Based Training");
+            const facCounts = {};
+            d.forEach(i => {
+                const isCBT = i[cols.method] === "Computer Based Training";
+                if(i[cols.status] === 'Completed' && (isCBTFilter ? isCBT : true)) {
+                    facCounts[i[cols.facilitator]] = (facCounts[i[cols.facilitator]]||0)+1;
+                }
+            });
+            const fL = Object.keys(facCounts).sort((a,b)=>facCounts[b]-facCounts[a]).slice(0,5);
+            const fD = fL.map(l => facCounts[l]);
+
+            updateChart('chartFacilitators', 'bar', {
+                labels: fL,
+                datasets: [{ data: fD, backgroundColor: '#10b981' }]
+            }, {
+                indexAxis: 'x',
+                plugins: {
+                    datalabels: {
+                        anchor: 'end', align: 'top',
+                        color: isDark ? '#fff' : '#444',
+                        formatter: (val) => {
+                            const sum = fD.reduce((a,b)=>a+b,0);
+                            const p = sum > 0 ? ((val/sum)*100).toFixed(1) + '%' : '0%';
+                            return `${val}\n(${p})`;
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(id, type, data, options) {
+            if (charts[id]) charts[id].destroy();
+            charts[id] = new Chart(document.getElementById(id), { type, data, options: { ...options, maintainAspectRatio: false } });
+        }
+
+        function renderTable(d) {
+            document.getElementById('tableBody').innerHTML = d.slice(0, 50).map(i => `<tr><td>${i[cols.fcp]}</td><td class='font-bold'>${i[cols.name]}</td><td>${i[cols.course]}</td><td>${i[cols.status]}</td><td>${i[cols.facilitator]}</td><td>${i[cols.method]}</td></tr>`).join('');
+        }
+
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); updateDashboard(); }
+        function resetAllFilters() { selectedFilters = { methods: [], courses: [], facilitators: [] }; updateDashboard(); }
+    </script>
+</body>
+</html>
