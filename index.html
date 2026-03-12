@@ -1,65 +1,79 @@
-// Alteração na função renderCharts para o item 1, 2 e 3
 function renderCharts(d) {
-    const isDark = document.documentElement.classList.contains('dark'), colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
-    const count = (k) => { const c = {}; d.forEach(i => c[i[k]]=(c[i[k]]||0)+1); return c; };
-    
-    // ... (Gráfico de Roles e Top 5 Treinamentos permanecem iguais)
+            const isDark = document.documentElement.classList.contains('dark'), colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
+            const count = (k) => { const c = {}; d.forEach(i => c[i[k]]=(c[i[k]]||0)+1); return c; };
+            
+            const rC = count(cols.role), rL = Object.keys(rC).sort((a,b)=>rC[b]-rC[a]);
+            updateChart('chartRoles', chartConfigs.chartRoles.startsWith('bar')?'bar':chartConfigs.chartRoles, { labels: rL, datasets:[{ data: rL.map(l=>rC[l]), backgroundColor: '#10b981', borderRadius: 4 }] }, getBaseOptions(chartConfigs.chartRoles, '#10b981', isDark));
 
-    // 1 e 2 - Lógica específica para Top 5 Facilitadores (CBT e Concluídos)
-    const isCBT = selectedFilters.methods.includes("Computer Based Training");
-    const facCounts = {};
-    
-    // Filtra para contar apenas quem concluiu e, se CBT estiver selecionado, filtra por essa modalidade
-    d.forEach(i => {
-        const matchMethod = isCBT ? i[cols.method] === "Computer Based Training" : true;
-        if (i[cols.status] === 'Completed' && matchMethod) {
-            facCounts[i[cols.facilitator]] = (facCounts[i[cols.facilitator]] || 0) + 1;
-        }
-    });
+            const cCounts = {}; 
+            d.forEach(i => { if(i[cols.status]==='Completed') cCounts[i[cols.course]] = (cCounts[i[cols.course]]||0)+1; });
+            const topC = Object.keys(cCounts).sort((a,b)=>cCounts[b]-cCounts[a]).slice(0,5);
+            updateChart('chartCourses', chartConfigs.chartCourses.startsWith('bar') ? 'bar' : chartConfigs.chartCourses, {
+                labels: topC.map(n => n.length > 12 ? n.substring(0,10)+'..' : n),
+                datasets: [{ 
+                    fullLabels: topC,
+                    data: topC.map(c => cCounts[c]), 
+                    backgroundColor: '#005eb8', 
+                    borderRadius: 5 
+                }]
+            }, getBaseOptions(chartConfigs.chartCourses, '#005eb8', isDark));
 
-    const fL = Object.keys(facCounts).sort((a, b) => facCounts[b] - facCounts[a]).slice(0, 5);
-    const fData = fL.map(l => facCounts[l]);
+            // --- INÍCIO DA ALTERAÇÃO PEDIDA ---
+            const isCBT = selectedFilters.methods.includes("Computer Based Training");
+            const facCounts = {};
+            d.forEach(i => {
+                const matchMethod = isCBT ? i[cols.method] === "Computer Based Training" : true;
+                if (i[cols.status] === 'Completed' && matchMethod) {
+                    facCounts[i[cols.facilitator]] = (facCounts[i[cols.facilitator]] || 0) + 1;
+                }
+            });
 
-    // Define o tipo como 'bar' (vertical) conforme pedido
-    const facChartType = 'bar'; 
-    
-    updateChart('chartFacilitators', facChartType, { 
-        labels: fL, 
-        datasets: [{ 
-            label: 'Concluídos',
-            data: fData, 
-            backgroundColor: colors, 
-            borderWidth: 0,
-            borderRadius: 5
-        }] 
-    }, {
-        ...getBaseOptions(facChartType, colors[0], isDark),
-        indexAxis: 'x', // Garante que seja vertical
-        plugins: {
-            ...getBaseOptions(facChartType, colors[0], isDark).plugins,
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        const value = context.raw;
-                        const total = fData.reduce((a, b) => a + b, 0);
-                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
-                        return `Concluídos: ${value} (${percentage})`;
+            const fL = Object.keys(facCounts).sort((a, b) => facCounts[b] - facCounts[a]).slice(0, 5);
+            const fData = fL.map(l => facCounts[l]);
+            const facChartType = 'bar'; 
+
+            updateChart('chartFacilitators', facChartType, { 
+                labels: fL, 
+                datasets: [{ 
+                    label: 'Concluídos',
+                    data: fData, 
+                    backgroundColor: colors, 
+                    borderWidth: 0,
+                    borderRadius: 5
+                }] 
+            }, {
+                ...getBaseOptions(facChartType, colors[0], isDark),
+                indexAxis: 'x', 
+                plugins: {
+                    ...getBaseOptions(facChartType, colors[0], isDark).plugins,
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = fData.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+                                return `Concluídos: ${value} (${percentage})`;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: isDark ? '#fff' : '#444',
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: (val, ctx) => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const perc = total > 0 ? ((val / total) * 100).toFixed(1) + '%' : '0%';
+                            return `${val}\n(${perc})`;
+                        }
                     }
                 }
-            },
-            datalabels: {
-                display: true,
-                color: isDark ? '#fff' : '#444',
-                anchor: 'end',
-                align: 'top',
-                formatter: (val, ctx) => {
-                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                    const perc = total > 0 ? ((val / total) * 100).toFixed(1) + '%' : '0%';
-                    return `${val}\n(${perc})`;
-                }
-            }
-        }
-    });
+            });
+            // --- FIM DA ALTERAÇÃO PEDIDA ---
 
-    // ... (Restante do código de Métodos e Timeline permanece igual)
-}
+            const mC = count(cols.method), mL = Object.keys(mC);
+            updateChart('chartMethods', chartConfigs.chartMethods.startsWith('bar')?'bar':chartConfigs.chartMethods, { labels: mL, datasets:[{ data: mL.map(l=>mC[l]), backgroundColor: colors, borderWidth: 0 }] }, getBaseOptions(chartConfigs.chartMethods, colors[1], isDark));
+
+            const time = new Array(12).fill(0); d.filter(i=>i[cols.status]==='Completed').forEach(i=>{ const m = new Date(i[cols.date]).getMonth(); if(!isNaN(m)) time[m]++; });
+            updateChart('chartTimeline', 'line', { labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], datasets: [{ data: time, borderColor: '#3b82f6', tension: 0.3, fill: true, backgroundColor: 'rgba(59,130,246,0.1)' }] }, { plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { x: { ticks: { color: isDark?'#94a3b8':'#64748b' } }, y: { ticks: { color: isDark?'#94a3b8':'#64748b' } } } });
+        }
