@@ -101,9 +101,9 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-blue-600 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Total</p><h2 class="text-2xl font-bold" id="kpiTotal">0</h2></div>
+                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-blue-600 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Total Inscritos</p><h2 class="text-2xl font-bold" id="kpiTotal">0</h2></div>
                 <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-green-500 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Concluídos</p><h2 class="text-2xl font-bold text-green-600" id="kpiCompleted">0</h2></div>
-                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-amber-400 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Inscritos</p><h2 class="text-2xl font-bold text-amber-600" id="kpiEnrolled">0</h2></div>
+                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-amber-400 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Em Andamento (Inscritos)</p><h2 class="text-2xl font-bold text-amber-600" id="kpiEnrolled">0</h2></div>
                 <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-purple-500 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Taxa De Conclusão</p><h2 class="text-2xl font-bold text-purple-600" id="kpiRate">0%</h2></div>
             </div>
 
@@ -381,11 +381,35 @@
             updateActiveFiltersDisplay();
         }
 
-        function renderKPIs(d) { const t = d.length; const c = d.filter(i => i[cols.status]==='Completed').length; document.getElementById('kpiTotal').textContent = t; document.getElementById('kpiCompleted').textContent = c; document.getElementById('kpiEnrolled').textContent = t-c; document.getElementById('kpiRate').textContent = t>0 ? ((c/t)*100).toFixed(1)+'%' : '0%'; }
+        function renderKPIs(d) { 
+            // Lógica de Pessoas Únicas para os Cards
+            const userCourseMap = {};
+            
+            d.forEach(i => {
+                const key = `${i[cols.email]}_${i[cols.course]}`;
+                if (!userCourseMap[key]) {
+                    userCourseMap[key] = { enrolled: true, completed: false };
+                }
+                if (i[cols.status] === 'Completed') {
+                    userCourseMap[key].completed = true;
+                }
+            });
+
+            const uniqueRecords = Object.values(userCourseMap);
+            const totalInscritos = uniqueRecords.length; // Total de pessoas únicas que se inscreveram
+            const totalConcluidos = uniqueRecords.filter(r => r.completed).length; // Pessoas que terminaram
+            const totalEmAndamento = totalInscritos - totalConcluidos; // Inscritos que NÃO terminaram ainda
+            const taxaConclusao = totalInscritos > 0 ? ((totalConcluidos / totalInscritos) * 100).toFixed(1) : "0";
+
+            document.getElementById('kpiTotal').textContent = totalInscritos; 
+            document.getElementById('kpiCompleted').textContent = totalConcluidos; 
+            document.getElementById('kpiEnrolled').textContent = totalEmAndamento; 
+            document.getElementById('kpiRate').textContent = taxaConclusao + '%'; 
+        }
+
         function renderEventSummary(d) { const counts = {}; d.forEach(i => { const n = i[cols.event]||'N/A'; counts[n] = (counts[n]||0)+1; }); document.getElementById('eventSummaryBody').innerHTML = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<tr><td class='text-xs py-2 border-b dark:border-slate-700'>${n}</td><td class='text-xs py-2 text-right border-b dark:border-slate-700 font-bold'>${c}</td></tr>`).join(''); }
         
         function renderTable(d) { 
-            // Lógica para remover inscritos duplicados (que já concluíram)
             const completedKeys = new Set();
             d.forEach(i => {
                 if(i[cols.status] === 'Completed') {
