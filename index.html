@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard De Treinamento</title>
+    <title>Dashboard de Treinamentos</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -43,47 +43,81 @@
         .dark .btn-export-mini { background: #334155; color: #cbd5e1; }
         .btn-export-mini:hover { background: #cbd5e1; }
         .dark .btn-export-mini:hover { background: #475569; }
-        .chart-selector { font-size: 10px; background: transparent; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px 4px; cursor: pointer; }
-        .dark .chart-selector { border-color: #475569; color: #cbd5e1; }
         .search-filter-input { position: sticky; top: 0; background: white; padding: 8px; z-index: 10; border-bottom: 1px solid #e2e8f0; }
         .dark .search-filter-input { background: #1e293b; border-bottom-color: #475569; }
+        
+        /* Tooltips para KPIs */
+        .kpi-card { transition: transform 0.2s; position: relative; cursor: help; }
+        .kpi-card:hover { transform: translateY(-2px); }
+        .tooltip-text { 
+            visibility: hidden; width: 200px; background-color: #334155; color: #fff; text-align: center; 
+            border-radius: 6px; padding: 8px; position: absolute; z-index: 50; bottom: 110%; left: 50%; 
+            margin-left: -100px; opacity: 0; transition: opacity 0.3s; font-size: 11px; font-weight: 400; line-height: 1.4;
+        }
+        .kpi-card:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+        /* CSS para o Modal de Senha */
+        #authOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); width: 100%; max-width: 400px; text-align: center; }
+        .auth-title { color: #1e293b; font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .auth-subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 2rem; }
+        .auth-input-container { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 0.75rem; margin-bottom: 1.5rem; transition: border-color 0.2s; }
+        .auth-input-container:focus-within { border-color: #6366f1; }
+        #passInput { background: transparent; border: none; outline: none; width: 100%; padding: 1rem; text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; color: #1e293b; }
+        .auth-button { background: #5356ff; color: white; width: 100%; padding: 1rem; border-radius: 0.75rem; font-weight: 600; transition: background 0.2s; cursor: pointer; border: none; }
+        .auth-button:hover { background: #4346e5; }
+        .error-msg { color: #ef4444; font-size: 0.75rem; margin-top: 0.5rem; display: none; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 dark:bg-darkBg dark:text-slate-100 p-4 md:p-8">
 
+    <div id="authOverlay">
+        <div class="auth-card">
+            <h2 class="auth-title">Portfolio Access</h2>
+            <p class="auth-subtitle">Verify credentials to view global L&D data</p>
+            
+            <div class="auth-input-container">
+                <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') checkAuth()">
+            </div>
+            
+            <button onclick="checkAuth()" class="auth-button">Unlock Dashboard</button>
+            <p id="authError" class="error-msg">Senha incorreta. Tente novamente.</p>
+        </div>
+    </div>
+
     <header class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
             <h1 class="text-2xl font-bold text-primary dark:text-blue-400">📊 Dashboard de Treinamentos</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm">Gestão de Treinamentos e Cursos</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">Análise de Engajamento e Eficiência de Treinamentos</p>
             <p id="lastUpdateInfo" class="text-[10px] text-slate-400 font-bold uppercase mt-1"></p>
         </div>
         <div class="flex items-center gap-3">
-            <button onclick="exportFilteredData()" class="bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 transition shadow-md font-medium text-sm flex items-center gap-2">
-                <span>Exportar Excel 📥</span>
+            <button onclick="exportFilteredData()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow-md font-medium text-sm flex items-center gap-2">
+                <span>📥 Excel</span>
             </button>
-            <button onclick="exportDashboardToPDF()" class="bg-red-600 text-white px-4 py-2.5 rounded-lg hover:bg-red-700 transition shadow-md font-medium text-sm flex items-center gap-2">
-                <span>📄 Exportar PDF</span>
+            <button onclick="exportDashboardToPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow-md font-medium text-sm flex items-center gap-2">
+                <span>📄 PDF</span>
             </button>
-            <button onclick="toggleTheme()" class="bg-slate-200 dark:bg-slate-700 p-2.5 rounded-lg">🌓</button>
+            <button onclick="toggleTheme()" class="bg-slate-200 dark:bg-slate-700 p-2 rounded-lg">🌓</button>
         </div>
     </header>
 
     <main id="dashboardContent" class="max-w-7xl mx-auto hidden">
         <div id="pdfArea">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                <div class="lg:col-span-2 bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+                <div class="lg:col-span-3 bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-sm font-bold uppercase tracking-wider">🔍 Filtros Inteligentes</h3>
-                        <button onclick="resetAllFilters()" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase">Limpar Filtros</button>
+                        <button onclick="resetAllFilters()" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase hover:bg-red-200">Limpar Filtros</button>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="relative"><label class="label-filter">Método de Treinamento</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
                         <div class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
                         <div class="relative"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropEvent" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Cluster / Região</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
                         <div class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Função no Projeto</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
-                        <div id="statusFilterContainer" class="hidden"><label class="label-filter">Status</label><select id="filterStatus" onchange="updateDashboard()"><option value="all">Todos</option><option value="Completed">Concluído ✅</option><option value="Enrolled">Inscrito 📝</option></select></div>
+                        <div class="relative"><label class="label-filter">Função</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
                     </div>
                 </div>
 
@@ -93,72 +127,102 @@
                 </div>
             </div>
 
-            <div id="activeFiltersContainer" class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm mb-8 border-l-4 border-primary">
-                <h3 class="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Filtros Aplicados Atualmente:</h3>
-                <div id="activeFiltersList" class="flex flex-wrap gap-2">
-                    <span class="text-[10px] text-slate-500 dark:text-slate-400 italic">Nenhum filtro aplicado (visualizando toda a base)</span>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
+                    <span class="tooltip-text">Quantidade de pessoas nos cursos/treinamentos, independente de quantos cursos/treinamentos fizeram.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Pessoas Únicas</p>
+                    <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
                 </div>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-blue-600 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Total Inscritos</p><h2 class="text-2xl font-bold" id="kpiTotal">0</h2></div>
-                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-green-500 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Concluídos</p><h2 class="text-2xl font-bold text-green-600" id="kpiCompleted">0</h2></div>
-                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-amber-400 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Em Andamento (Inscritos)</p><h2 class="text-2xl font-bold text-amber-600" id="kpiEnrolled">0</h2></div>
-                <div class="bg-white dark:bg-darkCard p-5 rounded-xl border-b-4 border-purple-500 shadow-sm text-center"><p class="text-xs font-bold text-slate-400 uppercase">Taxa De Conclusão</p><h2 class="text-2xl font-bold text-purple-600" id="kpiRate">0%</h2></div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
+                    <span class="tooltip-text">Volume total de inscritos. Se uma pessoa está em 3 cursos, ela gera 3 participações.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Total Inscrições</p>
+                    <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTotal">0</h2>
+                </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm text-center">
+                    <span class="tooltip-text">Total de treinamentos finalizados com sucesso pelo público-alvo.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
+                    <h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0</h2>
+                </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm text-center">
+                    <span class="tooltip-text">Matrículas que foram iniciadas ou registradas, mas ainda não chegaram à conclusão.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Drop-out / Pendente</p>
+                    <h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0</h2>
+                </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
+                    <span class="tooltip-text">Percentual de conversão que mostra o quanto das inscrições totais resultaram em conclusões.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Taxa de Eficiência</p>
+                    <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardRoles">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardMethodEff">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase">🏢 Adesão por Função</h3>
-                        <div class="flex gap-1 items-center">
-                            <select class="chart-selector" onchange="changeChartType('chartRoles', this.value)"><option value="bar-h">Barra Horiz.</option><option value="bar-v">Barra Vert.</option><option value="pie">Pizza</option></select>
-                            <button onclick="exportSingleChart('cardRoles', 'adesao-funcao')" class="btn-export-mini">PNG</button>
-                        </div>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">⚙️ Eficiência por Método (Funil)</h3>
+                        <button onclick="exportSingleChart('cardMethodEff', 'eficiencia-metodo')" class="btn-export-mini">PNG</button>
                     </div>
-                    <div class="h-80"><canvas id="chartRoles"></canvas></div>
+                    <div class="h-64"><canvas id="chartMethodEff"></canvas></div>
                 </div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm overflow-hidden flex flex-col">
-                    <h3 class="font-bold text-sm uppercase mb-4">📅 Eventos de Treinamento</h3>
-                    <div class="overflow-y-auto flex-grow" style="max-height: 320px;"><table class="min-w-full"><thead class="sticky top-0 bg-white dark:bg-darkCard"><tr><th class="text-[10px] py-2">Evento</th><th class="text-[10px] py-2 text-right">Participantes</th></tr></thead><tbody id="eventSummaryBody"></tbody></table></div>
+                
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardCluster">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📍 Adesão por Cluster (Região)</h3>
+                        <button onclick="exportSingleChart('cardCluster', 'adesao-cluster')" class="btn-export-mini">PNG</button>
+                    </div>
+                    <div class="h-64"><canvas id="chartCluster"></canvas></div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-96 relative" id="cardCourses">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardCourses">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase">🏆 Top 5 Treinamentos</h3>
-                        <div class="flex gap-1 items-center">
-                            <select class="chart-selector" onchange="changeChartType('chartCourses', this.value)">
-                                <option value="bar-h">Barra Horiz.</option>
-                                <option value="bar-v">Barra Vert.</option>
-                                <option value="pie">Pizza</option>
-                            </select>
-                            <button onclick="exportSingleChart('cardCourses', 'top-treinamentos')" class="btn-export-mini">PNG</button>
-                        </div>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🏆 Top 5 Cursos (Mais Conclusões)</h3>
+                        <button onclick="exportSingleChart('cardCourses', 'top-cursos')" class="btn-export-mini">PNG</button>
                     </div>
-                    <div class="h-80"><canvas id="chartCourses"></canvas></div>
+                    <div class="h-72"><canvas id="chartCourses"></canvas></div>
                 </div>
 
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-96 relative" id="cardFacilitators">
-                    <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-sm uppercase">👤 Top 5 Facilitadores</h3><div class="flex gap-1 items-center"><select class="chart-selector" onchange="changeChartType('chartFacilitators', this.value)"><option value="bar-v">Barra Vert.</option><option value="doughnut">Rosca</option><option value="pie">Pizza</option></select><button onclick="exportSingleChart('cardFacilitators', 'top-facilitadores')" class="btn-export-mini">PNG</button></div></div>
-                    <div class="h-80"><canvas id="chartFacilitators"></canvas></div>
-                </div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-96 relative" id="cardMethods">
-                    <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-sm uppercase">⚙️ Métodos</h3><div class="flex gap-1 items-center"><select class="chart-selector" onchange="changeChartType('chartMethods', this.value)"><option value="pie">Pizza</option><option value="doughnut">Rosca</option><option value="bar-v">Barra Vert.</option></select><button onclick="exportSingleChart('cardMethods', 'metodos-treinamento')" class="btn-export-mini">PNG</button></div></div>
-                    <div class="h-80"><canvas id="chartMethods"></canvas></div>
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardFacilitators">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👤 Performance de Facilitadores</h3>
+                        <button onclick="exportSingleChart('cardFacilitators', 'performance-facilitadores')" class="btn-export-mini">PNG</button>
+                    </div>
+                    <div class="h-72"><canvas id="chartFacilitators"></canvas></div>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm mb-8 relative" id="cardTimeline">
-                <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-sm uppercase">📈 Evolução Mensal (Conclusões)</h3><button onclick="exportSingleChart('cardTimeline', 'evolucao-mensal')" class="btn-export-mini">PNG</button></div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📈 Evolução de Conclusões no Tempo</h3>
+                    <button onclick="exportSingleChart('cardTimeline', 'evolucao-mensal')" class="btn-export-mini">PNG</button>
+                </div>
                 <div class="h-64"><canvas id="chartTimeline"></canvas></div>
             </div>
         </div>
 
         <section class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4"><h3 class="font-bold text-sm uppercase">📋 Detalhamento dos Dados</h3><input type="text" id="tableSearch" placeholder="🔍 Pesquisar na tabela..." onkeyup="filterTable()" class="md:w-64 text-xs"></div>
-            <div class="overflow-x-auto"><table><thead><tr><th>FCP</th><th>Nome</th><th>Email</th><th>Curso</th><th>Evento</th><th>Status</th><th>Função</th><th>Facilitador</th><th>Método</th></tr></thead><tbody id="tableBody"></tbody></table></div>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📋 Detalhamento dos Dados</h3>
+                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar Nome, Curso, Cluster..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+            </div>
+            <div class="overflow-x-auto">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>FCP</th>
+                            <th>Nome</th>
+                            <th>Cluster</th>
+                            <th>Curso</th>
+                            <th>Evento</th>
+                            <th>Status</th>
+                            <th>Função</th>
+                            <th>Facilitador</th>
+                            <th>Método</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
             <p id="tableCounter" class="text-[10px] text-slate-400 mt-4 font-bold uppercase"></p>
         </section>
     </main>
@@ -166,23 +230,39 @@
     <div id="noData" class="max-w-md mx-auto mt-32 text-center">
         <div class="text-6xl mb-6">📊</div>
         <h2 class="text-xl font-bold">Carregando base de dados...</h2>
-        <p class="text-slate-500 mt-2">Buscando o arquivo dados.xlsx ou dados.csv no diretório.</p>
+        <p class="text-slate-500 mt-2">Buscando o arquivo dados.xlsx ou dados.csv.</p>
     </div>
 
     <script>
         const SENHA_MESTRA = "1234"; 
-        (function() {
-            if (sessionStorage.getItem("dashboard_auth") !== "true") {
-                const p = prompt("Acesso Restrito. Digite a senha:");
-                if (p === SENHA_MESTRA) { sessionStorage.setItem("dashboard_auth", "true"); } 
-                else { alert("Senha incorreta!"); document.body.innerHTML = "<h1>Acesso Negado</h1>"; window.location.reload(); }
+
+        function checkAuth() {
+            const input = document.getElementById('passInput').value;
+            const error = document.getElementById('authError');
+            if (input === SENHA_MESTRA) {
+                sessionStorage.setItem("dashboard_auth", "true");
+                document.getElementById('authOverlay').style.display = 'none';
+            } else {
+                error.style.display = 'block';
+                document.getElementById('passInput').value = '';
             }
-        })();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem("dashboard_auth") === "true") {
+                document.getElementById('authOverlay').style.display = 'none';
+            }
+        });
 
         Chart.register(ChartDataLabels);
-        let rawData = [], currentFilteredData = [], charts = {}, selectedFilters = { methods: [], courses: [], events: [], facilitators: [], roles: [] };
-        let chartConfigs = { chartRoles: 'bar-h', chartCourses: 'bar-h', chartFacilitators: 'bar-v', chartMethods: 'pie' };
-        let cols = { fcp: 'FCP_COMBINED', name: 'Name', email: 'Email', course: 'Course Name', event: 'EVENT_NAME', status: 'STATUS', role: 'Role at FCP', facilitator: 'Partnership Facilitator', method: 'Training Method', date: 'ACTIVITY_DATE_TIME' };
+        let rawData = [], currentFilteredData = [], charts = {};
+        let selectedFilters = { methods: [], courses: [], events: [], facilitators: [], roles: [], clusters: [] };
+        let cols = { 
+            fcp: 'FCP_COMBINED', name: 'Name', email: 'Email', course: 'Course Name', 
+            event: 'EVENT_NAME', status: 'ACTIVITY_CODE', role: 'Role at FCP', 
+            facilitator: 'Partnership Facilitator', method: 'Training Method', 
+            date: 'ACTIVITY_DATE_TIME', cluster: 'FCP_CLUSTER' 
+        };
 
         window.onload = carregarBaseAutomatica;
 
@@ -195,33 +275,36 @@
                 const lastMod = response.headers.get('Last-Modified');
                 if (lastMod) {
                     const date = new Date(lastMod);
-                    document.getElementById('lastUpdateInfo').textContent = `Última atualização da base: ${date.toLocaleString('pt-BR')}`;
+                    document.getElementById('lastUpdateInfo').textContent = `Atualizado em: ${date.toLocaleString('pt-BR')}`;
                 }
 
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array', cellDates: true });
                 rawData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
+                
                 if(rawData.length > 0) {
-                    cols.status = ('ACTIVITY_CODE' in rawData[0]) ? 'ACTIVITY_CODE' : 'STATUS';
+                    if(!('ACTIVITY_CODE' in rawData[0]) && ('STATUS' in rawData[0])) cols.status = 'STATUS';
                     initDashboard();
                 }
             } catch (e) {
-                document.getElementById('noData').innerHTML = "<h2 class='text-red-500 font-bold'>Erro: Arquivo 'dados.xlsx' ou 'dados.csv' não encontrado.</h2>";
+                document.getElementById('noData').innerHTML = "<h2 class='text-red-500 font-bold'>Erro: Base 'dados.xlsx' ou 'dados.csv' não encontrada.</h2>";
             }
         }
 
         function toggleTheme() { document.documentElement.classList.toggle('dark'); updateDashboard(); }
         window.onclick = function(e) { if (!e.target.closest('.relative')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); }
         function toggleDropdown(id) { document.querySelectorAll('.dropdown-content').forEach(d => { if (d.id !== id) d.classList.remove('show'); }); document.getElementById(id).classList.toggle('show'); }
-        async function exportDashboardToPDF() { const { jsPDF } = window.jspdf; const pdf = new jsPDF('p', 'mm', 'a4'); const element = document.getElementById('pdfArea'); const canvas = await html2canvas(element, { scale: 2, backgroundColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#f1f5f9' }); pdf.addImage(canvas.toDataURL('image/jpeg', 0.7), 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width); pdf.save('Dashboard_OpEx.pdf'); }
-        function changeChartType(id, type) { chartConfigs[id] = type; updateDashboard(); }
+        async function exportDashboardToPDF() { const { jsPDF } = window.jspdf; const pdf = new jsPDF('p', 'mm', 'a4'); const element = document.getElementById('pdfArea'); const canvas = await html2canvas(element, { scale: 2, backgroundColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#f1f5f9' }); pdf.addImage(canvas.toDataURL('image/jpeg', 0.8), 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width); pdf.save('Relatorio_OpEx.pdf'); }
         async function exportSingleChart(id, name) { const canvas = await html2canvas(document.getElementById(id), { scale: 3 }); const link = document.createElement('a'); link.download = `${name}.png`; link.href = canvas.toDataURL(); link.click(); }
         
         function initDashboard() { 
             document.getElementById('noData').classList.add('hidden'); 
             document.getElementById('dashboardContent').classList.remove('hidden'); 
+            
             renderDropdown('dropMethod', 'methods', [...new Set(rawData.map(i => i[cols.method]))].sort()); 
             renderDropdown('dropRole', 'roles', [...new Set(rawData.map(i => i[cols.role]))].sort()); 
+            renderDropdown('dropCluster', 'clusters', [...new Set(rawData.map(i => i[cols.cluster]))].sort()); 
+            
             updateCascade(); 
             updateDashboard();
         }
@@ -232,13 +315,13 @@
             
             const searchDiv = document.createElement('div');
             searchDiv.className = 'search-filter-input';
-            searchDiv.innerHTML = `<input type="text" placeholder="🔍 Pesquisar..." class="text-xs" onkeyup="filterDropdownOptions('${elementId}', this.value)" onclick="event.stopPropagation()">`;
+            searchDiv.innerHTML = `<input type="text" placeholder="Pesquisar..." class="text-xs" onkeyup="filterDropdownOptions('${elementId}', this.value)" onclick="event.stopPropagation()">`;
             container.appendChild(searchDiv);
 
             const optionsContainer = document.createElement('div');
             optionsContainer.className = 'p-2 space-y-1';
 
-            const validOptions = options.filter(o => o);
+            const validOptions = options.filter(o => o && String(o).trim() !== "");
 
             if (validOptions.length > 0) {
                 const selectAllDiv = document.createElement('div');
@@ -249,16 +332,11 @@
                 selectAllDiv.onclick = (e) => { 
                     const cb = selectAllDiv.querySelector('input');
                     if(e.target !== cb) { cb.checked = !cb.checked; }
-                    
                     const isChecked = cb.checked;
                     selectedFilters[filterKey] = isChecked ? [...validOptions] : [];
-                    
-                    container.querySelectorAll('.filter-checkbox').forEach(input => {
-                        input.checked = isChecked;
-                    });
-                    
+                    container.querySelectorAll('.filter-checkbox').forEach(input => input.checked = isChecked);
                     updateButtonLabel(filterKey);
-                    if (filterKey === 'methods' || filterKey === 'courses') updateCascade();
+                    if (['methods', 'courses'].includes(filterKey)) updateCascade();
                     updateDashboard();
                 };
                 optionsContainer.appendChild(selectAllDiv);
@@ -268,7 +346,7 @@
                 const div = document.createElement('div');
                 div.className = 'dropdown-item flex items-center gap-2 p-2 rounded cursor-pointer text-sm';
                 const isChecked = selectedFilters[filterKey].includes(opt);
-                div.innerHTML = `<input type="checkbox" class="filter-checkbox" ${isChecked ? 'checked' : ''} onchange="handleFilterChange('${filterKey}', '${opt}')"> <span>${opt}</span>`;
+                div.innerHTML = `<input type="checkbox" class="filter-checkbox" ${isChecked ? 'checked' : ''} onchange="handleFilterChange('${filterKey}', '${opt.replace(/'/g, "\\'")}')"> <span>${opt}</span>`;
                 div.onclick = (e) => { if(e.target.tagName !== 'INPUT') { const cb = div.querySelector('input'); cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }};
                 optionsContainer.appendChild(div);
             });
@@ -290,12 +368,11 @@
             if (index > -1) selectedFilters[key].splice(index, 1);
             else selectedFilters[key].push(value);
             
-            const dropId = { methods: 'dropMethod', courses: 'dropCourse', events: 'dropEvent', facilitators: 'dropFac', roles: 'dropRole' }[key];
+            const dropId = { methods: 'dropMethod', courses: 'dropCourse', events: 'dropEvent', facilitators: 'dropFac', roles: 'dropRole', clusters: 'dropCluster' }[key];
             const selectAllCb = document.getElementById(`selectAll_${key}`);
             if(selectAllCb) {
                 const visibleCheckboxes = document.querySelectorAll(`#${dropId} .filter-checkbox`);
-                const allChecked = Array.from(visibleCheckboxes).every(c => c.checked);
-                selectAllCb.checked = allChecked;
+                selectAllCb.checked = Array.from(visibleCheckboxes).every(c => c.checked);
             }
 
             updateButtonLabel(key);
@@ -304,96 +381,54 @@
         }
 
         function updateButtonLabel(key) {
-            const btnIdMap = { methods: 'btnMethod', courses: 'btnCourse', events: 'btnEvent', facilitators: 'btnFac', roles: 'btnRole' };
+            const btnIdMap = { methods: 'btnMethod', courses: 'btnCourse', events: 'btnEvent', facilitators: 'btnFac', roles: 'btnRole', clusters: 'btnCluster' };
             const count = selectedFilters[key].length;
             document.getElementById(btnIdMap[key]).querySelector('span').textContent = count === 0 ? 'Selecionar...' : `${count} selecionado(s)`;
         }
 
         function updateCascade() { 
             let filteredByMethod = selectedFilters.methods.length > 0 ? rawData.filter(i => selectedFilters.methods.includes(i[cols.method])) : rawData; 
-
             renderDropdown('dropCourse', 'courses', [...new Set(filteredByMethod.map(i => i[cols.course]))].sort()); 
 
             let filteredByCourse = selectedFilters.courses.length > 0 ? filteredByMethod.filter(i => selectedFilters.courses.includes(i[cols.course])) : filteredByMethod;
-
             renderDropdown('dropEvent', 'events', [...new Set(filteredByCourse.map(i => i[cols.event]))].sort()); 
             renderDropdown('dropFac', 'facilitators', [...new Set(filteredByCourse.map(i => i[cols.facilitator]))].sort()); 
-
-            const statusContainer = document.getElementById('statusFilterContainer');
-            if (selectedFilters.methods.some(m => m.trim() === "Computer Based Training")) {
-                statusContainer.classList.remove('hidden');
-            } else {
-                statusContainer.classList.add('hidden');
-                document.getElementById('filterStatus').value = 'all'; 
-            }
-        }
-
-        function updateActiveFiltersDisplay() {
-            const list = document.getElementById('activeFiltersList');
-            if (!list) return;
-            list.innerHTML = '';
-            
-            let hasFilters = false;
-            const filterNames = { methods: 'Método', courses: 'Curso', events: 'Evento', facilitators: 'Facilitador', roles: 'Função' };
-
-            for (const key in selectedFilters) {
-                if (selectedFilters[key].length > 0) {
-                    hasFilters = true;
-                    const badge = document.createElement('span');
-                    badge.className = 'bg-primary/10 text-primary dark:bg-blue-900/50 dark:text-blue-300 text-[10px] font-bold px-2 py-1 rounded border border-primary/20 dark:border-blue-800';
-                    badge.textContent = `${filterNames[key]}: ${selectedFilters[key].length > 3 ? selectedFilters[key].length + ' selecionados' : selectedFilters[key].join(', ')}`;
-                    list.appendChild(badge);
-                }
-            }
-
-            const statusContainer = document.getElementById('statusFilterContainer');
-            const status = document.getElementById('filterStatus').value;
-            if (!statusContainer.classList.contains('hidden') && status !== 'all') {
-                hasFilters = true;
-                const badge = document.createElement('span');
-                badge.className = 'bg-primary/10 text-primary dark:bg-blue-900/50 dark:text-blue-300 text-[10px] font-bold px-2 py-1 rounded border border-primary/20 dark:border-blue-800';
-                badge.textContent = `Status: ${status === 'Completed' ? 'Concluído' : 'Inscrito'}`;
-                list.appendChild(badge);
-            }
-
-            const dateStart = document.getElementById('dateStart').value;
-            const dateEnd = document.getElementById('dateEnd').value;
-            if (dateStart || dateEnd) {
-                hasFilters = true;
-                const badge = document.createElement('span');
-                badge.className = 'bg-primary/10 text-primary dark:bg-blue-900/50 dark:text-blue-300 text-[10px] font-bold px-2 py-1 rounded border border-primary/20 dark:border-blue-800';
-                let dateText = 'Período: ';
-                const formatD = d => d.split('-').reverse().join('/');
-                if (dateStart && dateEnd) dateText += `${formatD(dateStart)} - ${formatD(dateEnd)}`;
-                else if (dateStart) dateText += `A partir de ${formatD(dateStart)}`;
-                else if (dateEnd) dateText += `Até ${formatD(dateEnd)}`;
-                badge.textContent = dateText;
-                list.appendChild(badge);
-            }
-
-            if (!hasFilters) {
-                list.innerHTML = '<span class="text-[10px] text-slate-500 dark:text-slate-400 italic">Nenhum filtro aplicado (visualizando toda a base)</span>';
-            }
         }
 
         function updateDashboard() {
-            const st = document.getElementById('filterStatus').value; const s = document.getElementById('dateStart').value; const e = document.getElementById('dateEnd').value;
+            const s = document.getElementById('dateStart').value; 
+            const e = document.getElementById('dateEnd').value;
+            
             currentFilteredData = rawData.filter(i => {
-                const d = new Date(i[cols.date]); const dOk = (!s || d >= new Date(s)) && (!e || d <= new Date(e + 'T23:59:59'));
-                return (selectedFilters.methods.length===0 || selectedFilters.methods.includes(i[cols.method])) && (selectedFilters.courses.length===0 || selectedFilters.courses.includes(i[cols.course])) && (selectedFilters.events.length===0 || selectedFilters.events.includes(i[cols.event])) && (selectedFilters.facilitators.length===0 || selectedFilters.facilitators.includes(i[cols.facilitator])) && (selectedFilters.roles.length===0 || selectedFilters.roles.includes(i[cols.role])) && (st==='all' || i[cols.status]===st) && dOk;
+                const d = new Date(i[cols.date]); 
+                const dOk = (!s || d >= new Date(s)) && (!e || d <= new Date(e + 'T23:59:59'));
+                return (selectedFilters.methods.length===0 || selectedFilters.methods.includes(i[cols.method])) && 
+                       (selectedFilters.courses.length===0 || selectedFilters.courses.includes(i[cols.course])) && 
+                       (selectedFilters.events.length===0 || selectedFilters.events.includes(i[cols.event])) && 
+                       (selectedFilters.facilitators.length===0 || selectedFilters.facilitators.includes(i[cols.facilitator])) && 
+                       (selectedFilters.roles.length===0 || selectedFilters.roles.includes(i[cols.role])) && 
+                       (selectedFilters.clusters.length===0 || selectedFilters.clusters.includes(i[cols.cluster])) && 
+                       dOk;
             });
-            renderKPIs(currentFilteredData); renderCharts(currentFilteredData); renderTable(currentFilteredData); renderEventSummary(currentFilteredData);
-            updateActiveFiltersDisplay();
+            
+            renderKPIs(currentFilteredData); 
+            renderCharts(currentFilteredData); 
+            renderTable(currentFilteredData); 
         }
 
         function renderKPIs(d) { 
             const userCourseMap = {};
+            const uniqueEmails = new Set();
+
             d.forEach(i => {
-                const key = `${i[cols.email]}_${i[cols.course]}`;
+                const email = i[cols.email];
+                if (email) uniqueEmails.add(email);
+                
+                const key = `${email}_${i[cols.course]}`;
                 if (!userCourseMap[key]) {
                     userCourseMap[key] = { enrolled: true, completed: false };
                 }
-                if (i[cols.status] === 'Completed') {
+                if (i[cols.status] === 'Completed' || i[cols.status] === 'Attended') {
                     userCourseMap[key].completed = true;
                 }
             });
@@ -404,157 +439,178 @@
             const totalEmAndamento = totalInscritos - totalConcluidos; 
             const taxaConclusao = totalInscritos > 0 ? ((totalConcluidos / totalInscritos) * 100).toFixed(1) : "0";
 
+            document.getElementById('kpiUnique').textContent = uniqueEmails.size; 
             document.getElementById('kpiTotal').textContent = totalInscritos; 
             document.getElementById('kpiCompleted').textContent = totalConcluidos; 
-            document.getElementById('kpiEnrolled').textContent = totalEmAndamento; 
+            document.getElementById('kpiDropout').textContent = totalEmAndamento; 
             document.getElementById('kpiRate').textContent = taxaConclusao + '%'; 
         }
 
-        function renderEventSummary(d) { const counts = {}; d.forEach(i => { const n = i[cols.event]||'N/A'; counts[n] = (counts[n]||0)+1; }); document.getElementById('eventSummaryBody').innerHTML = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`<tr><td class='text-xs py-2 border-b dark:border-slate-700'>${n}</td><td class='text-xs py-2 text-right border-b dark:border-slate-700 font-bold'>${c}</td></tr>`).join(''); }
-        
         function renderTable(d) { 
             const completedKeys = new Set();
             d.forEach(i => {
-                if(i[cols.status] === 'Completed') {
+                if(i[cols.status] === 'Completed' || i[cols.status] === 'Attended') {
                     completedKeys.add(`${i[cols.email]}_${i[cols.course]}`);
                 }
             });
 
             const finalDisplayData = d.filter(i => {
-                if(i[cols.status] === 'Enrolled') {
-                    return !completedKeys.has(`${i[cols.email]}_${i[cols.course]}`);
-                }
+                if(i[cols.status] === 'Enrolled') return !completedKeys.has(`${i[cols.email]}_${i[cols.course]}`);
                 return true;
             });
 
-            document.getElementById('tableBody').innerHTML = finalDisplayData.map(i => `<tr><td>${i[cols.fcp]||''}</td><td class='font-bold'>${i[cols.name]||''}</td><td>${i[cols.email]||''}</td><td>${i[cols.course]||''}</td><td>${i[cols.event]||''}</td><td><span class='px-2 py-0.5 rounded text-[9px] font-bold ${i[cols.status]==='Completed'?'bg-green-100 text-green-700':'bg-amber-100 text-amber-700'}'>${i[cols.status]}</span></td><td>${i[cols.role]||''}</td><td>${i[cols.facilitator]||''}</td><td>${i[cols.method]||''}</td></tr>`).join(''); 
-            document.getElementById('tableCounter').textContent = `Total: ${finalDisplayData.length}`; 
+            document.getElementById('tableBody').innerHTML = finalDisplayData.map(i => `<tr>
+                <td class="text-xs">${i[cols.fcp]||''}</td>
+                <td class='font-bold text-xs'>${i[cols.name]||''}</td>
+                <td class="text-xs">${i[cols.cluster]||''}</td>
+                <td class="text-xs max-w-[200px] truncate" title="${i[cols.course]}">${i[cols.course]||''}</td>
+                <td class="text-xs max-w-[150px] truncate" title="${i[cols.event]}">${i[cols.event]||''}</td>
+                <td><span class='px-2 py-0.5 rounded text-[9px] font-bold ${['Completed','Attended'].includes(i[cols.status])?'bg-green-100 text-green-700':'bg-amber-100 text-amber-700'}'>${i[cols.status]==='Attended'?'Completed':i[cols.status]}</span></td>
+                <td class="text-xs">${i[cols.role]||''}</td>
+                <td class="text-xs">${i[cols.facilitator]||''}</td>
+                <td class="text-xs">${i[cols.method]||''}</td>
+            </tr>`).join(''); 
+            document.getElementById('tableCounter').textContent = `Total Exibido: ${finalDisplayData.length}`; 
         }
 
         function exportFilteredData() {
-            if (currentFilteredData.length === 0) {
-                alert("Não há dados filtrados para exportar.");
-                return;
-            }
-            const worksheet = XLSX.utils.json_to_sheet(currentFilteredData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Dados_Filtrados");
-            XLSX.writeFile(workbook, "Base_Filtrada_OpEx.xlsx");
+            if (currentFilteredData.length === 0) { alert("Sem dados."); return; }
+            const ws = XLSX.utils.json_to_sheet(currentFilteredData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Dados_Exportados");
+            XLSX.writeFile(wb, "Base_OpEx_Treinamentos.xlsx");
         }
 
-        function resetAllFilters() { selectedFilters = { methods: [], courses: [], events: [], facilitators: [], roles: [] }; initDashboard(); }
-        
-        function getBaseOptions(t, color, isDark) { 
-            const textColor = isDark ? '#94a3b8' : '#64748b';
-            return { 
-                indexAxis: t === 'bar-h' ? 'y' : 'x', 
-                plugins: { 
-                    legend: { display: ['pie','doughnut'].includes(t), labels: { color: textColor, font: { size: 10 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const dataset = context.dataset;
-                                const total = dataset.data.reduce((a, b) => a + b, 0);
-                                const value = context.raw;
-                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
-                                const fullLabel = dataset.fullLabels ? dataset.fullLabels[context.dataIndex] : context.label;
-                                return `${fullLabel}: ${value} (${percentage})`;
-                            }
-                        }
-                    },
-                    datalabels: { 
-                        display: true, color: isDark ? '#fff' : '#444', font: { size: 9, weight: 'bold' }, anchor: 'center', align: 'center',
-                        formatter: (val, ctx) => {
-                            const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                            const perc = sum > 0 ? ((val/sum)*100).toFixed(1) + '%' : '0%';
-                            return val + " (" + perc + ")";
-                        }
-                    } 
-                }, 
-                scales: ['pie','doughnut'].includes(t) ? {} : { x: { ticks: { color: textColor, font: { size: 9 } } }, y: { ticks: { color: textColor, font: { size: 9 } } } } 
-            }; 
-        }
+        function resetAllFilters() { selectedFilters = { methods: [], courses: [], events: [], facilitators: [], roles: [], clusters: [] }; initDashboard(); }
+
+        // Core visual options for charts
+        function getChartTextColor() { return document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569'; }
 
         function renderCharts(d) {
-            const isDark = document.documentElement.classList.contains('dark'), colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
-            const count = (k) => { const c = {}; d.forEach(i => c[i[k]]=(c[i[k]]||0)+1); return c; };
-            
-            const rC = count(cols.role), rL = Object.keys(rC).sort((a,b)=>rC[b]-rC[a]);
-            updateChart('chartRoles', chartConfigs.chartRoles.startsWith('bar')?'bar':chartConfigs.chartRoles, { labels: rL, datasets:[{ data: rL.map(l=>rC[l]), backgroundColor: '#10b981', borderRadius: 4 }] }, getBaseOptions(chartConfigs.chartRoles, '#10b981', isDark));
+            const isDark = document.documentElement.classList.contains('dark');
+            const tColor = getChartTextColor();
 
-            const cCounts = {}; 
-            d.forEach(i => { if(i[cols.status]==='Completed') cCounts[i[cols.course]] = (cCounts[i[cols.course]]||0)+1; });
-            const topC = Object.keys(cCounts).sort((a,b)=>cCounts[b]-cCounts[a]).slice(0,5);
-            updateChart('chartCourses', chartConfigs.chartCourses.startsWith('bar') ? 'bar' : chartConfigs.chartCourses, {
-                labels: topC.map(n => n.length > 12 ? n.substring(0,10)+'..' : n),
-                datasets: [{ 
-                    fullLabels: topC,
-                    data: topC.map(c => cCounts[c]), 
-                    backgroundColor: '#005eb8', 
-                    borderRadius: 5 
-                }]
-            }, getBaseOptions(chartConfigs.chartCourses, '#005eb8', isDark));
+            // Lógica de Agrupamento Único para Gráficos
+            const mapUser = (data) => {
+                const map = {};
+                data.forEach(i => {
+                    const key = `${i[cols.email]}_${i[cols.course]}_${i[cols.method]}_${i[cols.cluster]}_${i[cols.facilitator]}`;
+                    if(!map[key]) map[key] = { ...i, isCompleted: false };
+                    if(['Completed', 'Attended'].includes(i[cols.status])) map[key].isCompleted = true;
+                });
+                return Object.values(map);
+            };
+            const uniqueData = mapUser(d);
+            const totalConclusoesGlobal = uniqueData.filter(i => i.isCompleted).length;
 
-            const isCBT = selectedFilters.methods.includes("Computer Based Training");
-            const facCounts = {};
-            d.forEach(i => {
-                const matchMethod = isCBT ? i[cols.method] === "Computer Based Training" : true;
-                if (i[cols.status] === 'Completed' && matchMethod) {
-                    facCounts[i[cols.facilitator]] = (facCounts[i[cols.facilitator]] || 0) + 1;
-                }
+            // 1. Eficiência por Método (Stacked Bar)
+            const methodStats = {};
+            uniqueData.forEach(i => {
+                const m = i[cols.method] || 'N/A';
+                if(!methodStats[m]) methodStats[m] = { total: 0, comp: 0 };
+                methodStats[m].total++;
+                if(i.isCompleted) methodStats[m].comp++;
             });
+            const mLabels = Object.keys(methodStats);
+            updateChart('chartMethodEff', 'bar', {
+                labels: mLabels,
+                datasets: [
+                    { label: 'Concluídos', data: mLabels.map(l => methodStats[l].comp), backgroundColor: '#10b981', borderRadius: 4 },
+                    { label: 'Em Andamento/Drop-out', data: mLabels.map(l => methodStats[l].total - methodStats[l].comp), backgroundColor: '#f59e0b', borderRadius: 4 }
+                ]
+            }, { indexAxis: 'y', scales: { x: { stacked: true, ticks: {color: tColor} }, y: { stacked: true, ticks: {color: tColor, font: {size:10}} } }, plugins: { datalabels: { display: false } } });
 
-            const fL = Object.keys(facCounts).sort((a, b) => facCounts[b] - facCounts[a]).slice(0, 5);
-            const fData = fL.map(l => facCounts[l]);
-            const facChartType = chartConfigs.chartFacilitators.startsWith('bar') ? 'bar' : chartConfigs.chartFacilitators; 
+            // 2. Adesão por Cluster
+            const clusterStats = {};
+            uniqueData.forEach(i => {
+                const c = i[cols.cluster] || 'Sem Região';
+                clusterStats[c] = (clusterStats[c]||0) + 1;
+            });
+            const cLabels = Object.keys(clusterStats).sort((a,b)=>clusterStats[b]-clusterStats[a]).slice(0, 8);
+            updateChart('chartCluster', 'bar', {
+                labels: cLabels.map(l => l.length > 15 ? l.substring(0,15)+'...' : l),
+                datasets: [{ data: cLabels.map(l => clusterStats[l]), backgroundColor: '#3b82f6', borderRadius: 4 }]
+            }, { plugins: { legend: { display: false }, datalabels: { color: isDark?'#fff':'#333', anchor: 'end', align: 'top', font:{weight:'bold'} } }, scales: { x: { ticks:{color: tColor, font:{size:10}} }, y: { ticks:{color: tColor} } } });
 
-            updateChart('chartFacilitators', facChartType, { 
-                labels: fL, 
+            // 3. Top Cursos (Ajustado com Tooltips Complexos)
+            const courseStats = {};
+            uniqueData.filter(i=>i.isCompleted).forEach(i => { courseStats[i[cols.course]] = (courseStats[i[cols.course]]||0) + 1; });
+            const topC = Object.keys(courseStats).sort((a,b)=>courseStats[b]-courseStats[a]).slice(0,5);
+            updateChart('chartCourses', 'bar', {
+                labels: topC.map(n => n.length > 20 ? n.substring(0,20)+'...' : n),
                 datasets: [{ 
-                    label: 'Concluídos',
-                    data: fData, 
-                    backgroundColor: colors, 
-                    borderWidth: 0,
-                    borderRadius: 5
-                }] 
-            }, {
-                ...getBaseOptions(facChartType, colors[0], isDark),
-                indexAxis: facChartType === 'bar' ? 'x' : 'y', 
-                plugins: {
-                    ...getBaseOptions(facChartType, colors[0], isDark).plugins,
+                    data: topC.map(c => courseStats[c]), 
+                    backgroundColor: '#8b5cf6', 
+                    borderRadius: 4,
+                    fullNames: topC // Passando nomes originais para o tooltip
+                }]
+            }, { 
+                indexAxis: 'y', 
+                plugins: { 
+                    legend: { display: false }, 
+                    datalabels: { 
+                        color: isDark?'#fff':'#333', 
+                        anchor: 'end', 
+                        align: 'right', 
+                        font:{weight:'bold'},
+                        formatter: (val) => val
+                    },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
-                                const value = context.raw;
-                                const total = fData.reduce((a, b) => a + b, 0);
-                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
-                                return `Concluídos: ${value} (${percentage})`;
+                            title: (items) => items[0].dataset.fullNames[items[0].dataIndex],
+                            label: (ctx) => {
+                                const val = ctx.raw;
+                                const perc = totalConclusoesGlobal > 0 ? ((val / totalConclusoesGlobal) * 100).toFixed(1) : 0;
+                                return ` Conclusões: ${val} (${perc}%)`;
                             }
                         }
-                    },
-                    datalabels: {
-                        display: true,
-                        color: isDark ? '#fff' : '#444',
-                        anchor: 'end',
-                        align: 'top',
-                        formatter: (val, ctx) => {
-                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                            const perc = total > 0 ? ((val / total) * 100).toFixed(1) + '%' : '0%';
-                            return val + "\n(" + perc + ")";
-                        }
                     }
-                }
+                }, 
+                scales: { x:{ticks:{color: tColor}}, y:{ticks:{color: tColor, font:{size:10}}} } 
             });
 
-            const mC = count(cols.method), mL = Object.keys(mC);
-            updateChart('chartMethods', chartConfigs.chartMethods.startsWith('bar')?'bar':chartConfigs.chartMethods, { labels: mL, datasets:[{ data: mL.map(l=>mC[l]), backgroundColor: colors, borderWidth: 0 }] }, getBaseOptions(chartConfigs.chartMethods, colors[1], isDark));
+            // 4. Facilitadores (Stacked)
+            const facStats = {};
+            uniqueData.forEach(i => {
+                const f = i[cols.facilitator];
+                if(f) {
+                    if(!facStats[f]) facStats[f] = { total: 0, comp: 0 };
+                    facStats[f].total++;
+                    if(i.isCompleted) facStats[f].comp++;
+                }
+            });
+            const topF = Object.keys(facStats).sort((a,b)=>facStats[b].comp - facStats[a].comp).slice(0, 5);
+            updateChart('chartFacilitators', 'bar', {
+                labels: topF,
+                datasets: [
+                    { label: 'Concluídos', data: topF.map(f => facStats[f].comp), backgroundColor: '#005eb8', borderRadius: 4 },
+                    { label: 'Pendentes', data: topF.map(f => facStats[f].total - facStats[f].comp), backgroundColor: '#cbd5e1', borderRadius: 4 }
+                ]
+            }, { scales: { x: { stacked: true, ticks:{color: tColor, font:{size:10}} }, y: { stacked: true, ticks:{color: tColor} } }, plugins: { datalabels: { display: false } } });
 
-            const time = new Array(12).fill(0); d.filter(i=>i[cols.status]==='Completed').forEach(i=>{ const m = new Date(i[cols.date]).getMonth(); if(!isNaN(m)) time[m]++; });
-            updateChart('chartTimeline', 'line', { labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], datasets: [{ data: time, borderColor: '#3b82f6', tension: 0.3, fill: true, backgroundColor: 'rgba(59,130,246,0.1)' }] }, { plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { x: { ticks: { color: isDark?'#94a3b8':'#64748b' } }, y: { ticks: { color: isDark?'#94a3b8':'#64748b' } } } });
+            // 5. Evolução Mensal (Timeline)
+            const timeData = new Array(12).fill(0); 
+            d.filter(i => ['Completed', 'Attended'].includes(i[cols.status])).forEach(i => { 
+                const m = new Date(i[cols.date]).getMonth(); 
+                if(!isNaN(m)) timeData[m]++; 
+            });
+            updateChart('chartTimeline', 'line', { 
+                labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'], 
+                datasets: [{ data: timeData, borderColor: '#ef4444', tension: 0.3, fill: true, backgroundColor: 'rgba(239, 68, 68, 0.1)', pointBackgroundColor: '#ef4444' }] 
+            }, { plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
         }
 
-        function updateChart(id, type, data, options) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), { type, data, options: { ...options, maintainAspectRatio: false } }); }
-        function filterTable() { const t = document.getElementById('tableSearch').value.toLowerCase(); document.querySelectorAll('#tableBody tr').forEach(tr => tr.style.display = tr.textContent.toLowerCase().includes(t) ? '' : 'none'); }
+        function updateChart(id, type, data, options) { 
+            if (charts[id]) charts[id].destroy(); 
+            charts[id] = new Chart(document.getElementById(id), { type, data, options: { ...options, maintainAspectRatio: false } }); 
+        }
+
+        function filterTable() { 
+            const t = document.getElementById('tableSearch').value.toLowerCase(); 
+            document.querySelectorAll('#tableBody tr').forEach(tr => {
+                tr.style.display = tr.textContent.toLowerCase().includes(t) ? '' : 'none';
+            }); 
+        }
     </script>
 </body>
 </html>
