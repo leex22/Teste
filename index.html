@@ -19,9 +19,35 @@
         th { background-color: #f8fafc; padding: 12px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
         td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 0.8rem; }
         .chart-container { position: relative; height: 300px; width: 100%; }
+        
+        /* Modal de Senha */
+        #authOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); width: 100%; max-width: 400px; text-align: center; }
+        .auth-title { color: #1e293b; font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .auth-subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 2rem; }
+        .auth-input-container { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 0.75rem; margin-bottom: 1.5rem; transition: border-color 0.2s; }
+        .auth-input-container:focus-within { border-color: #3b82f6; }
+        #passInput { background: transparent; border: none; outline: none; width: 100%; padding: 1rem; text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; color: #1e293b; }
+        .auth-button { background: #3b82f6; color: white; width: 100%; padding: 1rem; border-radius: 0.75rem; font-weight: 600; transition: background 0.2s; cursor: pointer; border: none; }
+        .auth-button:hover { background: #2563eb; }
+        .error-msg { color: #ef4444; font-size: 0.75rem; margin-top: 0.5rem; display: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 p-4 md:p-8">
+
+    <div id="authOverlay">
+        <div class="auth-card">
+            <h2 class="auth-title">Dashboard OpEx</h2>
+            <p class="auth-subtitle">Insira a senha para acessar os dados restritos</p>
+            
+            <div class="auth-input-container">
+                <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') checkAuth()">
+            </div>
+            
+            <button onclick="checkAuth()" class="auth-button">Desbloquear</button>
+            <p id="authError" class="error-msg">Senha incorreta. Tente novamente.</p>
+        </div>
+    </div>
 
     <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
         <div>
@@ -35,26 +61,41 @@
     </header>
 
     <main class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
             <div class="relative">
                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Cluster / Região</label>
-                <button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="w-full text-left bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
+                <button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
                 <div id="dropCluster" class="dropdown-content mt-1"></div>
             </div>
             <div class="relative">
                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Função (Role)</label>
-                <button onclick="toggleDropdown('dropRole')" id="btnRole" class="w-full text-left bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-sm flex justify-between"><span>Todas</span> ▾</button>
+                <button onclick="toggleDropdown('dropRole')" id="btnRole" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todas</span> ▾</button>
                 <div id="dropRole" class="dropdown-content mt-1"></div>
             </div>
             <div class="relative">
                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Método</label>
-                <button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="w-full text-left bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
+                <button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
                 <div id="dropMethod" class="dropdown-content mt-1"></div>
             </div>
             <div class="relative">
-                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Curso Específico</label>
-                <button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="w-full text-left bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-sm flex justify-between"><span>Selecionar...</span> ▾</button>
+                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Curso</label>
+                <button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
                 <div id="dropCourse" class="dropdown-content mt-1"></div>
+            </div>
+            <div class="relative">
+                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Facilitador</label>
+                <button onclick="toggleDropdown('dropFacilitator')" id="btnFacilitator" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
+                <div id="dropFacilitator" class="dropdown-content mt-1"></div>
+            </div>
+            <div class="relative flex flex-col md:flex-row gap-2 col-span-1 lg:col-span-1">
+                <div class="w-full">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Início</label>
+                    <input type="date" id="dateStart" onchange="updateDashboard()" class="w-full bg-slate-50 border border-slate-200 p-[7px] rounded-xl text-xs">
+                </div>
+                <div class="w-full">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Fim</label>
+                    <input type="date" id="dateEnd" onchange="updateDashboard()" class="w-full bg-slate-50 border border-slate-200 p-[7px] rounded-xl text-xs">
+                </div>
             </div>
         </div>
 
@@ -72,7 +113,7 @@
             <div class="kpi-card bg-white p-6 rounded-2xl border-amber-500 shadow-sm">
                 <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Gap de Capacitação</p>
                 <h2 class="text-3xl font-bold text-amber-600" id="kpiGap">0</h2>
-                <p class="text-[10px] text-amber-500 mt-1">Pessoas sem nenhum curso</p>
+                <p class="text-[10px] text-amber-500 mt-1">Pessoas sem os cursos selecionados</p>
             </div>
             <div class="kpi-card bg-white p-6 rounded-2xl border-purple-500 shadow-sm">
                 <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total de Conclusões</p>
@@ -108,7 +149,7 @@
                             <th>Cluster</th>
                             <th>Função</th>
                             <th>Status Treinamento</th>
-                            <th>Cursos Concluídos</th>
+                            <th>Cursos Concluídos (no período/filtros)</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -118,35 +159,54 @@
     </main>
 
     <script>
-        // Configuração Global
+        // Sistema de Senha
+        const SENHA_MESTRA = "1234";
+
+        function checkAuth() {
+            const input = document.getElementById('passInput').value;
+            const error = document.getElementById('authError');
+            if (input === SENHA_MESTRA) {
+                sessionStorage.setItem("dashboard_auth", "true");
+                document.getElementById('authOverlay').style.display = 'none';
+                loadAllData(); // Só carrega os dados após a senha correta
+            } else {
+                error.style.display = 'block';
+                document.getElementById('passInput').value = '';
+            }
+        }
+
+        // Verifica a sessão ao carregar a página
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem("dashboard_auth") === "true") {
+                document.getElementById('authOverlay').style.display = 'none';
+                loadAllData();
+            }
+        });
+
+        // Configuração Global de Dados
         let rawStaff = [], rawTrainings = [];
         let filteredStaff = [], currentTrainings = [];
         let charts = {};
-        let selectedFilters = { cluster: [], role: [], method: [], course: [] };
-
-        window.onload = async () => {
-            await loadAllData();
-        };
+        let selectedFilters = { cluster: [], role: [], method: [], course: [], facilitator: [] };
 
         async function loadAllData() {
             try {
-                // Tenta carregar CSV ou Excel (Suporta ambos no GitHub)
                 const staffRes = await fetch('FCP staff.csv');
                 const trainRes = await fetch('dados.csv');
 
-                if (!staffRes.ok || !trainRes.ok) throw new Error("Arquivos não encontrados no repositório.");
+                if (!staffRes.ok || !trainRes.ok) throw new Error("Arquivos CSV não encontrados.");
 
                 const staffText = await staffRes.text();
                 const trainText = await trainRes.text();
 
-                // Parse básico CSV (Pode ser melhorado com biblioteca PapaParse)
                 rawStaff = parseCSV(staffText);
                 rawTrainings = parseCSV(trainText);
 
                 initDashboard();
             } catch (e) {
-                console.error(e);
-                alert("Erro ao carregar bases do GitHub. Verifique se os nomes dos arquivos estão corretos.");
+                console.error("Erro no carregamento:", e);
+                document.getElementById('statusBadge').textContent = 'ERRO DE CONEXÃO';
+                document.getElementById('statusBadge').className = 'text-[10px] bg-red-100 text-red-700 px-3 py-2 rounded-full font-bold self-center';
             }
         }
 
@@ -162,32 +222,73 @@
         }
 
         function initDashboard() {
-            // Popular Filtros Dinâmicos baseados na base FCP Staff
-            renderDropdown('dropCluster', 'cluster', [...new Set(rawStaff.map(s => s.FCP_CLUSTER || s.Cluster))].sort());
-            renderDropdown('dropRole', 'role', [...new Set(rawStaff.map(s => s.Role || s.Função))].sort());
-            renderDropdown('dropMethod', 'method', [...new Set(rawTrainings.map(t => t.method || t.Método))].sort());
-            renderDropdown('dropCourse', 'course', [...new Set(rawTrainings.map(t => t.course || t.Curso))].sort());
+            const clusters = [...new Set(rawStaff.map(s => s.FCP_CLUSTER || s.Cluster).filter(Boolean))].sort();
+            const roles = [...new Set(rawStaff.map(s => s.Role || s.Função).filter(Boolean))].sort();
+            const methods = [...new Set(rawTrainings.map(t => t.method || t.Método).filter(Boolean))].sort();
+            const courses = [...new Set(rawTrainings.map(t => t.course || t.Curso).filter(Boolean))].sort();
+            const facilitators = [...new Set(rawTrainings.map(t => t.facilitator || t.Facilitador || t['Partnership Facilitator']).filter(Boolean))].sort();
+
+            renderDropdown('dropCluster', 'cluster', clusters);
+            renderDropdown('dropRole', 'role', roles);
+            renderDropdown('dropMethod', 'method', methods);
+            renderDropdown('dropCourse', 'course', courses);
+            renderDropdown('dropFacilitator', 'facilitator', facilitators);
 
             updateDashboard();
         }
 
         function updateDashboard() {
-            // 1. Filtrar a Base Staff (O Denominador)
+            // 1. Filtrar Base Staff (Denominador)
             filteredStaff = rawStaff.filter(s => {
-                const matchCluster = selectedFilters.cluster.length === 0 || selectedFilters.cluster.includes(s.FCP_CLUSTER || s.Cluster);
-                const matchRole = selectedFilters.role.length === 0 || selectedFilters.role.includes(s.Role || s.Função);
+                const sCluster = s.FCP_CLUSTER || s.Cluster;
+                const sRole = s.Role || s.Função;
+                const matchCluster = selectedFilters.cluster.length === 0 || selectedFilters.cluster.includes(sCluster);
+                const matchRole = selectedFilters.role.length === 0 || selectedFilters.role.includes(sRole);
                 return matchCluster && matchRole;
             });
 
-            // 2. Filtrar Treinamentos (O Numerador)
+            // Coletar datas dos inputs
+            const sDate = document.getElementById('dateStart').value;
+            const eDate = document.getElementById('dateEnd').value;
+
+            // 2. Filtrar Treinamentos (Numerador)
             const emailsStaffFiltrado = new Set(filteredStaff.map(s => (s.Email || '').toLowerCase()));
+            
             currentTrainings = rawTrainings.filter(t => {
-                const email = (t.Email || '').toLowerCase();
+                if(!t.Email) return false;
+                
+                const email = t.Email.toLowerCase();
+                const tMethod = t.method || t.Método;
+                const tCourse = t.course || t.Curso;
+                const tFacilitator = t.facilitator || t.Facilitador || t['Partnership Facilitator'];
+                const tStatus = t.status || t.Status || t.ACTIVITY_CODE;
+                const tDateStr = t.date || t.Data || t.ACTIVITY_DATE_TIME;
+
                 const matchStaff = emailsStaffFiltrado.has(email);
-                const matchMethod = selectedFilters.method.length === 0 || selectedFilters.method.includes(t.method || t.Método);
-                const matchCourse = selectedFilters.course.length === 0 || selectedFilters.course.includes(t.course || t.Curso);
-                const isCompleted = ['Completed', 'Concluído', 'Attended'].includes(t.status || t.Status);
-                return matchStaff && matchMethod && matchCourse && isCompleted;
+                const matchMethod = selectedFilters.method.length === 0 || selectedFilters.method.includes(tMethod);
+                const matchCourse = selectedFilters.course.length === 0 || selectedFilters.course.includes(tCourse);
+                const matchFacilitator = selectedFilters.facilitator.length === 0 || selectedFilters.facilitator.includes(tFacilitator);
+                const isCompleted = ['Completed', 'Concluído', 'Attended'].includes(tStatus);
+                
+                // Validação de Data (Tenta converter formatos comuns)
+                let matchDate = true;
+                if (sDate || eDate) {
+                    if (tDateStr) {
+                        let dParts = tDateStr.split('/');
+                        let d = dParts.length === 3 
+                            ? new Date(dParts[2].substring(0,4), dParts[1] - 1, dParts[0]) // DD/MM/YYYY
+                            : new Date(tDateStr); // ISO ou MM/DD/YYYY
+                        
+                        if (!isNaN(d.getTime())) {
+                            if (sDate) matchDate = matchDate && (d >= new Date(sDate + 'T00:00:00'));
+                            if (eDate) matchDate = matchDate && (d <= new Date(eDate + 'T23:59:59'));
+                        }
+                    } else {
+                        matchDate = false; // Se a pessoa filtrou por data, mas o registro não tem data
+                    }
+                }
+
+                return matchStaff && matchMethod && matchCourse && matchFacilitator && matchDate && isCompleted;
             });
 
             renderKPIs();
@@ -209,27 +310,27 @@
         }
 
         function renderCharts() {
-            // Gráfico 1: Penetração por Curso (% real da base staff selecionada)
-            const courseStats = {};
             const totalStaff = filteredStaff.length;
+            if(totalStaff === 0) return;
 
-            // Inicializa todos os cursos selecionados ou top cursos
+            // --- Gráfico 1: Cursos ---
+            const courseStats = {};
             rawTrainings.forEach(t => {
                 const c = t.course || t.Curso;
-                if (!courseStats[c]) courseStats[c] = new Set();
+                if (c && !courseStats[c]) courseStats[c] = new Set();
             });
 
             currentTrainings.forEach(t => {
                 const c = t.course || t.Curso;
-                courseStats[c].add(t.Email.toLowerCase());
+                if(c) courseStats[c].add(t.Email.toLowerCase());
             });
 
             const labels = Object.keys(courseStats)
                 .sort((a,b) => courseStats[b].size - courseStats[a].size)
                 .slice(0, 8);
             
-            const dataPene = labels.map(l => totalStaff > 0 ? (courseStats[l].size / totalStaff * 100).toFixed(1) : 0);
-            const dataGap = dataPene.map(v => 100 - v);
+            const dataPene = labels.map(l => (courseStats[l].size / totalStaff * 100).toFixed(1));
+            const dataGap = dataPene.map(v => (100 - parseFloat(v)).toFixed(1));
 
             updateChart('chartCoursePenetration', 'bar', {
                 labels: labels,
@@ -240,17 +341,18 @@
             }, { 
                 indexAxis: 'y', 
                 scales: { x: { stacked: true, max: 100 }, y: { stacked: true } },
-                plugins: { datalabels: { formatter: (v, ctx) => ctx.datasetIndex === 0 ? v + '%' : '' } },
+                plugins: { datalabels: { formatter: (v, ctx) => ctx.datasetIndex === 0 && parseFloat(v) > 0 ? v + '%' : '' } },
                 onClick: (e, items) => {
                     if(items.length > 0) {
                         const idx = items[0].index;
                         selectedFilters.course = [labels[idx]];
                         updateDashboard();
+                        document.getElementById('btnCourse').querySelector('span').textContent = '1 selecionado(s)';
                     }
                 }
             });
 
-            // Gráfico 2: Cobertura por Cluster
+            // --- Gráfico 2: Cluster ---
             const clusterMap = {};
             filteredStaff.forEach(s => {
                 const c = s.FCP_CLUSTER || s.Cluster || 'N/A';
@@ -260,7 +362,6 @@
 
             currentTrainings.forEach(t => {
                 const email = t.Email.toLowerCase();
-                // Encontrar o cluster desse email na base staff
                 const staffMember = rawStaff.find(s => (s.Email || '').toLowerCase() === email);
                 if(staffMember) {
                     const c = staffMember.FCP_CLUSTER || staffMember.Cluster || 'N/A';
@@ -274,7 +375,10 @@
             updateChart('chartClusterCoverage', 'bar', {
                 labels: cLabels,
                 datasets: [{ label: '% Cobertura', data: cData, backgroundColor: '#10b981' }]
-            }, { scales: { y: { max: 100 } } });
+            }, { 
+                scales: { y: { max: 100 } },
+                plugins: { datalabels: { formatter: v => parseFloat(v) > 0 ? v + '%' : '' } }
+            });
         }
 
         function renderTable() {
@@ -285,7 +389,7 @@
                 trainedMap[email].push(t.course || t.Curso);
             });
 
-            const html = filteredStaff.slice(0, 50).map(s => {
+            const html = filteredStaff.slice(0, 100).map(s => {
                 const email = (s.Email || '').toLowerCase();
                 const cursos = trainedMap[email] || [];
                 const isTrained = cursos.length > 0;
@@ -305,11 +409,22 @@
             document.getElementById('tableBody').innerHTML = html;
         }
 
-        // Funções de Utilidade (Dropdowns, Charts, etc)
+        // --- FUNÇÕES DE UTILIDADE ---
+        
         function updateChart(id, type, data, options) {
+            const canvasElement = document.getElementById(id);
+            if(!canvasElement) return;
+
             if(charts[id]) charts[id].destroy();
-            charts[id] = new Chart(document.getElementById(id), {
-                type, data, options: { ...options, maintainAspectRatio: false, plugins: { ...options.plugins, legend: { display: false } } }
+            
+            charts[id] = new Chart(canvasElement, {
+                type, 
+                data, 
+                options: { 
+                    ...options, 
+                    maintainAspectRatio: false, 
+                    plugins: { ...(options.plugins || {}), legend: { display: false } } 
+                }
             });
         }
 
@@ -332,6 +447,9 @@
                 selectedFilters[key].length > 0 ? `${selectedFilters[key].length} selecionado(s)` : 'Todos';
             
             updateDashboard();
+            
+            const currentOptions = Array.from(document.querySelectorAll(`#drop${key.charAt(0).toUpperCase() + key.slice(1)} .p-2`)).map(el => el.textContent.trim());
+            renderDropdown(`drop${key.charAt(0).toUpperCase() + key.slice(1)}`, key, currentOptions);
         }
 
         function toggleDropdown(id) {
@@ -339,9 +457,17 @@
             document.getElementById(id).classList.toggle('show');
         }
 
+        window.onclick = function(event) {
+            if (!event.target.matches('button') && !event.target.closest('.dropdown-content') && !event.target.matches('input[type="date"]')) {
+                document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+            }
+        }
+
         function resetAllFilters() {
-            selectedFilters = { cluster: [], role: [], method: [], course: [] };
-            location.reload();
+            selectedFilters = { cluster: [], role: [], method: [], course: [], facilitator: [] };
+            document.getElementById('dateStart').value = '';
+            document.getElementById('dateEnd').value = '';
+            initDashboard();
         }
 
         function filterTable() {
