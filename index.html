@@ -70,7 +70,6 @@
         .spinner { border: 4px solid rgba(255, 255, 255, 0.3); width: 40px; height: 40px; border-radius: 50%; border-left-color: #fff; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* CLASSE NOVA PARA A PESQUISA NOS FILTROS */
         .hidden-search { display: none !important; }
     </style>
 </head>
@@ -144,9 +143,9 @@
                     <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm flex flex-col justify-center items-center text-center">
-                    <span class="tooltip-text">Número de pessoas do Staff que não realizaram atividades neste filtro (e % face ao Staff Total).</span>
+                    <span class="tooltip-text">Percentagem e número do Staff total que não realizaram atividades neste filtro.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Sem Treinamento</p>
-                    <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0</h2></div>
+                    <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0%</h2></div>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center">
                     <span class="tooltip-text">Percentagem do FCP Staff total que concluiu alguma atividade neste filtro.</span>
@@ -159,14 +158,14 @@
                     <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTotal">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm flex flex-col justify-center items-center text-center">
-                    <span class="tooltip-text">Total de treinamentos finalizados com sucesso (e % face ao Total de Inscrições).</span>
+                    <span class="tooltip-text">Percentagem e total de treinamentos finalizados com sucesso (face ao Total de Inscrições).</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
-                    <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0</h2></div>
+                    <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0%</h2></div>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm flex flex-col justify-center items-center text-center">
-                    <span class="tooltip-text">Total de matrículas pendentes (e % face ao Total de Inscrições).</span>
+                    <span class="tooltip-text">Percentagem e total de matrículas pendentes (face ao Total de Inscrições).</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
-                    <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0</h2></div>
+                    <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0%</h2></div>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
                     <span class="tooltip-text">Taxa de Conclusões em relação ao Total de Inscrições efetuadas.</span>
@@ -176,20 +175,20 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardModalidade">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardSkillGap">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📊 Adesão por Modalidade (Método)</h3>
-                        <button onclick="exportSingleChart('cardModalidade', 'adesao-modalidade')" class="btn-export-mini">PNG</button>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Skill Gap por Cargo (Cursos Concluídos)</h3>
+                        <button onclick="exportSingleChart('cardSkillGap', 'skillgap-cargo')" class="btn-export-mini">PNG</button>
                     </div>
-                    <div class="h-72"><canvas id="chartModalidade"></canvas></div>
+                    <div class="h-64"><canvas id="chartSkillGap"></canvas></div>
                 </div>
                 
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardFacilitadores">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardCluster">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Performance por Facilitador</h3>
-                        <button onclick="exportSingleChart('cardFacilitadores', 'performance-facilitador')" class="btn-export-mini">PNG</button>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📍 Top 5 - Adesão por Cluster</h3>
+                        <button onclick="exportSingleChart('cardCluster', 'adesao-cluster')" class="btn-export-mini">PNG</button>
                     </div>
-                    <div class="h-72"><canvas id="chartFacilitadores"></canvas></div>
+                    <div class="h-64"><canvas id="chartCluster"></canvas></div>
                 </div>
             </div>
 
@@ -202,20 +201,20 @@
                     <div class="h-72"><canvas id="chartCourses"></canvas></div>
                 </div>
 
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardSkillGap">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardModalidade">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Skill Gap por Cargo</h3>
-                        <button onclick="exportSingleChart('cardSkillGap', 'skillgap-cargo')" class="btn-export-mini">PNG</button>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📊 Adesão por Modalidade</h3>
+                        <button onclick="exportSingleChart('cardModalidade', 'adesao-modalidade')" class="btn-export-mini">PNG</button>
                     </div>
-                    <div class="h-72"><canvas id="chartSkillGap"></canvas></div>
+                    <div class="h-72"><canvas id="chartModalidade"></canvas></div>
                 </div>
 
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardCluster">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardFacilitadores">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📍 Adesão por Cluster</h3>
-                        <button onclick="exportSingleChart('cardCluster', 'adesao-cluster')" class="btn-export-mini">PNG</button>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Performance por Facilitador</h3>
+                        <button onclick="exportSingleChart('cardFacilitadores', 'performance-facilitador')" class="btn-export-mini">PNG</button>
                     </div>
-                    <div class="h-72"><canvas id="chartCluster"></canvas></div>
+                    <div class="h-72"><canvas id="chartFacilitadores"></canvas></div>
                 </div>
             </div>
 
@@ -468,13 +467,11 @@
             var validOptions = options.filter(function(o){return o && String(o).trim() !== ""});
             if (validOptions.length === 0) return;
 
-            // 1. INCLUSÃO DA BARRA DE PESQUISA NOS FILTROS (Requisito 1)
             var searchDiv = document.createElement('div');
             searchDiv.className = 'p-2 sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 z-10';
             searchDiv.innerHTML = '<input type="text" placeholder="Pesquisar..." class="w-full text-xs p-1 border border-slate-300 rounded dark:border-slate-600 dark:bg-slate-700 dark:text-white outline-none" onclick="event.stopPropagation();" onkeyup="var q=this.value.toLowerCase(); var items=this.parentElement.parentElement.querySelectorAll(\'.filter-item\'); for(var i=0;i<items.length;i++){ var txt=items[i].innerText.toLowerCase(); if(txt.indexOf(q)>-1){items[i].classList.remove(\'hidden-search\');}else{items[i].classList.add(\'hidden-search\');} }">';
             container.appendChild(searchDiv);
 
-            // 2. DESIGN CONSISTENTE DOS CHECKBOXES (Requisito 2) -> "w-4 h-4 flex-shrink-0"
             var selectAllDiv = document.createElement('div');
             selectAllDiv.className = 'dropdown-item p-2 text-sm font-bold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-all flex items-center gap-2';
             selectAllDiv.innerHTML = '<input type="checkbox" class="w-4 h-4 flex-shrink-0 cursor-pointer rounded border-slate-300" id="selectAll_' + filterKey + '"> <span>Selecionar Todos</span>';
@@ -664,24 +661,24 @@
             if (d.length > 0) rate = Math.round((concluidos / d.length) * 100) + '%';
             document.getElementById('kpiRate').innerText = rate;
 
-            // 4. CÁLCULOS ESTÉTICOS PARA INCLUIR PERCENTAGENS (Requisito 4)
+            // 1. INVERSÃO PERCENTAGEM E QUANTIDADE (Requisito 1)
             
-            // Sem Treinamento (% do Staff Fixo)
+            // Sem Treinamento
             var semTreino = Math.max(0, countStaffAtivo - emailsSet.size);
             var percSemTreino = countStaffAtivo > 0 ? Math.round((semTreino / countStaffAtivo) * 100) + '%' : '0%';
-            document.getElementById('kpiNoTraining').innerHTML = semTreino + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + percSemTreino + ')</span>';
+            document.getElementById('kpiNoTraining').innerHTML = percSemTreino + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + semTreino + ' unid.)</span>';
 
             // Cobertura Staff
             var cobertura = countStaffAtivo > 0 ? Math.round((completedEmailsSet.size / countStaffAtivo) * 100) + '%' : '0%';
             document.getElementById('kpiCoverage').innerText = cobertura;
 
-            // Concluídos (% das Inscrições Totais d.length)
+            // Concluídos 
             var percConcluidos = d.length > 0 ? Math.round((concluidos / d.length) * 100) + '%' : '0%';
-            document.getElementById('kpiCompleted').innerHTML = concluidos + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + percConcluidos + ')</span>';
+            document.getElementById('kpiCompleted').innerHTML = percConcluidos + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + concluidos + ' unid.)</span>';
 
-            // Pendentes (% das Inscrições Totais d.length)
+            // Pendentes 
             var percDropout = d.length > 0 ? Math.round((dropout / d.length) * 100) + '%' : '0%';
-            document.getElementById('kpiDropout').innerHTML = dropout + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + percDropout + ')</span>';
+            document.getElementById('kpiDropout').innerHTML = percDropout + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + dropout + ' unid.)</span>';
         }
 
         function updateCharts() {
@@ -689,7 +686,66 @@
             var isDark = document.documentElement.classList.contains('dark');
             var tColor = isDark ? '#cbd5e1' : '#475569';
 
-            // 1. Adesão por Modalidade (Pizza - Requisito 3)
+            // 1. Skill Gap
+            var roleCount = {};
+            for(var i=0; i<d.length; i++) {
+                if(String(d[i][cols.status]).toLowerCase().includes('completed')) {
+                    var role = d[i][cols.staffRole];
+                    roleCount[role] = (roleCount[role] || 0) + 1;
+                }
+            }
+            var roleSorted = Object.entries(roleCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 8);
+            updateChart('chartSkillGap', 'bar', {
+                labels: roleSorted.map(function(i){return i[0]}),
+                datasets: [{ label: 'Cursos Concluídos', data: roleSorted.map(function(i){return i[1]}), backgroundColor: '#3b82f6', borderRadius: 4 }]
+            }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+
+            // 2. Clusters (Top 5) - AGORA EM BARRAS HORIZONTAIS (Requisito 2)
+            var clusterCount = {};
+            for(var j=0; j<d.length; j++) {
+                var cluster = d[j][cols.staffCluster];
+                clusterCount[cluster] = (clusterCount[cluster] || 0) + 1;
+            }
+            var clusterSorted = Object.entries(clusterCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 5);
+            var clusterLabels = clusterSorted.map(function(i){return i[0]});
+            var clusterDataVals = clusterSorted.map(function(i){return i[1]});
+
+            updateChart('chartCluster', 'bar', {
+                labels: clusterLabels,
+                datasets: [{ data: clusterDataVals, backgroundColor: '#06b6d4', borderRadius: 4 }]
+            }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+
+            // 3. Courses - AGORA EM BARRAS HORIZONTAIS (Requisito 3)
+            var courseCount = {};
+            for(var k=0; k<d.length; k++) {
+                if(String(d[k][cols.status]).toLowerCase().includes('completed')) {
+                    var course = d[k][cols.course];
+                    courseCount[course] = (courseCount[course] || 0) + 1;
+                }
+            }
+            var courseSorted = Object.entries(courseCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 5);
+            updateChart('chartCourses', 'bar', {
+                labels: courseSorted.map(function(i){return String(i[0]).substring(0,25) + '...'}),
+                datasets: [{ data: courseSorted.map(function(i){return i[1]}), backgroundColor: '#10b981', borderRadius: 4 }]
+            }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+
+            // 4. Performance Facilitador
+            var facCount = {};
+            for(var f=0; f<d.length; f++) {
+                if(String(d[f][cols.status]).toLowerCase().includes('completed')) {
+                    var fc = d[f][cols.fac];
+                    if (fc && String(fc).trim() !== "" && String(fc) !== "undefined") {
+                        facCount[fc] = (facCount[fc] || 0) + 1;
+                    }
+                }
+            }
+            var facSorted = Object.entries(facCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 6); 
+            updateChart('chartFacilitadores', 'bar', {
+                labels: facSorted.map(function(i){return String(i[0]).substring(0,25)}),
+                datasets: [{ data: facSorted.map(function(i){return i[1]}), backgroundColor: '#f59e0b', borderRadius: 4 }]
+            }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+
+            // 5. Adesão por Modalidade - AGORA EM PIZZA (Requisito 3)
             var modalidadeCount = {};
             for(var n=0; n<d.length; n++) {
                 var mod = d[n][cols.method];
@@ -706,66 +762,7 @@
                 datasets: [{ data: modalidadeDataVals, backgroundColor: ['#8b5cf6','#ec4899','#f43f5e','#10b981','#3b82f6','#f59e0b'] }]
             }, { plugins: { legend: { position: 'right', labels: { color: tColor } } } });
 
-            // 2. Performance Facilitador
-            var facCount = {};
-            for(var f=0; f<d.length; f++) {
-                if(String(d[f][cols.status]).toLowerCase().includes('completed')) {
-                    var fc = d[f][cols.fac];
-                    if (fc && String(fc).trim() !== "" && String(fc) !== "undefined") {
-                        facCount[fc] = (facCount[fc] || 0) + 1;
-                    }
-                }
-            }
-            var facSorted = Object.entries(facCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 6); 
-            updateChart('chartFacilitadores', 'bar', {
-                labels: facSorted.map(function(i){return String(i[0]).substring(0,25)}),
-                datasets: [{ data: facSorted.map(function(i){return i[1]}), backgroundColor: '#f59e0b', borderRadius: 6 }]
-            }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
-
-            // 3. Top 5 Cursos (Barras Horizontais - Requisito 3)
-            var courseCount = {};
-            for(var k=0; k<d.length; k++) {
-                if(String(d[k][cols.status]).toLowerCase().includes('completed')) {
-                    var course = d[k][cols.course];
-                    courseCount[course] = (courseCount[course] || 0) + 1;
-                }
-            }
-            var courseSorted = Object.entries(courseCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 5);
-            updateChart('chartCourses', 'bar', {
-                labels: courseSorted.map(function(i){return String(i[0]).substring(0,25) + '...'}),
-                datasets: [{ data: courseSorted.map(function(i){return i[1]}), backgroundColor: '#10b981', borderRadius: 6 }]
-            }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
-
-            // 4. Skill Gap
-            var roleCount = {};
-            for(var i=0; i<d.length; i++) {
-                if(String(d[i][cols.status]).toLowerCase().includes('completed')) {
-                    var role = d[i][cols.staffRole];
-                    roleCount[role] = (roleCount[role] || 0) + 1;
-                }
-            }
-            var roleSorted = Object.entries(roleCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 8);
-            updateChart('chartSkillGap', 'bar', {
-                labels: roleSorted.map(function(i){return i[0]}),
-                datasets: [{ label: 'Cursos Concluídos', data: roleSorted.map(function(i){return i[1]}), backgroundColor: '#3b82f6', borderRadius: 4 }]
-            }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
-
-            // 5. Clusters (Top 5 - Pizza/Pie - Requisito 3)
-            var clusterCount = {};
-            for(var j=0; j<d.length; j++) {
-                var cluster = d[j][cols.staffCluster];
-                clusterCount[cluster] = (clusterCount[cluster] || 0) + 1;
-            }
-            var clusterSorted = Object.entries(clusterCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 5);
-            var clusterLabels = clusterSorted.map(function(i){return i[0]});
-            var clusterDataVals = clusterSorted.map(function(i){return i[1]});
-
-            updateChart('chartCluster', 'pie', {
-                labels: clusterLabels,
-                datasets: [{ data: clusterDataVals, backgroundColor: ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6'] }]
-            }, { plugins: { legend: { position: 'right', labels: { color: tColor } } } });
-
-            // Timeline 
+            // 6. Timeline 
             var timeData = {};
             for(var m=0; m<d.length; m++) {
                 if(d[m][cols.date]) {
