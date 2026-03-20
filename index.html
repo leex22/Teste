@@ -6,6 +6,7 @@
     <title>Dashboard Estratégico de Treinamentos</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -75,19 +76,19 @@
     <div id="authOverlay">
         <div class="auth-card">
             <h2 class="auth-title">Dashboard FCP</h2>
-            <p class="auth-subtitle">Digite a senha para aceder</p>
+            <p class="auth-subtitle">Digite a senha para acessar</p>
             <div class="auth-input-container">
                 <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') checkAuth()">
             </div>
-            <button onclick="checkAuth()" class="auth-button">Aceder ao Dashboard</button>
+            <button onclick="checkAuth()" class="auth-button">Acessar Dashboard</button>
             <p id="authError" class="error-msg">Senha incorreta.</p>
         </div>
     </div>
 
     <div id="loadingOverlay" style="display: none; flex-direction: column; text-align: center; color: white;">
         <div class="spinner"></div>
-        <h2 class="text-xl font-bold">A procurar bases de dados...</h2>
-        <p class="text-sm text-slate-400 mt-2">A ler dados.csv e FCP Staff.csv diretamente do GitHub</p>
+        <h2 class="text-xl font-bold">Buscando bases de dados...</h2>
+        <p class="text-sm text-slate-400 mt-2">Lendo arquivos CSV/Excel diretamente do repositório</p>
         <p id="loadingError" class="error-msg mt-4 font-bold bg-red-900 p-4 rounded text-white" style="display: none;"></p>
     </div>
 
@@ -144,7 +145,7 @@
                     <h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm text-center">
-                    <span class="tooltip-text">Matrículas iniciadas sem conclusão registada.</span>
+                    <span class="tooltip-text">Matrículas iniciadas sem conclusão registrada.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
                     <h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0</h2>
                 </div>
@@ -154,7 +155,7 @@
                     <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center">
-                    <span class="tooltip-text">Tempo médio entre o registo do colaborador no Staff e a conclusão do primeiro curso (Onboarding Time).</span>
+                    <span class="tooltip-text">Tempo médio entre o registro no Staff e a conclusão do primeiro curso.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Tempo Onboarding</p>
                     <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiOnboarding">0 d</h2>
                 </div>
@@ -222,6 +223,7 @@
     </main>
 
     <script>
+        // Configuração de Autenticação
         const SENHA_MESTRA = "1234";
 
         function checkAuth() {
@@ -244,8 +246,8 @@
             }
         });
 
+        // Variáveis Globais
         Chart.register(ChartDataLabels);
-        
         let baseTraining = [];
         let baseStaff = [];
         let joinedData = [];
@@ -254,22 +256,31 @@
         let selectedFilters = { roles: [], clusters: [], courses: [], methods: [], facilitators: [] };
         
         const cols = { 
-            email: 'Email', course: 'Course Name', status: 'ACTIVITY_CODE', 
-            date: 'ACTIVITY_DATE_TIME', method: 'Training Method', fac: 'Partnership Facilitator',
-            staffRole: 'Staff_Role', staffCluster: 'Staff_Cluster', staffCreated: 'Staff_CreatedDate'
+            email: 'Email', 
+            course: 'Course Name', 
+            status: 'ACTIVITY_CODE', 
+            date: 'ACTIVITY_DATE_TIME', 
+            method: 'Training Method', 
+            fac: 'Partnership Facilitator',
+            staffRole: 'Staff_Role', 
+            staffCluster: 'Staff_Cluster', 
+            staffCreated: 'Staff_CreatedDate'
         };
 
-        // --- FUNÇÃO PARA BUSCAR AS BASES DO GITHUB AUTOMATICAMENTE ---
+        // Função de Busca com Fallback (Lê tanto .csv quanto .xlsx)
         async function fetchFileWithFallback(fileNames) {
-            for (let name of fileNames) {
+            for (let i = 0; i < fileNames.length; i++) {
+                const name = fileNames[i];
                 try {
                     const response = await fetch(name);
-                    if (response.ok) return await response.arrayBuffer();
+                    if (response.ok) {
+                        return await response.arrayBuffer();
+                    }
                 } catch (e) {
-                    console.warn(`Tentativa falhou para: ${name}`);
+                    console.warn("Tentativa falhou para o arquivo: " + name);
                 }
             }
-            throw new Error(`Ficheiros não encontrados. Tentei: ${fileNames.join(', ')}`);
+            throw new Error("Nenhum arquivo encontrado. Nomes tentados: " + fileNames.join(', '));
         }
 
         async function carregarBasesAutomaticamente() {
@@ -279,58 +290,80 @@
             errorMsg.style.display = 'none';
 
             try {
-                // Listas de possíveis nomes (O GitHub é sensível a maiúsculas/minúsculas)
+                // Listas expandidas de extensões aceitas
                 const trainingNames = ['dados.csv', 'dados.xlsx', 'Dados.csv', 'Dados.xlsx'];
-                const staffNames = ['FCP staff.csv', 'FCP Staff.csv', 'FCP_Staff.csv', 'FCP staff.xlsx', 'FCP Staff.xlsx'];
+                const staffNames = ['FCP staff.csv', 'FCP staff.xlsx', 'FCP Staff.csv', 'FCP Staff.xlsx', 'FCP_Staff.csv', 'FCP_Staff.xlsx'];
 
-                // 1. Busca e processa a Base de Treinamentos
+                // 1. Processar Base de Treinamentos
                 const bufferTraining = await fetchFileWithFallback(trainingNames);
                 const wbTraining = XLSX.read(new Uint8Array(bufferTraining), { type: 'array', cellDates: true });
                 baseTraining = XLSX.utils.sheet_to_json(wbTraining.Sheets[wbTraining.SheetNames[0]], { defval: "" });
 
-                // 2. Busca e processa a Base de Colaboradores (Staff)
+                // 2. Processar Base de Staff
                 const bufferStaff = await fetchFileWithFallback(staffNames);
                 const wbStaff = XLSX.read(new Uint8Array(bufferStaff), { type: 'array', cellDates: true });
                 baseStaff = XLSX.utils.sheet_to_json(wbStaff.Sheets[wbStaff.SheetNames[0]], { defval: "" });
 
-                // 3. Inicia o cruzamento e oculta a tela de carregamento
+                // 3. Finalizar
                 processDataJoin();
                 overlay.style.display = 'none';
 
             } catch (error) {
                 console.error(error);
-                errorMsg.textContent = "ERRO: " + error.message + " Verifique se os ficheiros estão na mesma pasta do repositório no GitHub com estes nomes exatos.";
+                errorMsg.textContent = "ERRO: " + error.message;
                 errorMsg.style.display = 'block';
-                document.querySelector('.spinner').style.display = 'none';
+                const spinner = document.querySelector('.spinner');
+                if (spinner) spinner.style.display = 'none';
             }
         }
 
-        // --- LÓGICA DE CRUZAMENTO DE DADOS ---
         function processDataJoin() {
             const staffDict = {};
-            baseStaff.forEach(row => {
-                const email = String(row['Email'] || '').trim().toLowerCase();
-                if (email) staffDict[email] = row;
-            });
+            
+            // Criar dicionário indexado pelo e-mail
+            for (let i = 0; i < baseStaff.length; i++) {
+                const row = baseStaff[i];
+                const emailRaw = row['Email'];
+                if (emailRaw) {
+                    const email = String(emailRaw).trim().toLowerCase();
+                    staffDict[email] = row;
+                }
+            }
 
-            joinedData = baseTraining.map(t => {
-                const email = String(t['Email'] || t['EMAIL'] || '').trim().toLowerCase();
+            // Unir dados
+            joinedData = [];
+            for (let i = 0; i < baseTraining.length; i++) {
+                const t = baseTraining[i];
+                const emailRaw = t['Email'] || t['EMAIL'];
+                const email = emailRaw ? String(emailRaw).trim().toLowerCase() : '';
+                
                 const staffRecord = staffDict[email] || {};
-
+                
                 const tStatus = t['ACTIVITY_CODE'] || t['STATUS'] || t['Status'] || '';
                 const tDate = t['ACTIVITY_DATE_TIME'] || t['Date'] || '';
+                const roleFCP = staffRecord['Role At FCP'] || staffRecord['Role at FCP'] || 'Não Identificado';
+                const clusterFCP = staffRecord['FCP Cluster'] || staffRecord['FCP_CLUSTER'] || 'Não Identificado';
+                const createdDate = staffRecord['Created Date'] || staffRecord['Created_Date'] || null;
                 
-                return {
-                    ...t,
-                    Email_Lower: email,
-                    [cols.status]: tStatus,
-                    [cols.date]: tDate,
-                    [cols.staffRole]: staffRecord['Role At FCP'] || staffRecord['Role at FCP'] || 'Não Identificado',
-                    [cols.staffCluster]: staffRecord['FCP Cluster'] || staffRecord['FCP_CLUSTER'] || 'Não Identificado',
-                    [cols.staffCreated]: staffRecord['Created Date'] || staffRecord['Created_Date'] || null,
-                    NameDisplay: staffRecord['First Name'] ? `${staffRecord['First Name']} ${staffRecord['Last Name']}` : (t['Name'] || email)
-                };
-            });
+                let nameDisplay = email;
+                if (staffRecord['First Name']) {
+                    nameDisplay = staffRecord['First Name'] + ' ' + (staffRecord['Last Name'] || '');
+                } else if (t['Name']) {
+                    nameDisplay = t['Name'];
+                }
+
+                // Criar novo objeto mesclado
+                const joinedRow = Object.assign({}, t);
+                joinedRow['Email_Lower'] = email;
+                joinedRow[cols.status] = tStatus;
+                joinedRow[cols.date] = tDate;
+                joinedRow[cols.staffRole] = roleFCP;
+                joinedRow[cols.staffCluster] = clusterFCP;
+                joinedRow[cols.staffCreated] = createdDate;
+                joinedRow['NameDisplay'] = nameDisplay;
+                
+                joinedData.push(joinedRow);
+            }
 
             initDashboard();
         }
@@ -338,19 +371,40 @@
         function initDashboard() {
             document.getElementById('dashboardContent').classList.remove('hidden');
 
-            renderDropdown('dropRole', 'roles', [...new Set(joinedData.map(i => i[cols.staffRole]))].sort());
-            renderDropdown('dropCluster', 'clusters', [...new Set(joinedData.map(i => i[cols.staffCluster]))].sort());
-            renderDropdown('dropCourse', 'courses', [...new Set(joinedData.map(i => i[cols.course]))].sort());
-            renderDropdown('dropMethod', 'methods', [...new Set(joinedData.map(i => i[cols.method]))].sort());
-            renderDropdown('dropFac', 'facs', [...new Set(joinedData.map(i => i[cols.fac]))].sort());
+            const uniqueRoles = [...new Set(joinedData.map(i => i[cols.staffRole]))].sort();
+            const uniqueClusters = [...new Set(joinedData.map(i => i[cols.staffCluster]))].sort();
+            const uniqueCourses = [...new Set(joinedData.map(i => i[cols.course]))].sort();
+            const uniqueMethods = [...new Set(joinedData.map(i => i[cols.method]))].sort();
+            const uniqueFacs = [...new Set(joinedData.map(i => i[cols.fac]))].sort();
+
+            renderDropdown('dropRole', 'roles', uniqueRoles);
+            renderDropdown('dropCluster', 'clusters', uniqueClusters);
+            renderDropdown('dropCourse', 'courses', uniqueCourses);
+            renderDropdown('dropMethod', 'methods', uniqueMethods);
+            renderDropdown('dropFac', 'facs', uniqueFacs);
 
             updateDashboard();
         }
 
-        // Funções de UI Auxiliares
-        function toggleTheme() { document.documentElement.classList.toggle('dark'); updateChartsColors(); }
-        window.onclick = function(e) { if (!e.target.closest('.relative')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); }
-        function toggleDropdown(id) { document.querySelectorAll('.dropdown-content').forEach(d => { if (d.id !== id) d.classList.remove('show'); }); document.getElementById(id).classList.toggle('show'); }
+        function toggleTheme() { 
+            document.documentElement.classList.toggle('dark'); 
+            updateChartsColors(); 
+        }
+
+        window.onclick = function(e) { 
+            if (!e.target.closest('.relative')) {
+                const dropdowns = document.querySelectorAll('.dropdown-content');
+                for(let i=0; i<dropdowns.length; i++) dropdowns[i].classList.remove('show');
+            }
+        }
+
+        function toggleDropdown(id) { 
+            const dropdowns = document.querySelectorAll('.dropdown-content');
+            for(let i=0; i<dropdowns.length; i++) {
+                if (dropdowns[i].id !== id) dropdowns[i].classList.remove('show');
+            }
+            document.getElementById(id).classList.toggle('show'); 
+        }
         
         function renderDropdown(elementId, filterKey, options) {
             const container = document.getElementById(elementId);
@@ -361,36 +415,55 @@
 
             const selectAllDiv = document.createElement('div');
             selectAllDiv.className = 'dropdown-item p-2 text-sm font-bold border-b border-slate-200 dark:border-slate-700 cursor-pointer';
-            selectAllDiv.innerHTML = `<input type="checkbox" id="selectAll_${filterKey}"> <span class="ml-2">Selecionar Todos</span>`;
+            selectAllDiv.innerHTML = '<input type="checkbox" id="selectAll_' + filterKey + '"> <span class="ml-2">Selecionar Todos</span>';
             
-            selectAllDiv.onclick = (e) => {
+            selectAllDiv.onclick = function(e) {
                 const cb = selectAllDiv.querySelector('input');
                 if(e.target !== cb) cb.checked = !cb.checked;
-                selectedFilters[filterKey] = cb.checked ? [...validOptions] : [];
-                container.querySelectorAll('.filter-checkbox').forEach(input => input.checked = cb.checked);
+                
+                if (cb.checked) {
+                    selectedFilters[filterKey] = [...validOptions];
+                } else {
+                    selectedFilters[filterKey] = [];
+                }
+
+                const checkboxes = container.querySelectorAll('.filter-checkbox');
+                for(let i=0; i<checkboxes.length; i++) checkboxes[i].checked = cb.checked;
                 updateDashboard();
             };
             container.appendChild(selectAllDiv);
 
-            validOptions.forEach(opt => {
+            for(let i=0; i<validOptions.length; i++) {
+                const opt = validOptions[i];
                 const div = document.createElement('div');
                 div.className = 'dropdown-item p-2 text-sm cursor-pointer flex items-center gap-2';
                 const isChecked = selectedFilters[filterKey].includes(opt) ? 'checked' : '';
-                div.innerHTML = `<input type="checkbox" value="${opt}" class="filter-checkbox" ${isChecked}> <span>${opt}</span>`;
-                div.onclick = (e) => {
-                    if (e.target.tagName !== 'INPUT') { const cb = div.querySelector('input'); cb.checked = !cb.checked; }
+                div.innerHTML = '<input type="checkbox" value="' + opt + '" class="filter-checkbox" ' + isChecked + '> <span>' + opt + '</span>';
+                
+                div.onclick = function(e) {
+                    if (e.target.tagName !== 'INPUT') { 
+                        const cb = div.querySelector('input'); 
+                        cb.checked = !cb.checked; 
+                    }
                     const cb = div.querySelector('input');
-                    if (cb.checked) { if (!selectedFilters[filterKey].includes(opt)) selectedFilters[filterKey].push(opt); } 
-                    else { selectedFilters[filterKey] = selectedFilters[filterKey].filter(v => v !== opt); }
+                    if (cb.checked) { 
+                        if (!selectedFilters[filterKey].includes(opt)) selectedFilters[filterKey].push(opt); 
+                    } else { 
+                        selectedFilters[filterKey] = selectedFilters[filterKey].filter(v => v !== opt); 
+                    }
                     updateDashboard();
                 };
                 container.appendChild(div);
-            });
+            }
         }
 
         function resetAllFilters() {
-            Object.keys(selectedFilters).forEach(k => selectedFilters[k] = []);
-            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            const keys = Object.keys(selectedFilters);
+            for(let i=0; i<keys.length; i++) selectedFilters[keys[i]] = [];
+            
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            for(let i=0; i<checkboxes.length; i++) checkboxes[i].checked = false;
+            
             document.getElementById('dateStart').value = '';
             document.getElementById('dateEnd').value = '';
             updateDashboard();
@@ -405,13 +478,18 @@
         }
 
         function applyFilters() {
-            const start = document.getElementById('dateStart').value ? new Date(document.getElementById('dateStart').value) : null;
-            const end = document.getElementById('dateEnd').value ? new Date(document.getElementById('dateEnd').value) : null;
+            const startVal = document.getElementById('dateStart').value;
+            const endVal = document.getElementById('dateEnd').value;
+            const start = startVal ? new Date(startVal) : null;
+            const end = endVal ? new Date(endVal) : null;
 
-            currentFilteredData = joinedData.filter(row => {
-                const dRole = !selectedFilters.roles.length || selectedFilters.roles.includes(row[cols.staffRole]);
-                const dCluster = !selectedFilters.clusters.length || selectedFilters.clusters.includes(row[cols.staffCluster]);
-                const dCourse = !selectedFilters.courses.length || selectedFilters.courses.includes(row[cols.course]);
+            currentFilteredData = [];
+            for (let i = 0; i < joinedData.length; i++) {
+                const row = joinedData[i];
+                
+                const dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(row[cols.staffRole]);
+                const dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(row[cols.staffCluster]);
+                const dCourse = (selectedFilters.courses.length === 0) || selectedFilters.courses.includes(row[cols.course]);
                 
                 let dDate = true;
                 if ((start || end) && row[cols.date]) {
@@ -419,21 +497,34 @@
                     if (start && rDate < start) dDate = false;
                     if (end && rDate > end) dDate = false;
                 }
-                return dRole && dCluster && dCourse && dDate;
-            });
+                
+                if (dRole && dCluster && dCourse && dDate) {
+                    currentFilteredData.push(row);
+                }
+            }
         }
 
         function calculateKPIs() {
             const d = currentFilteredData;
-            const emailsUnicos = new Set(d.map(i => i.Email_Lower)).size;
-            const concluidos = d.filter(i => String(i[cols.status]).toLowerCase().includes('completed')).length;
-            const dropout = d.filter(i => String(i[cols.status]).toLowerCase().includes('enrolled')).length;
+            const emailsSet = new Set();
+            let concluidos = 0;
+            let dropout = 0;
 
-            document.getElementById('kpiUnique').innerText = emailsUnicos;
+            for(let i=0; i<d.length; i++) {
+                emailsSet.add(d[i].Email_Lower);
+                const status = String(d[i][cols.status]).toLowerCase();
+                if (status.includes('completed')) concluidos++;
+                if (status.includes('enrolled')) dropout++;
+            }
+
+            document.getElementById('kpiUnique').innerText = emailsSet.size;
             document.getElementById('kpiTotal').innerText = d.length;
             document.getElementById('kpiCompleted').innerText = concluidos;
             document.getElementById('kpiDropout').innerText = dropout;
-            document.getElementById('kpiRate').innerText = d.length > 0 ? Math.round((concluidos / d.length) * 100) + '%' : '0%';
+            
+            let rate = '0%';
+            if (d.length > 0) rate = Math.round((concluidos / d.length) * 100) + '%';
+            document.getElementById('kpiRate').innerText = rate;
         }
 
         function calculateOnboardingKPI() {
@@ -441,7 +532,8 @@
             let validUsers = 0;
             const userFirstCompletion = {};
 
-            currentFilteredData.forEach(row => {
+            for (let i = 0; i < currentFilteredData.length; i++) {
+                const row = currentFilteredData[i];
                 const status = String(row[cols.status]).toLowerCase();
                 const createdDate = row[cols.staffCreated];
                 const activityDate = row[cols.date];
@@ -455,16 +547,18 @@
                         userFirstCompletion[email] = { created: dCreated, activity: dActivity };
                     }
                 }
-            });
+            }
 
-            Object.values(userFirstCompletion).forEach(user => {
+            const users = Object.values(userFirstCompletion);
+            for (let i = 0; i < users.length; i++) {
+                const user = users[i];
                 const diffTime = user.activity - user.created;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 if (diffDays >= 0 && diffDays < 3650) { 
                     totalDays += diffDays;
                     validUsers++;
                 }
-            });
+            }
 
             const avgDays = validUsers > 0 ? (totalDays / validUsers).toFixed(0) : 0;
             document.getElementById('kpiOnboarding').innerText = avgDays + " dias";
@@ -475,43 +569,58 @@
             const isDark = document.documentElement.classList.contains('dark');
             const tColor = isDark ? '#cbd5e1' : '#475569';
 
+            // 1. Skill Gap
             const roleCount = {};
-            d.filter(i => String(i[cols.status]).toLowerCase().includes('completed')).forEach(i => {
-                const role = i[cols.staffRole];
-                roleCount[role] = (roleCount[role] || 0) + 1;
-            });
+            for(let i=0; i<d.length; i++) {
+                if(String(d[i][cols.status]).toLowerCase().includes('completed')) {
+                    const role = d[i][cols.staffRole];
+                    roleCount[role] = (roleCount[role] || 0) + 1;
+                }
+            }
             const roleSorted = Object.entries(roleCount).sort((a,b) => b[1] - a[1]).slice(0, 8);
             updateChart('chartSkillGap', 'bar', {
                 labels: roleSorted.map(i => i[0]),
                 datasets: [{ label: 'Cursos Concluídos', data: roleSorted.map(i => i[1]), backgroundColor: '#3b82f6', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
+            // 2. Clusters
             const clusterCount = {};
-            d.forEach(i => { clusterCount[i[cols.staffCluster]] = (clusterCount[i[cols.staffCluster]] || 0) + 1; });
+            for(let i=0; i<d.length; i++) {
+                const cluster = d[i][cols.staffCluster];
+                clusterCount[cluster] = (clusterCount[cluster] || 0) + 1;
+            }
             const clusterLabels = Object.keys(clusterCount);
             updateChart('chartCluster', 'doughnut', {
                 labels: clusterLabels,
                 datasets: [{ data: Object.values(clusterCount), backgroundColor: ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899'] }]
             }, { plugins: { legend: { position: 'right', labels: { color: tColor } } }, cutout: '60%' });
 
+            // 3. Courses
             const courseCount = {};
-            d.filter(i => String(i[cols.status]).toLowerCase().includes('completed')).forEach(i => { courseCount[i[cols.course]] = (courseCount[i[cols.course]] || 0) + 1; });
+            for(let i=0; i<d.length; i++) {
+                if(String(d[i][cols.status]).toLowerCase().includes('completed')) {
+                    const course = d[i][cols.course];
+                    courseCount[course] = (courseCount[course] || 0) + 1;
+                }
+            }
             const courseSorted = Object.entries(courseCount).sort((a,b) => b[1] - a[1]).slice(0, 5);
             updateChart('chartCourses', 'bar', {
-                labels: courseSorted.map(i => i[0].substring(0,25)+'...'),
+                labels: courseSorted.map(i => String(i[0]).substring(0,25) + '...'),
                 datasets: [{ data: courseSorted.map(i => i[1]), backgroundColor: '#10b981', borderRadius: 6 }]
             }, { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
+            // 4. Timeline
             const timeData = {};
-            d.forEach(i => {
-                if(i[cols.date]){
-                    const dt = new Date(i[cols.date]);
-                    if(!isNaN(dt)){
-                        const k = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
-                        timeData[k] = (timeData[k] || 0) + 1;
+            for(let i=0; i<d.length; i++) {
+                if(d[i][cols.date]) {
+                    const dt = new Date(d[i][cols.date]);
+                    if(!isNaN(dt)) {
+                        const month = String(dt.getMonth() + 1).padStart(2, '0');
+                        const key = dt.getFullYear() + '-' + month;
+                        timeData[key] = (timeData[key] || 0) + 1;
                     }
                 }
-            });
+            }
             const timeSortedKeys = Object.keys(timeData).sort();
             updateChart('chartTimeline', 'line', {
                 labels: timeSortedKeys,
@@ -521,45 +630,56 @@
 
         function updateChart(id, type, data, options) {
             if (charts[id]) charts[id].destroy();
-            charts[id] = new Chart(document.getElementById(id), { type, data, options: { ...options, maintainAspectRatio: false } });
+            charts[id] = new Chart(document.getElementById(id), { 
+                type: type, 
+                data: data, 
+                options: Object.assign({}, options, { maintainAspectRatio: false }) 
+            });
         }
+
         function updateChartsColors() { updateDashboard(); }
 
         function renderTable() {
             const tbody = document.getElementById('tableBody');
-            const search = document.getElementById('tableSearch').value.toLowerCase();
-            tbody.innerHTML = '';
+            const searchInput = document.getElementById('tableSearch').value.toLowerCase();
             
-            const maxRows = 100;
+            // Construção segura de HTML usando concatenação convencional (evita quebra por crases acidentais)
+            let htmlString = "";
             let rendered = 0;
+            const maxRows = 100;
 
             for (let i = 0; i < currentFilteredData.length; i++) {
                 if (rendered >= maxRows) break;
                 const row = currentFilteredData[i];
                 
-                const text = `${row.NameDisplay} ${row[cols.course]} ${row[cols.staffCluster]}`.toLowerCase();
-                if (search && !text.includes(search)) continue;
+                const text = (row.NameDisplay + " " + row[cols.course] + " " + row[cols.staffCluster]).toLowerCase();
+                if (searchInput && text.indexOf(searchInput) === -1) continue;
 
-                const statusColor = String(row[cols.status]).toLowerCase().includes('completed') ? 'text-green-600 bg-green-100 font-bold px-2 py-1 rounded' : 'text-amber-600 bg-amber-100 px-2 py-1 rounded';
+                let statusColor = 'text-amber-600 bg-amber-100';
+                if (String(row[cols.status]).toLowerCase().includes('completed')) {
+                    statusColor = 'text-green-600 bg-green-100 font-bold';
+                }
+                
                 let dataFormatada = "";
                 if(row[cols.date]) {
                     const dObj = new Date(row[cols.date]);
                     if(!isNaN(dObj)) dataFormatada = dObj.toLocaleDateString('pt-BR');
                 }
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="font-medium">${row.NameDisplay} <br><span class="text-[10px] text-slate-400">${row.Email_Lower}</span></td>
-                        <td>${row[cols.staffRole]}</td>
-                        <td>${row[cols.staffCluster]}</td>
-                        <td class="text-xs max-w-xs truncate" title="${row[cols.course]}">${row[cols.course]}</td>
-                        <td><span class="${statusColor} text-[10px]">${row[cols.status]}</span></td>
-                        <td class="text-xs text-slate-500">${dataFormatada}</td>
-                    </tr>
-                `;
+                htmlString += "<tr>";
+                htmlString += "  <td class='font-medium'>" + row.NameDisplay + " <br><span class='text-[10px] text-slate-400'>" + row.Email_Lower + "</span></td>";
+                htmlString += "  <td>" + row[cols.staffRole] + "</td>";
+                htmlString += "  <td>" + row[cols.staffCluster] + "</td>";
+                htmlString += "  <td class='text-xs max-w-xs truncate' title='" + row[cols.course] + "'>" + row[cols.course] + "</td>";
+                htmlString += "  <td><span class='px-2 py-1 rounded text-[10px] " + statusColor + "'>" + row[cols.status] + "</span></td>";
+                htmlString += "  <td class='text-xs text-slate-500'>" + dataFormatada + "</td>";
+                htmlString += "</tr>";
+                
                 rendered++;
             }
-            document.getElementById('tableCounter').innerText = `A exibir ${rendered} de ${currentFilteredData.length} registos filtrados.`;
+            
+            tbody.innerHTML = htmlString;
+            document.getElementById('tableCounter').innerText = "Foram listados " + rendered + " de " + currentFilteredData.length + " registros.";
         }
 
         function filterTable() { renderTable(); }
@@ -580,21 +700,29 @@
         async function exportSingleChart(id, name) { 
             const canvas = await html2canvas(document.getElementById(id), { scale: 3 }); 
             const link = document.createElement('a'); 
-            link.download = `${name}.png`; link.href = canvas.toDataURL(); link.click(); 
+            link.download = name + '.png'; 
+            link.href = canvas.toDataURL(); 
+            link.click(); 
         }
 
         function exportFilteredData() {
             if(currentFilteredData.length === 0) return alert("Não há dados para exportar.");
-            const exportData = currentFilteredData.map(row => ({
-                'Email': row.Email_Lower,
-                'Nome': row.NameDisplay,
-                'Cargo Staff': row[cols.staffRole],
-                'Cluster Staff': row[cols.staffCluster],
-                'Curso': row[cols.course],
-                'Status': row[cols.status],
-                'Data Conclusão': row[cols.date],
-                'Método': row[cols.method]
-            }));
+            
+            const exportData = [];
+            for(let i=0; i<currentFilteredData.length; i++) {
+                const row = currentFilteredData[i];
+                exportData.push({
+                    'Email': row.Email_Lower,
+                    'Nome': row.NameDisplay,
+                    'Cargo Staff': row[cols.staffRole],
+                    'Cluster Staff': row[cols.staffCluster],
+                    'Curso': row[cols.course],
+                    'Status': row[cols.status],
+                    'Data Conclusão': row[cols.date],
+                    'Método': row[cols.method]
+                });
+            }
+            
             const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Dados_Cruzados");
