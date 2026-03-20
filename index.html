@@ -23,29 +23,22 @@
         /* Modal de Senha */
         #authOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .auth-card { background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); width: 100%; max-width: 400px; text-align: center; }
-        .auth-title { color: #1e293b; font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .auth-subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 2rem; }
-        .auth-input-container { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 0.75rem; margin-bottom: 1.5rem; transition: border-color 0.2s; }
-        .auth-input-container:focus-within { border-color: #3b82f6; }
+        .auth-input-container { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 0.75rem; margin-bottom: 1.5rem; }
         #passInput { background: transparent; border: none; outline: none; width: 100%; padding: 1rem; text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; color: #1e293b; }
-        .auth-button { background: #3b82f6; color: white; width: 100%; padding: 1rem; border-radius: 0.75rem; font-weight: 600; transition: background 0.2s; cursor: pointer; border: none; }
-        .auth-button:hover { background: #2563eb; }
-        .error-msg { color: #ef4444; font-size: 0.75rem; margin-top: 0.5rem; display: none; }
+        .auth-button { background: #3b82f6; color: white; width: 100%; padding: 1rem; border-radius: 0.75rem; font-weight: 600; cursor: pointer; border: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 p-4 md:p-8">
 
     <div id="authOverlay">
         <div class="auth-card">
-            <h2 class="auth-title">Dashboard OpEx</h2>
-            <p class="auth-subtitle">Insira a senha para acessar os dados restritos</p>
-            
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Dashboard OpEx</h2>
+            <p class="text-slate-500 mb-6 text-sm">Insira a senha para acessar os dados restritos</p>
             <div class="auth-input-container">
                 <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') checkAuth()">
             </div>
-            
             <button onclick="checkAuth()" class="auth-button">Desbloquear</button>
-            <p id="authError" class="error-msg">Senha incorreta. Tente novamente.</p>
+            <p id="authError" class="text-red-500 text-xs mt-2 hidden">Senha incorreta.</p>
         </div>
     </div>
 
@@ -55,103 +48,41 @@
             <p class="text-slate-500 text-sm font-medium">Análise de Cobertura de Treinamentos vs. Base Staff</p>
         </div>
         <div class="flex gap-2">
-            <button onclick="resetAllFilters()" class="text-xs font-bold text-red-500 hover:bg-red-50 p-2 rounded-lg transition">LIMPAR FILTROS</button>
-            <div id="statusBadge" class="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-full font-bold self-center">CONECTADO À BASE</div>
+            <button onclick="resetAllFilters()" class="text-xs font-bold text-red-500 hover:bg-red-50 p-2 rounded-lg">LIMPAR FILTROS</button>
+            <div id="statusBadge" class="text-[10px] bg-slate-200 text-slate-600 px-3 py-2 rounded-full font-bold self-center">AGUARDANDO...</div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <div class="relative">
-                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Cluster / Região</label>
-                <button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
-                <div id="dropCluster" class="dropdown-content mt-1"></div>
-            </div>
-            <div class="relative">
-                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Função (Role)</label>
-                <button onclick="toggleDropdown('dropRole')" id="btnRole" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todas</span> ▾</button>
-                <div id="dropRole" class="dropdown-content mt-1"></div>
-            </div>
-            <div class="relative">
-                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Método</label>
-                <button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
-                <div id="dropMethod" class="dropdown-content mt-1"></div>
-            </div>
-            <div class="relative">
-                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Curso</label>
-                <button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
-                <div id="dropCourse" class="dropdown-content mt-1"></div>
-            </div>
-            <div class="relative">
-                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Facilitador</label>
-                <button onclick="toggleDropdown('dropFacilitator')" id="btnFacilitator" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button>
-                <div id="dropFacilitator" class="dropdown-content mt-1"></div>
-            </div>
-            <div class="relative flex flex-col md:flex-row gap-2 col-span-1 lg:col-span-1">
-                <div class="w-full">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Início</label>
-                    <input type="date" id="dateStart" onchange="updateDashboard()" class="w-full bg-slate-50 border border-slate-200 p-[7px] rounded-xl text-xs">
-                </div>
-                <div class="w-full">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Fim</label>
-                    <input type="date" id="dateEnd" onchange="updateDashboard()" class="w-full bg-slate-50 border border-slate-200 p-[7px] rounded-xl text-xs">
-                </div>
-            </div>
+            <div class="relative"><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Cluster / Região</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button><div id="dropCluster" class="dropdown-content mt-1"></div></div>
+            <div class="relative"><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Função (Role)</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todas</span> ▾</button><div id="dropRole" class="dropdown-content mt-1"></div></div>
+            <div class="relative"><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button><div id="dropMethod" class="dropdown-content mt-1"></div></div>
+            <div class="relative"><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button><div id="dropCourse" class="dropdown-content mt-1"></div></div>
+            <div class="relative"><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Facilitador</label><button onclick="toggleDropdown('dropFacilitator')" id="btnFacilitator" class="w-full text-left bg-slate-50 border border-slate-200 p-2 rounded-xl text-sm flex justify-between"><span>Todos</span> ▾</button><div id="dropFacilitator" class="dropdown-content mt-1"></div></div>
+            <div class="relative flex gap-2"><div class="w-full"><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Início</label><input type="date" id="dateStart" onchange="updateDashboard()" class="w-full bg-slate-50 border border-slate-200 p-[7px] rounded-xl text-xs"></div><div class="w-full"><label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Fim</label><input type="date" id="dateEnd" onchange="updateDashboard()" class="w-full bg-slate-50 border border-slate-200 p-[7px] rounded-xl text-xs"></div></div>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-            <div class="kpi-card bg-white p-6 rounded-2xl border-blue-500 shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Público Alvo (Staff)</p>
-                <h2 class="text-3xl font-bold text-slate-800" id="kpiTotalStaff">0</h2>
-                <p class="text-[10px] text-slate-400 mt-1">Base filtrada atual</p>
-            </div>
-            <div class="kpi-card bg-white p-6 rounded-2xl border-emerald-500 shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Colaboradores Treinados</p>
-                <h2 class="text-3xl font-bold text-emerald-600" id="kpiTrained">0</h2>
-                <p class="text-[10px] text-emerald-500 mt-1 font-bold" id="kpiRate">0% de cobertura</p>
-            </div>
-            <div class="kpi-card bg-white p-6 rounded-2xl border-amber-500 shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Gap de Capacitação</p>
-                <h2 class="text-3xl font-bold text-amber-600" id="kpiGap">0</h2>
-                <p class="text-[10px] text-amber-500 mt-1">Pessoas sem os cursos selecionados</p>
-            </div>
-            <div class="kpi-card bg-white p-6 rounded-2xl border-purple-500 shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total de Conclusões</p>
-                <h2 class="text-3xl font-bold text-purple-600" id="kpiTotalCert">0</h2>
-                <p class="text-[10px] text-slate-400 mt-1">Volume bruto de certificados</p>
-            </div>
+            <div class="kpi-card bg-white p-6 rounded-2xl border-blue-500 shadow-sm"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Público Alvo (Staff)</p><h2 class="text-3xl font-bold text-slate-800" id="kpiTotalStaff">0</h2><p class="text-[10px] text-slate-400 mt-1">Base filtrada atual</p></div>
+            <div class="kpi-card bg-white p-6 rounded-2xl border-emerald-500 shadow-sm"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Colab. Treinados</p><h2 class="text-3xl font-bold text-emerald-600" id="kpiTrained">0</h2><p class="text-[10px] text-emerald-500 mt-1 font-bold" id="kpiRate">0% de cobertura</p></div>
+            <div class="kpi-card bg-white p-6 rounded-2xl border-amber-500 shadow-sm"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Gap de Capacitação</p><h2 class="text-3xl font-bold text-amber-600" id="kpiGap">0</h2><p class="text-[10px] text-amber-500 mt-1">Sem os cursos filtrados</p></div>
+            <div class="kpi-card bg-white p-6 rounded-2xl border-purple-500 shadow-sm"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Conclusões (Volume)</p><h2 class="text-3xl font-bold text-purple-600" id="kpiTotalCert">0</h2><p class="text-[10px] text-slate-400 mt-1">Certificados no período</p></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-sm font-bold text-slate-700 uppercase mb-6 flex justify-between">
-                    🎯 Penetração por Curso (% da Base Staff)
-                    <span class="text-[10px] text-blue-500 italic">Clique na barra para filtrar</span>
-                </h3>
-                <div class="chart-container"><canvas id="chartCoursePenetration"></canvas></div>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-sm font-bold text-slate-700 uppercase mb-6">📍 Cobertura por Cluster</h3>
-                <div class="chart-container"><canvas id="chartClusterCoverage"></canvas></div>
-            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100"><h3 class="text-sm font-bold text-slate-700 uppercase mb-6 flex justify-between">🎯 Penetração por Curso (% da Base)<span class="text-[10px] text-blue-500 italic">Clique na barra</span></h3><div class="chart-container"><canvas id="chartCoursePenetration"></canvas></div></div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100"><h3 class="text-sm font-bold text-slate-700 uppercase mb-6">📍 Cobertura por Cluster</h3><div class="chart-container"><canvas id="chartClusterCoverage"></canvas></div></div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-12">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800">Detalhamento Individual (Gap Analysis)</h3>
-                <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Pesquisar nome ou e-mail..." class="text-xs border border-slate-200 p-2 rounded-lg w-64">
+                <h3 class="font-bold text-slate-800">Detalhamento (Gap Analysis)</h3>
+                <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Pesquisar..." class="text-xs border border-slate-200 p-2 rounded-lg w-64">
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Cluster</th>
-                            <th>Função</th>
-                            <th>Status Treinamento</th>
-                            <th>Cursos Concluídos (no período/filtros)</th>
-                        </tr>
-                    </thead>
+            <div class="overflow-x-auto max-h-96">
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-slate-50 shadow-sm"><tr><th>Nome</th><th>Cluster</th><th>Função</th><th>Status</th><th>Cursos (no filtro)</th></tr></thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
@@ -159,23 +90,23 @@
     </main>
 
     <script>
-        // Sistema de Senha
         const SENHA_MESTRA = "1234";
+        let rawStaff = [], rawTrainings = [];
+        let filteredStaff = [], currentTrainings = [];
+        let charts = {};
+        let selectedFilters = { cluster: [], role: [], method: [], course: [], facilitator: [] };
 
         function checkAuth() {
             const input = document.getElementById('passInput').value;
-            const error = document.getElementById('authError');
             if (input === SENHA_MESTRA) {
                 sessionStorage.setItem("dashboard_auth", "true");
                 document.getElementById('authOverlay').style.display = 'none';
-                loadAllData(); // Só carrega os dados após a senha correta
+                loadAllData();
             } else {
-                error.style.display = 'block';
-                document.getElementById('passInput').value = '';
+                document.getElementById('authError').classList.remove('hidden');
             }
         }
 
-        // Verifica a sessão ao carregar a página
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem("dashboard_auth") === "true") {
                 document.getElementById('authOverlay').style.display = 'none';
@@ -183,49 +114,45 @@
             }
         });
 
-        // Configuração Global de Dados
-        let rawStaff = [], rawTrainings = [];
-        let filteredStaff = [], currentTrainings = [];
-        let charts = {};
-        let selectedFilters = { cluster: [], role: [], method: [], course: [], facilitator: [] };
-
         async function loadAllData() {
             try {
-                const staffRes = await fetch('FCP staff.csv');
+                const badge = document.getElementById('statusBadge');
+                badge.textContent = 'BAIXANDO BASES...';
+
+                // Lógica robusta para GitHub: tenta fcp_staff.csv, se falhar, tenta com espaço
+                let staffRes = await fetch('fcp_staff.csv');
+                if(!staffRes.ok) staffRes = await fetch('FCP staff.csv');
                 const trainRes = await fetch('dados.csv');
 
-                if (!staffRes.ok || !trainRes.ok) throw new Error("Arquivos CSV não encontrados.");
+                if (!staffRes.ok || !trainRes.ok) throw new Error("Arquivos CSV não encontrados no repositório (Erro 404).");
 
-                const staffText = await staffRes.text();
-                const trainText = await trainRes.text();
+                // Em vez de ler como Texto e dividir por vírgula, lemos como ArrayBuffer para o SheetJS processar
+                const staffBuffer = await staffRes.arrayBuffer();
+                const trainBuffer = await trainRes.arrayBuffer();
 
-                rawStaff = parseCSV(staffText);
-                rawTrainings = parseCSV(trainText);
+                const wbStaff = XLSX.read(new Uint8Array(staffBuffer), {type: 'array'});
+                const wbTrain = XLSX.read(new Uint8Array(trainBuffer), {type: 'array'});
 
+                rawStaff = XLSX.utils.sheet_to_json(wbStaff.Sheets[wbStaff.SheetNames[0]], { defval: "" });
+                rawTrainings = XLSX.utils.sheet_to_json(wbTrain.Sheets[wbTrain.SheetNames[0]], { defval: "" });
+
+                badge.textContent = 'CONECTADO À BASE';
+                badge.className = 'text-[10px] bg-emerald-100 text-emerald-700 px-3 py-2 rounded-full font-bold self-center uppercase';
+                
                 initDashboard();
             } catch (e) {
-                console.error("Erro no carregamento:", e);
-                document.getElementById('statusBadge').textContent = 'ERRO DE CONEXÃO';
+                console.error(e);
+                document.getElementById('statusBadge').textContent = 'ERRO - ARQUIVO NÃO ENCONTRADO';
                 document.getElementById('statusBadge').className = 'text-[10px] bg-red-100 text-red-700 px-3 py-2 rounded-full font-bold self-center';
+                alert("Erro ao carregar os dados. Verifique se os nomes dos arquivos no GitHub são exatamente 'dados.csv' e 'fcp_staff.csv'.");
             }
-        }
-
-        function parseCSV(text) {
-            const lines = text.split('\n');
-            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-            return lines.slice(1).filter(l => l.trim() !== "").map(line => {
-                const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
-                let obj = {};
-                headers.forEach((h, i) => obj[h] = values[i]);
-                return obj;
-            });
         }
 
         function initDashboard() {
             const clusters = [...new Set(rawStaff.map(s => s.FCP_CLUSTER || s.Cluster).filter(Boolean))].sort();
             const roles = [...new Set(rawStaff.map(s => s.Role || s.Função).filter(Boolean))].sort();
-            const methods = [...new Set(rawTrainings.map(t => t.method || t.Método).filter(Boolean))].sort();
-            const courses = [...new Set(rawTrainings.map(t => t.course || t.Curso).filter(Boolean))].sort();
+            const methods = [...new Set(rawTrainings.map(t => t.method || t.Método || t['Training Method']).filter(Boolean))].sort();
+            const courses = [...new Set(rawTrainings.map(t => t.course || t.Curso || t['Course Name']).filter(Boolean))].sort();
             const facilitators = [...new Set(rawTrainings.map(t => t.facilitator || t.Facilitador || t['Partnership Facilitator']).filter(Boolean))].sort();
 
             renderDropdown('dropCluster', 'cluster', clusters);
@@ -238,7 +165,6 @@
         }
 
         function updateDashboard() {
-            // 1. Filtrar Base Staff (Denominador)
             filteredStaff = rawStaff.filter(s => {
                 const sCluster = s.FCP_CLUSTER || s.Cluster;
                 const sRole = s.Role || s.Função;
@@ -247,44 +173,42 @@
                 return matchCluster && matchRole;
             });
 
-            // Coletar datas dos inputs
             const sDate = document.getElementById('dateStart').value;
             const eDate = document.getElementById('dateEnd').value;
-
-            // 2. Filtrar Treinamentos (Numerador)
-            const emailsStaffFiltrado = new Set(filteredStaff.map(s => (s.Email || '').toLowerCase()));
+            const emailsStaffFiltrado = new Set(filteredStaff.map(s => (s.Email || s.email || '').toLowerCase().trim()));
             
             currentTrainings = rawTrainings.filter(t => {
-                if(!t.Email) return false;
+                const rawEmail = t.Email || t.email;
+                if(!rawEmail) return false;
                 
-                const email = t.Email.toLowerCase();
-                const tMethod = t.method || t.Método;
-                const tCourse = t.course || t.Curso;
+                const email = String(rawEmail).toLowerCase().trim();
+                const tMethod = t.method || t.Método || t['Training Method'];
+                const tCourse = t.course || t.Curso || t['Course Name'];
                 const tFacilitator = t.facilitator || t.Facilitador || t['Partnership Facilitator'];
-                const tStatus = t.status || t.Status || t.ACTIVITY_CODE;
+                const tStatus = t.status || t.Status || t.ACTIVITY_CODE || t.STATUS;
                 const tDateStr = t.date || t.Data || t.ACTIVITY_DATE_TIME;
 
                 const matchStaff = emailsStaffFiltrado.has(email);
                 const matchMethod = selectedFilters.method.length === 0 || selectedFilters.method.includes(tMethod);
                 const matchCourse = selectedFilters.course.length === 0 || selectedFilters.course.includes(tCourse);
                 const matchFacilitator = selectedFilters.facilitator.length === 0 || selectedFilters.facilitator.includes(tFacilitator);
-                const isCompleted = ['Completed', 'Concluído', 'Attended'].includes(tStatus);
+                const isCompleted = ['Completed', 'Concluído', 'Attended', 'Concluido'].includes(tStatus);
                 
-                // Validação de Data (Tenta converter formatos comuns)
                 let matchDate = true;
                 if (sDate || eDate) {
                     if (tDateStr) {
-                        let dParts = tDateStr.split('/');
-                        let d = dParts.length === 3 
-                            ? new Date(dParts[2].substring(0,4), dParts[1] - 1, dParts[0]) // DD/MM/YYYY
-                            : new Date(tDateStr); // ISO ou MM/DD/YYYY
+                        let d = new Date(tDateStr); 
+                        if(String(tDateStr).includes('/')) {
+                            const p = String(tDateStr).split(/[\/\s:]/); // lida com DD/MM/YYYY
+                            if(p.length >= 3 && p[2].length === 4) d = new Date(p[2], p[1]-1, p[0]);
+                        }
                         
                         if (!isNaN(d.getTime())) {
                             if (sDate) matchDate = matchDate && (d >= new Date(sDate + 'T00:00:00'));
                             if (eDate) matchDate = matchDate && (d <= new Date(eDate + 'T23:59:59'));
                         }
                     } else {
-                        matchDate = false; // Se a pessoa filtrou por data, mas o registro não tem data
+                        matchDate = false;
                     }
                 }
 
@@ -298,13 +222,12 @@
 
         function renderKPIs() {
             const total = filteredStaff.length;
-            const trainedEmails = new Set(currentTrainings.map(t => t.Email.toLowerCase()));
-            const trainedCount = trainedEmails.size;
-            const rate = total > 0 ? ((trainedCount / total) * 100).toFixed(1) : 0;
+            const trainedEmails = new Set(currentTrainings.map(t => String(t.Email||t.email).toLowerCase().trim()));
+            const rate = total > 0 ? ((trainedEmails.size / total) * 100).toFixed(1) : 0;
 
             document.getElementById('kpiTotalStaff').textContent = total;
-            document.getElementById('kpiTrained').textContent = trainedCount;
-            document.getElementById('kpiGap').textContent = total - trainedCount;
+            document.getElementById('kpiTrained').textContent = trainedEmails.size;
+            document.getElementById('kpiGap').textContent = total - trainedEmails.size;
             document.getElementById('kpiTotalCert').textContent = currentTrainings.length;
             document.getElementById('kpiRate').textContent = `${rate}% de cobertura`;
         }
@@ -313,22 +236,16 @@
             const totalStaff = filteredStaff.length;
             if(totalStaff === 0) return;
 
-            // --- Gráfico 1: Cursos ---
             const courseStats = {};
-            rawTrainings.forEach(t => {
-                const c = t.course || t.Curso;
-                if (c && !courseStats[c]) courseStats[c] = new Set();
-            });
-
             currentTrainings.forEach(t => {
-                const c = t.course || t.Curso;
-                if(c) courseStats[c].add(t.Email.toLowerCase());
+                const c = t.course || t.Curso || t['Course Name'];
+                if(c) {
+                    if(!courseStats[c]) courseStats[c] = new Set();
+                    courseStats[c].add(String(t.Email||t.email).toLowerCase().trim());
+                }
             });
 
-            const labels = Object.keys(courseStats)
-                .sort((a,b) => courseStats[b].size - courseStats[a].size)
-                .slice(0, 8);
-            
+            const labels = Object.keys(courseStats).sort((a,b) => courseStats[b].size - courseStats[a].size).slice(0, 8);
             const dataPene = labels.map(l => (courseStats[l].size / totalStaff * 100).toFixed(1));
             const dataGap = dataPene.map(v => (100 - parseFloat(v)).toFixed(1));
 
@@ -339,8 +256,7 @@
                     { label: '% Restante (Gap)', data: dataGap, backgroundColor: '#f1f5f9', borderRadius: 5 }
                 ]
             }, { 
-                indexAxis: 'y', 
-                scales: { x: { stacked: true, max: 100 }, y: { stacked: true } },
+                indexAxis: 'y', scales: { x: { stacked: true, max: 100 }, y: { stacked: true } },
                 plugins: { datalabels: { formatter: (v, ctx) => ctx.datasetIndex === 0 && parseFloat(v) > 0 ? v + '%' : '' } },
                 onClick: (e, items) => {
                     if(items.length > 0) {
@@ -352,7 +268,6 @@
                 }
             });
 
-            // --- Gráfico 2: Cluster ---
             const clusterMap = {};
             filteredStaff.forEach(s => {
                 const c = s.FCP_CLUSTER || s.Cluster || 'N/A';
@@ -361,8 +276,8 @@
             });
 
             currentTrainings.forEach(t => {
-                const email = t.Email.toLowerCase();
-                const staffMember = rawStaff.find(s => (s.Email || '').toLowerCase() === email);
+                const email = String(t.Email||t.email).toLowerCase().trim();
+                const staffMember = rawStaff.find(s => String(s.Email||s.email).toLowerCase().trim() === email);
                 if(staffMember) {
                     const c = staffMember.FCP_CLUSTER || staffMember.Cluster || 'N/A';
                     if(clusterMap[c]) clusterMap[c].trained.add(email);
@@ -370,72 +285,45 @@
             });
 
             const cLabels = Object.keys(clusterMap);
-            const cData = cLabels.map(l => (clusterMap[l].trained.size / clusterMap[l].total * 100).toFixed(1));
+            const cData = cLabels.map(l => clusterMap[l].total > 0 ? (clusterMap[l].trained.size / clusterMap[l].total * 100).toFixed(1) : 0);
 
             updateChart('chartClusterCoverage', 'bar', {
                 labels: cLabels,
                 datasets: [{ label: '% Cobertura', data: cData, backgroundColor: '#10b981' }]
-            }, { 
-                scales: { y: { max: 100 } },
-                plugins: { datalabels: { formatter: v => parseFloat(v) > 0 ? v + '%' : '' } }
-            });
+            }, { scales: { y: { max: 100 } }, plugins: { datalabels: { formatter: v => parseFloat(v) > 0 ? v + '%' : '' } } });
         }
 
         function renderTable() {
             const trainedMap = {};
             currentTrainings.forEach(t => {
-                const email = t.Email.toLowerCase();
-                if(!trainedMap[email]) trainedMap[email] = [];
-                trainedMap[email].push(t.course || t.Curso);
+                const email = String(t.Email||t.email).toLowerCase().trim();
+                if(!trainedMap[email]) trainedMap[email] = new Set();
+                trainedMap[email].add(t.course || t.Curso || t['Course Name']);
             });
 
-            const html = filteredStaff.slice(0, 100).map(s => {
-                const email = (s.Email || '').toLowerCase();
-                const cursos = trainedMap[email] || [];
+            const html = filteredStaff.slice(0, 150).map(s => {
+                const email = String(s.Email||s.email).toLowerCase().trim();
+                const cursos = trainedMap[email] ? Array.from(trainedMap[email]) : [];
                 const isTrained = cursos.length > 0;
                 
                 return `<tr>
-                    <td class="font-bold">${s.Name || s.Nome || 'Sem Nome'}</td>
+                    <td class="font-bold">${s.Name || s.Nome || s['Full Name'] || 'N/A'}</td>
                     <td>${s.FCP_CLUSTER || s.Cluster || '-'}</td>
-                    <td>${s.Role || s.Função || '-'}</td>
-                    <td>
-                        <span class="px-2 py-1 rounded-full text-[10px] font-black ${isTrained ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}">
-                            ${isTrained ? 'CAPACITADO' : 'PENDENTE'}
-                        </span>
-                    </td>
+                    <td>${s.Role || s.Função || s['Job Title'] || '-'}</td>
+                    <td><span class="px-2 py-1 rounded-full text-[10px] font-black ${isTrained ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}">${isTrained ? 'CAPACITADO' : 'PENDENTE'}</span></td>
                     <td class="text-[10px] text-slate-500">${cursos.join(', ') || 'Nenhum'}</td>
                 </tr>`;
             }).join('');
             document.getElementById('tableBody').innerHTML = html;
         }
 
-        // --- FUNÇÕES DE UTILIDADE ---
-        
         function updateChart(id, type, data, options) {
-            const canvasElement = document.getElementById(id);
-            if(!canvasElement) return;
-
             if(charts[id]) charts[id].destroy();
-            
-            charts[id] = new Chart(canvasElement, {
-                type, 
-                data, 
-                options: { 
-                    ...options, 
-                    maintainAspectRatio: false, 
-                    plugins: { ...(options.plugins || {}), legend: { display: false } } 
-                }
-            });
+            charts[id] = new Chart(document.getElementById(id), { type, data, options: { ...options, maintainAspectRatio: false, plugins: { ...(options.plugins || {}), legend: { display: false } } } });
         }
 
         function renderDropdown(id, key, options) {
-            const container = document.getElementById(id);
-            container.innerHTML = options.map(opt => `
-                <div class="p-2 hover:bg-slate-50 flex items-center gap-2 cursor-pointer text-xs" onclick="toggleFilter('${key}', '${opt}')">
-                    <input type="checkbox" ${selectedFilters[key].includes(opt) ? 'checked' : ''}>
-                    ${opt}
-                </div>
-            `).join('');
+            document.getElementById(id).innerHTML = options.map(opt => `<div class="p-2 hover:bg-slate-50 flex items-center gap-2 cursor-pointer text-xs" onclick="toggleFilter('${key}', '${opt}')"><input type="checkbox" ${selectedFilters[key].includes(opt) ? 'checked' : ''}> ${opt}</div>`).join('');
         }
 
         function toggleFilter(key, value) {
@@ -443,11 +331,8 @@
             if(idx > -1) selectedFilters[key].splice(idx, 1);
             else selectedFilters[key].push(value);
             
-            document.getElementById(`btn${key.charAt(0).toUpperCase() + key.slice(1)}`).querySelector('span').textContent = 
-                selectedFilters[key].length > 0 ? `${selectedFilters[key].length} selecionado(s)` : 'Todos';
-            
+            document.getElementById(`btn${key.charAt(0).toUpperCase() + key.slice(1)}`).querySelector('span').textContent = selectedFilters[key].length > 0 ? `${selectedFilters[key].length} selecionado(s)` : 'Todos';
             updateDashboard();
-            
             const currentOptions = Array.from(document.querySelectorAll(`#drop${key.charAt(0).toUpperCase() + key.slice(1)} .p-2`)).map(el => el.textContent.trim());
             renderDropdown(`drop${key.charAt(0).toUpperCase() + key.slice(1)}`, key, currentOptions);
         }
@@ -457,25 +342,9 @@
             document.getElementById(id).classList.toggle('show');
         }
 
-        window.onclick = function(event) {
-            if (!event.target.matches('button') && !event.target.closest('.dropdown-content') && !event.target.matches('input[type="date"]')) {
-                document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
-            }
-        }
-
-        function resetAllFilters() {
-            selectedFilters = { cluster: [], role: [], method: [], course: [], facilitator: [] };
-            document.getElementById('dateStart').value = '';
-            document.getElementById('dateEnd').value = '';
-            initDashboard();
-        }
-
-        function filterTable() {
-            const val = document.getElementById('tableSearch').value.toLowerCase();
-            document.querySelectorAll('#tableBody tr').forEach(tr => {
-                tr.style.display = tr.textContent.toLowerCase().includes(val) ? '' : 'none';
-            });
-        }
+        window.onclick = function(e) { if (!e.target.matches('button') && !e.target.closest('.dropdown-content') && !e.target.matches('input[type="date"]')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); }
+        function resetAllFilters() { selectedFilters = { cluster: [], role: [], method: [], course: [], facilitator: [] }; document.getElementById('dateStart').value = ''; document.getElementById('dateEnd').value = ''; initDashboard(); }
+        function filterTable() { const val = document.getElementById('tableSearch').value.toLowerCase(); document.querySelectorAll('#tableBody tr').forEach(tr => { tr.style.display = tr.textContent.toLowerCase().includes(val) ? '' : 'none'; }); }
     </script>
 </body>
 </html>
