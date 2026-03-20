@@ -228,7 +228,6 @@
             var inputSenha = document.getElementById('passInput');
             var msgErro = document.getElementById('authError');
             
-            // Verifica a senha removendo espaços acidentais invisíveis
             if (inputSenha && inputSenha.value.trim() === "1234") {
                 sessionStorage.setItem("dashboard_auth", "true");
                 document.getElementById('authOverlay').style.display = 'none';
@@ -246,14 +245,16 @@
             }
         });
 
-        // --- 2. VARIÁVEIS GLOBAIS ---
+        // --- 2. VARIÁVEIS GLOBAIS COM NOMES CORRIGIDOS ---
         Chart.register(ChartDataLabels);
         var baseTraining = [];
         var baseStaff = [];
         var joinedData = [];
         var currentFilteredData = [];
         var charts = {};
-        var selectedFilters = { roles: [], clusters: [], courses: [], methods: [], facilitators: [] };
+        
+        // CORREÇÃO CRÍTICA AQUI: A chave 'facs' agora corresponde exatamente ao código.
+        var selectedFilters = { roles: [], clusters: [], courses: [], methods: [], facs: [] };
         
         var cols = { 
             email: 'Email', 
@@ -375,6 +376,7 @@
             renderDropdown('dropCluster', 'clusters', uniqueClusters);
             renderDropdown('dropCourse', 'courses', uniqueCourses);
             renderDropdown('dropMethod', 'methods', uniqueMethods);
+            // CORREÇÃO: 'facs' passado perfeitamente aqui correspondendo ao selectedFilters
             renderDropdown('dropFac', 'facs', uniqueFacs);
 
             updateDashboard();
@@ -474,6 +476,7 @@
             renderTable();
         }
 
+        // CORREÇÃO: Função Apply Filters agora usa todos os filtros corretamente
         function applyFilters() {
             var startVal = document.getElementById('dateStart').value;
             var endVal = document.getElementById('dateEnd').value;
@@ -487,6 +490,8 @@
                 var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(row[cols.staffRole]);
                 var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(row[cols.staffCluster]);
                 var dCourse = (selectedFilters.courses.length === 0) || selectedFilters.courses.includes(row[cols.course]);
+                var dMethod = (selectedFilters.methods.length === 0) || selectedFilters.methods.includes(row[cols.method]);
+                var dFac = (selectedFilters.facs.length === 0) || selectedFilters.facs.includes(row[cols.fac]);
                 
                 var dDate = true;
                 if ((start || end) && row[cols.date]) {
@@ -495,7 +500,7 @@
                     if (end && rDate > end) dDate = false;
                 }
                 
-                if (dRole && dCluster && dCourse && dDate) {
+                if (dRole && dCluster && dCourse && dMethod && dFac && dDate) {
                     currentFilteredData.push(row);
                 }
             }
@@ -714,7 +719,8 @@
                     'Curso': row[cols.course],
                     'Status': row[cols.status],
                     'Data Conclusão': row[cols.date],
-                    'Método': row[cols.method]
+                    'Método': row[cols.method],
+                    'Facilitador': row[cols.fac]
                 });
             }
             
