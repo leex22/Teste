@@ -3,390 +3,603 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Treinamentos & Cobertura - FCP</title>
+    <title>Dashboard Estratégico de Treinamentos</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { primary: '#005eb8', darkBg: '#0f172a', darkCard: '#1e293b' }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .dropdown-content { display: none; position: absolute; z-index: 100; width: 100%; max-height: 300px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .show { display: block; }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        .dropdown-content { display: none; position: absolute; z-index: 100; width: 100%; max-height: 350px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .dark .dropdown-content { background: #1e293b; border-color: #475569; }
-        #authOverlay, #uploadOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.825rem; }
-        th { background-color: #f8fafc; text-align: left; padding: 12px; font-weight: 700; color: #64748b; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e2e8f0; }
-        .dark th { background-color: #334155; color: #cbd5e1; border-bottom-color: #475569; }
+        .show { display: block; }
+        .dropdown-item:hover { background-color: #f1f5f9; }
+        .dark .dropdown-item:hover { background-color: #334155; }
+        input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        select, input[type="date"], input[type="text"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; width: 100%; font-size: 0.875rem; background-color: inherit; }
+        .dark select, .dark input { border-color: #475569; color: white; }
+        .label-filter { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: block; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { background-color: #f8fafc; text-align: left; padding: 12px; font-weight: 700; color: #64748b; }
+        .dark th { background-color: #334155; color: #cbd5e1; }
         td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
         .dark td { border-bottom-color: #334155; }
-        .kpi-card { transition: transform 0.2s; }
+        .btn-export-mini { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; color: #475569; font-weight: bold; transition: all 0.2s; }
+        .dark .btn-export-mini { background: #334155; color: #cbd5e1; }
+        .btn-export-mini:hover { background: #cbd5e1; }
+        .dark .btn-export-mini:hover { background: #475569; }
+        .search-filter-input { position: sticky; top: 0; background: white; padding: 8px; z-index: 10; border-bottom: 1px solid #e2e8f0; }
+        .dark .search-filter-input { background: #1e293b; border-bottom-color: #475569; }
+        
+        .kpi-card { transition: transform 0.2s; position: relative; cursor: help; }
         .kpi-card:hover { transform: translateY(-2px); }
+        .tooltip-text { 
+            visibility: hidden; width: 220px; background-color: #334155; color: #fff; text-align: center; 
+            border-radius: 6px; padding: 8px; position: absolute; z-index: 50; bottom: 110%; left: 50%; 
+            margin-left: -110px; opacity: 0; transition: opacity 0.3s; font-size: 11px; font-weight: 400; line-height: 1.4;
+        }
+        .kpi-card:hover .tooltip-text { visibility: visible; opacity: 1; }
+
+        #authOverlay, #loadingOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); width: 100%; max-width: 400px; text-align: center; }
+        .auth-title { color: #1e293b; font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .auth-subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 2rem; }
+        .auth-input-container { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 0.75rem; margin-bottom: 1.5rem; transition: border-color 0.2s; }
+        .auth-input-container:focus-within { border-color: #6366f1; }
+        #passInput { background: transparent; border: none; outline: none; width: 100%; padding: 1rem; text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; color: #1e293b; }
+        .auth-button { background: #5356ff; color: white; width: 100%; padding: 1rem; border-radius: 0.75rem; font-weight: 600; transition: background 0.2s; cursor: pointer; border: none; }
+        .auth-button:hover { background: #4346e5; }
+        .error-msg { color: #ef4444; font-size: 0.75rem; margin-top: 0.5rem; display: none; }
+        
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); width: 40px; height: 40px; border-radius: 50%; border-left-color: #fff; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 p-4 md:p-8">
+<body class="bg-slate-100 text-slate-900 dark:bg-darkBg dark:text-slate-100 p-4 md:p-8">
 
     <div id="authOverlay">
-        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-sm text-center dark:bg-slate-800">
-            <h2 class="text-2xl font-bold mb-4">Acesso Restrito</h2>
-            <p class="text-slate-500 text-sm mb-6">Introduza a senha para aceder à Matriz FCP</p>
-            <input type="password" id="passInput" placeholder="Senha" class="w-full p-3 border rounded-lg mb-4 text-center dark:bg-slate-700 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500" onkeypress="if(event.key==='Enter') checkAuth()">
-            <button onclick="checkAuth()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold transition">Entrar</button>
-            <p id="authError" class="text-red-500 text-xs mt-3 hidden">Senha incorreta. Tente novamente.</p>
+        <div class="auth-card">
+            <h2 class="auth-title">Dashboard FCP</h2>
+            <p class="auth-subtitle">Digite a senha para acessar</p>
+            <div class="auth-input-container">
+                <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') checkAuth()">
+            </div>
+            <button onclick="checkAuth()" class="auth-button">Acessar Dashboard</button>
+            <p id="authError" class="error-msg">Senha incorreta.</p>
         </div>
     </div>
 
-    <div id="uploadOverlay" class="hidden">
-        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md text-center dark:bg-slate-800 border-t-4 border-blue-500">
-            <h2 class="text-2xl font-bold mb-4">Carregar Bases de Dados</h2>
-            <p class="text-slate-500 text-sm mb-6">O seu navegador bloqueou a leitura automática. Por favor, selecione os dois ficheiros: <br><b>dados.csv</b> e <b>FCP staff.xlsx</b></p>
-            
-            <input type="file" id="fileUploader" multiple accept=".csv, .xlsx, .xls" class="block w-full text-sm text-slate-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-full file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100 mb-6 cursor-pointer">
-                
-            <button onclick="processFilesManual()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold transition">Processar Dados</button>
-        </div>
+    <div id="loadingOverlay" style="display: none; flex-direction: column; text-align: center; color: white;">
+        <div class="spinner"></div>
+        <h2 class="text-xl font-bold">Buscando bases de dados...</h2>
+        <p class="text-sm text-slate-400 mt-2">Lendo dados.csv e FCP Staff.csv direto do GitHub</p>
+        <p id="loadingError" class="error-msg mt-4 font-bold bg-red-900 p-4 rounded text-white" style="display: none;"></p>
     </div>
+
+    <header class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-primary dark:text-blue-400">📊 Estratégia de Treinamentos</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">Integração: Operacional (Cursos) x Talentos (Staff)</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="exportFilteredData()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow-md font-medium text-sm flex items-center gap-2">📥 Excel</button>
+            <button onclick="exportDashboardToPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow-md font-medium text-sm flex items-center gap-2">📄 PDF</button>
+            <button onclick="toggleTheme()" class="bg-slate-200 dark:bg-slate-700 p-2 rounded-lg">🌓</button>
+        </div>
+    </header>
 
     <main id="dashboardContent" class="max-w-7xl mx-auto hidden">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-extrabold text-blue-600 tracking-tight">📊 Matriz de Cobertura FCP</h1>
-                <p class="text-slate-500 dark:text-slate-400 text-sm">Monitorização de Treinamentos e Análise de Gaps</p>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="exportFilteredData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition">
-                    📥 Exportar Excel
-                </button>
-                <button onclick="location.reload()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 px-4 py-2 rounded-lg text-sm font-bold transition">
-                    🔄 Recarregar
-                </button>
-            </div>
-        </header>
+        <div id="pdfArea">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+                <div class="lg:col-span-3 bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold uppercase tracking-wider">🔍 Filtros Inteligentes Cruzados</h3>
+                        <button onclick="resetAllFilters()" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase hover:bg-red-200">Limpar Filtros</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="relative"><label class="label-filter">Cargo / Role (Staff)</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Cluster (Staff)</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
+                    </div>
+                </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="relative group">
-                <label class="text-[11px] font-bold uppercase text-slate-500 mb-2 block tracking-widest text-center">Filtrar Função</label>
-                <button onclick="toggleDropdown('dropRole')" id="btnRole" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 w-full rounded-xl text-left text-sm flex justify-between items-center shadow-sm">
-                    <span class="truncate">Todas as Funções</span> <span class="text-slate-400">▾</span>
-                </button>
-                <div id="dropRole" class="dropdown-content mt-2 shadow-xl border-slate-200 dark:border-slate-700"></div>
+                <div class="bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-amber-500">
+                    <h3 class="text-sm font-bold mb-4 uppercase tracking-wider">📅 Período (Atividade)</h3>
+                    <div class="grid grid-cols-1 gap-3"><input type="date" id="dateStart" onchange="updateDashboard()"><input type="date" id="dateEnd" onchange="updateDashboard()"></div>
+                </div>
             </div>
-            <div class="relative group">
-                <label class="text-[11px] font-bold uppercase text-slate-500 mb-2 block tracking-widest text-center">Filtrar Cluster</label>
-                <button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 w-full rounded-xl text-left text-sm flex justify-between items-center shadow-sm">
-                    <span class="truncate">Todos os Clusters</span> <span class="text-slate-400">▾</span>
-                </button>
-                <div id="dropCluster" class="dropdown-content mt-2 shadow-xl border-slate-200 dark:border-slate-700"></div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
+                    <span class="tooltip-text">Quantidade de pessoas únicas treinadas.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Pessoas Únicas</p>
+                    <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
+                </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
+                    <span class="tooltip-text">Total bruto de inscrições em eventos.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Total Inscrições</p>
+                    <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTotal">0</h2>
+                </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm text-center">
+                    <span class="tooltip-text">Treinamentos finalizados com sucesso.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
+                    <h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0</h2>
+                </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm text-center">
+                    <span class="tooltip-text">Matrículas iniciadas sem conclusão registrada.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
+                    <h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0</h2>
+                </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
+                    <span class="tooltip-text">Relação Concluídos / Total de Inscrições.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Taxa de Eficiência</p>
+                    <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
+                </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center">
+                    <span class="tooltip-text">Tempo médio entre o cadastro do colaborador no Staff e a conclusão do primeiro curso (Onboarding Time).</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Tempo Onboarding</p>
+                    <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiOnboarding">0 d</h2>
+                </div>
             </div>
-            <div class="relative group">
-                <label class="text-[11px] font-bold uppercase text-blue-600 mb-2 block tracking-widest text-center">Curso em Análise (Obrigatório)</label>
-                <button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="bg-white dark:bg-slate-800 border-2 border-blue-100 dark:border-blue-900/30 p-3 w-full rounded-xl text-left text-sm flex justify-between items-center shadow-sm">
-                    <span class="truncate font-semibold text-blue-600">Selecionar Curso...</span> <span class="text-blue-400">▾</span>
-                </button>
-                <div id="dropCourse" class="dropdown-content mt-2 shadow-xl border-blue-100 dark:border-blue-900/30"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardSkillGap">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Skill Gap por Cargo (Cursos Concluídos)</h3>
+                        <button onclick="exportSingleChart('cardSkillGap', 'skillgap-cargo')" class="btn-export-mini">PNG</button>
+                    </div>
+                    <div class="h-64"><canvas id="chartSkillGap"></canvas></div>
+                </div>
+                
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardCluster">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📍 Adesão por Cluster (Staff)</h3>
+                        <button onclick="exportSingleChart('cardCluster', 'adesao-cluster')" class="btn-export-mini">PNG</button>
+                    </div>
+                    <div class="h-64"><canvas id="chartCluster"></canvas></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardCourses">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🏆 Top 5 Cursos Mais Requisitados</h3>
+                        <button onclick="exportSingleChart('cardCourses', 'top-cursos')" class="btn-export-mini">PNG</button>
+                    </div>
+                    <div class="h-72"><canvas id="chartCourses"></canvas></div>
+                </div>
+
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardTimeline">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📈 Evolução de Treinamentos</h3>
+                        <button onclick="exportSingleChart('cardTimeline', 'evolucao-mensal')" class="btn-export-mini">PNG</button>
+                    </div>
+                    <div class="h-72"><canvas id="chartTimeline"></canvas></div>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border-b-4 border-blue-500 kpi-card">
-                <p class="text-[10px] font-bold text-slate-400 uppercase text-center mb-1">Público Alvo</p>
-                <h2 class="text-3xl font-black text-center" id="kpiTotal">0</h2>
+        <section class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📋 Detalhamento Enriquecido</h3>
+                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar Nome, Curso, Cluster..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
             </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border-b-4 border-green-500 kpi-card">
-                <p class="text-[10px] font-bold text-slate-400 uppercase text-center mb-1">Concluídos</p>
-                <h2 class="text-3xl font-black text-center text-green-600" id="kpiDone">0</h2>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border-b-4 border-red-500 kpi-card">
-                <p class="text-[10px] font-bold text-slate-400 uppercase text-center mb-1">Gap (Pendentes)</p>
-                <h2 class="text-3xl font-black text-center text-red-600" id="kpiGap">0</h2>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border-b-4 border-purple-500 kpi-card">
-                <p class="text-[10px] font-bold text-slate-400 uppercase text-center mb-1">Cobertura</p>
-                <h2 class="text-3xl font-black text-center text-purple-600" id="kpiRate">0%</h2>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80">
-                <h3 class="font-bold text-xs uppercase mb-4 text-center">Adesão por Cluster</h3>
-                <canvas id="chartCluster"></canvas>
-            </div>
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80">
-                <h3 class="font-bold text-xs uppercase mb-4 text-center">Top 5 Cursos Concluídos</h3>
-                <canvas id="chartCourses"></canvas>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-700">
-            <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                <h3 class="text-sm font-bold uppercase tracking-tight text-slate-500">📋 Lista Nominal de Gap</h3>
-                <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold uppercase" id="tableCounter">Mostrando 0 pessoas</span>
-            </div>
-            <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-                <table id="mainTable">
-                    <thead>
+            <div class="overflow-x-auto max-h-96">
+                <table>
+                    <thead class="sticky top-0 z-10">
                         <tr>
-                            <th>Nome Completo</th>
-                            <th>E-mail</th>
-                            <th>Função no FCP</th>
-                            <th>Cluster</th>
-                            <th class="text-center">Status</th>
+                            <th>Nome (Email)</th>
+                            <th>Cargo Real (Staff)</th>
+                            <th>Cluster (Staff)</th>
+                            <th>Curso</th>
+                            <th>Status</th>
+                            <th>Data</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
-        </div>
+            <p id="tableCounter" class="text-[10px] text-slate-400 mt-4 font-bold uppercase"></p>
+        </section>
     </main>
-
-    <div id="statusMsg" class="mt-40 text-center animate-pulse hidden">
-        <div class="inline-block p-6 rounded-full bg-slate-200 dark:bg-slate-800 mb-4">🔍</div>
-        <p class="text-slate-400 font-medium">A carregar e processar as bases de dados...</p>
-    </div>
 
     <script>
         const SENHA_MESTRA = "1234";
-        let globalStaff = [], globalTrain = [], filters = { roles: [], clusters: [], courses: [] }, charts = {};
 
         function checkAuth() {
             const input = document.getElementById('passInput').value;
+            const error = document.getElementById('authError');
             if (input === SENHA_MESTRA) {
-                sessionStorage.setItem("fcp_auth", "true");
+                sessionStorage.setItem("dashboard_auth", "true");
                 document.getElementById('authOverlay').style.display = 'none';
-                initAutomatic();
+                carregarBasesAutomaticamente(); // Inicia o download das bases após a senha
             } else {
-                document.getElementById('authError').classList.remove('hidden');
+                error.style.display = 'block';
+                document.getElementById('passInput').value = '';
             }
         }
 
-        // --- SISTEMA DE LEITURA ROBUSTO ---
-
-        // Busca nomes de colunas de forma flexível (ignora espaços e maiúsculas)
-        function findCol(obj, aliases) {
-            const keys = Object.keys(obj);
-            for (let a of aliases) {
-                const match = keys.find(k => k.trim().toLowerCase() === a.toLowerCase());
-                if (match) return obj[match];
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem("dashboard_auth") === "true") {
+                document.getElementById('authOverlay').style.display = 'none';
+                carregarBasesAutomaticamente(); // Inicia se já estiver autenticado
             }
-            return "";
-        }
+        });
 
-        // Tenta carregar automaticamente
-        async function loadUniversal(fileName) {
-            const res = await fetch(fileName);
-            if (!res.ok) throw new Error(`Não encontrado: ${fileName}`);
-            const buffer = await res.arrayBuffer();
-            const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
-            return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
-        }
+        Chart.register(ChartDataLabels);
+        
+        let baseTraining = [];
+        let baseStaff = [];
+        let joinedData = [];
+        let currentFilteredData = [];
+        let charts = {};
+        let selectedFilters = { roles: [], clusters: [], courses: [], methods: [], facilitators: [] };
+        
+        const cols = { 
+            email: 'Email', course: 'Course Name', status: 'ACTIVITY_CODE', 
+            date: 'ACTIVITY_DATE_TIME', method: 'Training Method', fac: 'Partnership Facilitator',
+            staffRole: 'Staff_Role', staffCluster: 'Staff_Cluster', staffCreated: 'Staff_CreatedDate'
+        };
 
-        async function initAutomatic() {
-            document.getElementById('statusMsg').classList.remove('hidden');
-            try {
-                // Tenta carregar os ficheiros da mesma pasta
-                const [staffRaw, trainRaw] = await Promise.all([
-                    loadUniversal('FCP staff.xlsx').catch(() => loadUniversal('FCP staff.csv')),
-                    loadUniversal('dados.csv').catch(() => loadUniversal('dados.xlsx'))
-                ]);
-                processData(staffRaw, trainRaw);
-            } catch (e) {
-                // Se falhar (bloqueio do navegador), abre a tela para selecionar manualmente
-                document.getElementById('statusMsg').classList.add('hidden');
-                document.getElementById('uploadOverlay').style.display = 'flex';
-            }
-        }
-
-        // Processa os ficheiros selecionados manualmente pelo usuário
-        async function processFilesManual() {
-            const files = document.getElementById('fileUploader').files;
-            if (files.length < 2) {
-                alert("Por favor, selecione os DOIS ficheiros (dados e staff).");
-                return;
-            }
-
-            let staffRaw = [], trainRaw = [];
-
-            for (let file of files) {
-                const data = await readFileAsArrayBuffer(file);
-                const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
-                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
-
-                // Detecta qual arquivo é qual pelas colunas
-                if (json.length > 0) {
-                    if (json[0].hasOwnProperty('Created Date') || json[0].hasOwnProperty('Role At FCP') || json[0].hasOwnProperty('FCP Cluster')) {
-                        staffRaw = json;
-                    } else {
-                        trainRaw = json;
-                    }
+        // --- FUNÇÃO PARA BUSCAR AS BASES DO GITHUB AUTOMATICAMENTE ---
+        async function fetchFileWithFallback(fileNames) {
+            for (let name of fileNames) {
+                try {
+                    const response = await fetch(name);
+                    if (response.ok) return await response.arrayBuffer();
+                } catch (e) {
+                    console.warn(`Tentativa falhou para: ${name}`);
                 }
             }
+            throw new Error(`Arquivos não encontrados. Tentei: ${fileNames.join(', ')}`);
+        }
 
-            if(staffRaw.length === 0 || trainRaw.length === 0) {
-                alert("Não foi possível identificar as bases corretamente. Certifique-se que subiu a base de STAFF e a base de DADOS (Treinamentos).");
-                return;
+        async function carregarBasesAutomaticamente() {
+            const overlay = document.getElementById('loadingOverlay');
+            const errorMsg = document.getElementById('loadingError');
+            overlay.style.display = 'flex';
+            errorMsg.style.display = 'none';
+
+            try {
+                // Listas de possíveis nomes (O GitHub é sensível a maiúsculas/minúsculas)
+                const trainingNames = ['dados.csv', 'dados.xlsx', 'Dados.csv', 'Dados.xlsx'];
+                const staffNames = ['FCP staff.csv', 'FCP Staff.csv', 'FCP_Staff.csv', 'FCP staff.xlsx', 'FCP Staff.xlsx'];
+
+                // 1. Busca e processa a Base de Treinamentos
+                const bufferTraining = await fetchFileWithFallback(trainingNames);
+                const wbTraining = XLSX.read(new Uint8Array(bufferTraining), { type: 'array', cellDates: true });
+                baseTraining = XLSX.utils.sheet_to_json(wbTraining.Sheets[wbTraining.SheetNames[0]], { defval: "" });
+
+                // 2. Busca e processa a Base de Colaboradores (Staff)
+                const bufferStaff = await fetchFileWithFallback(staffNames);
+                const wbStaff = XLSX.read(new Uint8Array(bufferStaff), { type: 'array', cellDates: true });
+                baseStaff = XLSX.utils.sheet_to_json(wbStaff.Sheets[wbStaff.SheetNames[0]], { defval: "" });
+
+                // 3. Inicia o cruzamento e oculta a tela de carregamento
+                processDataJoin();
+                overlay.style.display = 'none';
+
+            } catch (error) {
+                console.error(error);
+                errorMsg.textContent = "ERRO: " + error.message + " Verifique se os arquivos estão na mesma pasta do repositório no GitHub com esses nomes exatos.";
+                errorMsg.style.display = 'block';
+                document.querySelector('.spinner').style.display = 'none';
             }
-
-            document.getElementById('uploadOverlay').style.display = 'none';
-            processData(staffRaw, trainRaw);
         }
 
-        function readFileAsArrayBuffer(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = e => resolve(e.target.result);
-                reader.onerror = e => reject(e);
-                reader.readAsArrayBuffer(file);
+        // --- LÓGICA DE CRUZAMENTO DE DADOS ---
+        function processDataJoin() {
+            const staffDict = {};
+            baseStaff.forEach(row => {
+                const email = String(row['Email'] || '').trim().toLowerCase();
+                if (email) staffDict[email] = row;
             });
+
+            joinedData = baseTraining.map(t => {
+                const email = String(t['Email'] || t['EMAIL'] || '').trim().toLowerCase();
+                const staffRecord = staffDict[email] || {};
+
+                const tStatus = t['ACTIVITY_CODE'] || t['STATUS'] || t['Status'] || '';
+                const tDate = t['ACTIVITY_DATE_TIME'] || t['Date'] || '';
+                
+                return {
+                    ...t,
+                    Email_Lower: email,
+                    [cols.status]: tStatus,
+                    [cols.date]: tDate,
+                    [cols.staffRole]: staffRecord['Role At FCP'] || staffRecord['Role at FCP'] || 'Não Identificado',
+                    [cols.staffCluster]: staffRecord['FCP Cluster'] || staffRecord['FCP_CLUSTER'] || 'Não Identificado',
+                    [cols.staffCreated]: staffRecord['Created Date'] || staffRecord['Created_Date'] || null,
+                    NameDisplay: staffRecord['First Name'] ? `${staffRecord['First Name']} ${staffRecord['Last Name']}` : (t['Name'] || email)
+                };
+            });
+
+            initDashboard();
         }
 
-        // --- LÓGICA DE NEGÓCIO E CRUZAMENTO ---
-
-        function processData(staffRaw, trainRaw) {
-            // Mapeia Staff (O Denominador)
-            globalStaff = staffRaw.map(s => ({
-                nome: `${findCol(s, ['First Name', 'Nome'])} ${findCol(s, ['Last Name', 'Sobrenome'])}`.trim(),
-                email: String(findCol(s, ['Email', 'E-mail'])).trim().toLowerCase(),
-                role: findCol(s, ['Role At FCP', 'Role', 'Função']),
-                cluster: findCol(s, ['FCP Cluster', 'Cluster', 'Região'])
-            })).filter(i => i.email && i.email !== "null" && i.email !== "");
-
-            // Mapeia Treinamentos (A Fatia)
-            globalTrain = trainRaw.map(t => ({
-                email: String(findCol(t, ['Email', 'E-mail'])).trim().toLowerCase(),
-                curso: findCol(t, ['Course Name', 'Course', 'Curso']),
-                status: findCol(t, ['ACTIVITY_CODE', 'Status', 'Situação'])
-            })).filter(i => i.email && i.email !== "null" && i.email !== "");
-
-            renderFilter('dropRole', 'roles', globalStaff.map(s => s.role));
-            renderFilter('dropCluster', 'clusters', globalStaff.map(s => s.cluster));
-            renderFilter('dropCourse', 'courses', globalTrain.map(t => t.curso));
-
-            document.getElementById('statusMsg').classList.add('hidden');
+        function initDashboard() {
             document.getElementById('dashboardContent').classList.remove('hidden');
-            update();
+
+            renderDropdown('dropRole', 'roles', [...new Set(joinedData.map(i => i[cols.staffRole]))].sort());
+            renderDropdown('dropCluster', 'clusters', [...new Set(joinedData.map(i => i[cols.staffCluster]))].sort());
+            renderDropdown('dropCourse', 'courses', [...new Set(joinedData.map(i => i[cols.course]))].sort());
+            renderDropdown('dropMethod', 'methods', [...new Set(joinedData.map(i => i[cols.method]))].sort());
+            renderDropdown('dropFac', 'facs', [...new Set(joinedData.map(i => i[cols.fac]))].sort());
+
+            updateDashboard();
         }
 
-        function renderFilter(id, key, data) {
-            const items = [...new Set(data)].filter(Boolean).sort();
-            document.getElementById(id).innerHTML = items.map(opt => `
-                <div class="p-3 text-xs hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer flex items-center gap-3 border-b dark:border-slate-700 transition" onclick="event.stopPropagation();">
-                    <input type="checkbox" class="w-4 h-4 rounded border-slate-300" onchange="handleF('${key}', '${opt.replace(/'/g, "\\'")}', this)">
-                    <span class="truncate">${opt}</span>
-                </div>`).join('');
-        }
-
-        function handleF(key, val, el) {
-            const idx = filters[key].indexOf(val);
-            if(el.checked) { if(idx === -1) filters[key].push(val); }
-            else { if(idx > -1) filters[key].splice(idx, 1); }
+        // Funções de UI Auxiliares
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); updateChartsColors(); }
+        window.onclick = function(e) { if (!e.target.closest('.relative')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); }
+        function toggleDropdown(id) { document.querySelectorAll('.dropdown-content').forEach(d => { if (d.id !== id) d.classList.remove('show'); }); document.getElementById(id).classList.toggle('show'); }
+        
+        function renderDropdown(elementId, filterKey, options) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
             
-            // Atualiza Label do Botão
-            const btnId = 'btn' + key.charAt(0).toUpperCase() + key.slice(1, -1);
-            const btnSpan = document.getElementById(btnId).querySelector('span');
-            btnSpan.textContent = filters[key].length > 0 ? `${filters[key].length} selecionado(s)` : (key === 'courses' ? 'Selecionar Curso...' : `Todas as ${key === 'roles' ? 'Funções' : 'Regiões'}`);
+            const validOptions = options.filter(o => o && String(o).trim() !== "");
+            if (validOptions.length === 0) return;
+
+            const selectAllDiv = document.createElement('div');
+            selectAllDiv.className = 'dropdown-item p-2 text-sm font-bold border-b border-slate-200 dark:border-slate-700 cursor-pointer';
+            selectAllDiv.innerHTML = `<input type="checkbox" id="selectAll_${filterKey}"> <span class="ml-2">Selecionar Todos</span>`;
             
-            update();
+            selectAllDiv.onclick = (e) => {
+                const cb = selectAllDiv.querySelector('input');
+                if(e.target !== cb) cb.checked = !cb.checked;
+                selectedFilters[filterKey] = cb.checked ? [...validOptions] : [];
+                container.querySelectorAll('.filter-checkbox').forEach(input => input.checked = cb.checked);
+                updateDashboard();
+            };
+            container.appendChild(selectAllDiv);
+
+            validOptions.forEach(opt => {
+                const div = document.createElement('div');
+                div.className = 'dropdown-item p-2 text-sm cursor-pointer flex items-center gap-2';
+                const isChecked = selectedFilters[filterKey].includes(opt) ? 'checked' : '';
+                div.innerHTML = `<input type="checkbox" value="${opt}" class="filter-checkbox" ${isChecked}> <span>${opt}</span>`;
+                div.onclick = (e) => {
+                    if (e.target.tagName !== 'INPUT') { const cb = div.querySelector('input'); cb.checked = !cb.checked; }
+                    const cb = div.querySelector('input');
+                    if (cb.checked) { if (!selectedFilters[filterKey].includes(opt)) selectedFilters[filterKey].push(opt); } 
+                    else { selectedFilters[filterKey] = selectedFilters[filterKey].filter(v => v !== opt); }
+                    updateDashboard();
+                };
+                container.appendChild(div);
+            });
         }
 
-        function toggleDropdown(id) {
-            const el = document.getElementById(id);
-            const isVisible = el.classList.contains('show');
-            document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
-            if(!isVisible) el.classList.add('show');
+        function resetAllFilters() {
+            Object.keys(selectedFilters).forEach(k => selectedFilters[k] = []);
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('dateStart').value = '';
+            document.getElementById('dateEnd').value = '';
+            updateDashboard();
         }
 
-        function update() {
-            // 1. Filtrar o público-alvo (Denominador travado em Função e Cluster)
-            const target = globalStaff.filter(s => 
-                (filters.roles.length === 0 || filters.roles.includes(s.role)) &&
-                (filters.clusters.length === 0 || filters.clusters.includes(s.cluster))
-            );
-
-            // 2. Filtrar Treinamentos Específicos e extrair E-mails de quem concluiu
-            const concluintes = new Set(globalTrain.filter(t => 
-                ['Completed', 'Attended', 'Concluído'].includes(t.status) &&
-                (filters.courses.length === 0 || filters.courses.includes(t.curso))
-            ).map(t => t.email));
-
-            // 3. Cruzamento (Join)
-            const treinados = target.filter(s => concluintes.has(s.email)).length;
-            const gap = target.length - treinados;
-            const rate = target.length > 0 ? Math.round((treinados / target.length) * 100) : 0;
-
-            // 4. Atualizar KPIs
-            document.getElementById('kpiTotal').innerText = target.length;
-            document.getElementById('kpiDone').innerText = treinados;
-            document.getElementById('kpiGap').innerText = gap;
-            document.getElementById('kpiRate').innerText = rate + '%';
-            document.getElementById('tableCounter').innerText = `Mostrando ${target.length} pessoas`;
-
-            // 5. Atualizar Tabela Nominal
-            document.getElementById('tableBody').innerHTML = target.map(s => {
-                const isOk = concluintes.has(s.email);
-                return `
-                <tr class="${isOk ? 'opacity-40 grayscale-[0.5]' : 'bg-red-50/50 dark:bg-red-900/10'} transition-all">
-                    <td class="font-bold text-slate-700 dark:text-slate-200">${s.nome}</td>
-                    <td class="text-slate-500 italic text-[11px]">${s.email}</td>
-                    <td>${s.role || 'Não Definido'}</td>
-                    <td>${s.cluster || '-'}</td>
-                    <td class="text-center">
-                        <span class="text-[9px] px-3 py-1 rounded-full font-black tracking-tighter ${isOk ? 'bg-green-100 text-green-700' : 'bg-red-500 text-white shadow-sm'}">
-                            ${isOk ? 'CONCLUÍDO' : 'PENDENTE'}
-                        </span>
-                    </td>
-                </tr>`;
-            }).join('');
-
-            renderCharts(target, concluintes);
+        function updateDashboard() {
+            applyFilters();
+            calculateKPIs();
+            calculateOnboardingKPI();
+            updateCharts();
+            renderTable();
         }
 
-        function renderCharts(target, concluintes) {
-            const ctxCluster = document.getElementById('chartCluster').getContext('2d');
-            const clusters = [...new Set(target.map(s => s.cluster))].filter(Boolean);
-            const dataCluster = clusters.map(c => target.filter(s => s.cluster === c && concluintes.has(s.email)).length);
+        function applyFilters() {
+            const start = document.getElementById('dateStart').value ? new Date(document.getElementById('dateStart').value) : null;
+            const end = document.getElementById('dateEnd').value ? new Date(document.getElementById('dateEnd').value) : null;
 
-            if(charts.cluster) charts.cluster.destroy();
-            charts.cluster = new Chart(ctxCluster, {
-                type: 'bar',
-                data: { labels: clusters, datasets: [{ label: 'Concluídos', data: dataCluster, backgroundColor: '#3b82f6' }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            currentFilteredData = joinedData.filter(row => {
+                const dRole = !selectedFilters.roles.length || selectedFilters.roles.includes(row[cols.staffRole]);
+                const dCluster = !selectedFilters.clusters.length || selectedFilters.clusters.includes(row[cols.staffCluster]);
+                const dCourse = !selectedFilters.courses.length || selectedFilters.courses.includes(row[cols.course]);
+                
+                let dDate = true;
+                if ((start || end) && row[cols.date]) {
+                    const rDate = new Date(row[cols.date]);
+                    if (start && rDate < start) dDate = false;
+                    if (end && rDate > end) dDate = false;
+                }
+                return dRole && dCluster && dCourse && dDate;
+            });
+        }
+
+        function calculateKPIs() {
+            const d = currentFilteredData;
+            const emailsUnicos = new Set(d.map(i => i.Email_Lower)).size;
+            const concluidos = d.filter(i => String(i[cols.status]).toLowerCase().includes('completed')).length;
+            const dropout = d.filter(i => String(i[cols.status]).toLowerCase().includes('enrolled')).length;
+
+            document.getElementById('kpiUnique').innerText = emailsUnicos;
+            document.getElementById('kpiTotal').innerText = d.length;
+            document.getElementById('kpiCompleted').innerText = concluidos;
+            document.getElementById('kpiDropout').innerText = dropout;
+            document.getElementById('kpiRate').innerText = d.length > 0 ? Math.round((concluidos / d.length) * 100) + '%' : '0%';
+        }
+
+        function calculateOnboardingKPI() {
+            let totalDays = 0;
+            let validUsers = 0;
+            const userFirstCompletion = {};
+
+            currentFilteredData.forEach(row => {
+                const status = String(row[cols.status]).toLowerCase();
+                const createdDate = row[cols.staffCreated];
+                const activityDate = row[cols.date];
+
+                if (status.includes('completed') && createdDate && activityDate) {
+                    const email = row.Email_Lower;
+                    const dCreated = new Date(createdDate);
+                    const dActivity = new Date(activityDate);
+                    
+                    if (!userFirstCompletion[email] || dActivity < userFirstCompletion[email].activity) {
+                        userFirstCompletion[email] = { created: dCreated, activity: dActivity };
+                    }
+                }
             });
 
-            const ctxCourses = document.getElementById('chartCourses').getContext('2d');
-            const counts = {};
-            // Gráfico de cursos baseado no público alvo selecionado!
-            globalTrain.filter(t => ['Completed', 'Attended', 'Concluído'].includes(t.status) && target.find(s => s.email === t.email))
-                       .forEach(t => counts[t.curso] = (counts[t.curso] || 0) + 1);
-            
-            const top = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 5);
-
-            if(charts.courses) charts.courses.destroy();
-            charts.courses = new Chart(ctxCourses, {
-                type: 'bar',
-                data: { labels: top.map(x => x[0].substring(0,20)+'...'), datasets: [{ data: top.map(x => x[1]), backgroundColor: '#8b5cf6' }] },
-                options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            Object.values(userFirstCompletion).forEach(user => {
+                const diffTime = user.activity - user.created;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays >= 0 && diffDays < 3650) { 
+                    totalDays += diffDays;
+                    validUsers++;
+                }
             });
+
+            const avgDays = validUsers > 0 ? (totalDays / validUsers).toFixed(0) : 0;
+            document.getElementById('kpiOnboarding').innerText = avgDays + " dias";
+        }
+
+        function updateCharts() {
+            const d = currentFilteredData;
+            const isDark = document.documentElement.classList.contains('dark');
+            const tColor = isDark ? '#cbd5e1' : '#475569';
+
+            const roleCount = {};
+            d.filter(i => String(i[cols.status]).toLowerCase().includes('completed')).forEach(i => {
+                const role = i[cols.staffRole];
+                roleCount[role] = (roleCount[role] || 0) + 1;
+            });
+            const roleSorted = Object.entries(roleCount).sort((a,b) => b[1] - a[1]).slice(0, 8);
+            updateChart('chartSkillGap', 'bar', {
+                labels: roleSorted.map(i => i[0]),
+                datasets: [{ label: 'Cursos Concluídos', data: roleSorted.map(i => i[1]), backgroundColor: '#3b82f6', borderRadius: 4 }]
+            }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+
+            const clusterCount = {};
+            d.forEach(i => { clusterCount[i[cols.staffCluster]] = (clusterCount[i[cols.staffCluster]] || 0) + 1; });
+            const clusterLabels = Object.keys(clusterCount);
+            updateChart('chartCluster', 'doughnut', {
+                labels: clusterLabels,
+                datasets: [{ data: Object.values(clusterCount), backgroundColor: ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899'] }]
+            }, { plugins: { legend: { position: 'right', labels: { color: tColor } } }, cutout: '60%' });
+
+            const courseCount = {};
+            d.filter(i => String(i[cols.status]).toLowerCase().includes('completed')).forEach(i => { courseCount[i[cols.course]] = (courseCount[i[cols.course]] || 0) + 1; });
+            const courseSorted = Object.entries(courseCount).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            updateChart('chartCourses', 'bar', {
+                labels: courseSorted.map(i => i[0].substring(0,25)+'...'),
+                datasets: [{ data: courseSorted.map(i => i[1]), backgroundColor: '#10b981', borderRadius: 6 }]
+            }, { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+
+            const timeData = {};
+            d.forEach(i => {
+                if(i[cols.date]){
+                    const dt = new Date(i[cols.date]);
+                    if(!isNaN(dt)){
+                        const k = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+                        timeData[k] = (timeData[k] || 0) + 1;
+                    }
+                }
+            });
+            const timeSortedKeys = Object.keys(timeData).sort();
+            updateChart('chartTimeline', 'line', {
+                labels: timeSortedKeys,
+                datasets: [{ label: 'Interações', data: timeSortedKeys.map(k => timeData[k]), borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.2)', fill: true, tension: 0.3 }]
+            }, { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+        }
+
+        function updateChart(id, type, data, options) {
+            if (charts[id]) charts[id].destroy();
+            charts[id] = new Chart(document.getElementById(id), { type, data, options: { ...options, maintainAspectRatio: false } });
+        }
+        function updateChartsColors() { updateDashboard(); }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const search = document.getElementById('tableSearch').value.toLowerCase();
+            tbody.innerHTML = '';
+            
+            const maxRows = 100;
+            let rendered = 0;
+
+            for (let i = 0; i < currentFilteredData.length; i++) {
+                if (rendered >= maxRows) break;
+                const row = currentFilteredData[i];
+                
+                const text = `${row.NameDisplay} ${row[cols.course]} ${row[cols.staffCluster]}`.toLowerCase();
+                if (search && !text.includes(search)) continue;
+
+                const statusColor = String(row[cols.status]).toLowerCase().includes('completed') ? 'text-green-600 bg-green-100 font-bold px-2 py-1 rounded' : 'text-amber-600 bg-amber-100 px-2 py-1 rounded';
+                let dataFormatada = "";
+                if(row[cols.date]) {
+                    const dObj = new Date(row[cols.date]);
+                    if(!isNaN(dObj)) dataFormatada = dObj.toLocaleDateString('pt-BR');
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="font-medium">${row.NameDisplay} <br><span class="text-[10px] text-slate-400">${row.Email_Lower}</span></td>
+                        <td>${row[cols.staffRole]}</td>
+                        <td>${row[cols.staffCluster]}</td>
+                        <td class="text-xs max-w-xs truncate" title="${row[cols.course]}">${row[cols.course]}</td>
+                        <td><span class="${statusColor} text-[10px]">${row[cols.status]}</span></td>
+                        <td class="text-xs text-slate-500">${dataFormatada}</td>
+                    </tr>
+                `;
+                rendered++;
+            }
+            document.getElementById('tableCounter').innerText = `Exibindo ${rendered} de ${currentFilteredData.length} registros filtrados.`;
+        }
+
+        function filterTable() { renderTable(); }
+
+        async function exportDashboardToPDF() {
+            const { jsPDF } = window.jspdf; 
+            const pdf = new jsPDF('p', 'mm', 'a4'); 
+            const element = document.getElementById('pdfArea'); 
+            const isDark = document.documentElement.classList.contains('dark');
+            const canvas = await html2canvas(element, { scale: 2, backgroundColor: isDark ? '#0f172a' : '#f1f5f9' }); 
+            const imgData = canvas.toDataURL('image/jpeg', 0.8);
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfHeight = (imgProps.height * 210) / imgProps.width;
+            pdf.addImage(imgData, 'JPEG', 0, 0, 210, pdfHeight); 
+            pdf.save('Relatorio_Estrategico_Treinamentos.pdf'); 
+        }
+
+        async function exportSingleChart(id, name) { 
+            const canvas = await html2canvas(document.getElementById(id), { scale: 3 }); 
+            const link = document.createElement('a'); 
+            link.download = `${name}.png`; link.href = canvas.toDataURL(); link.click(); 
         }
 
         function exportFilteredData() {
-            const ws = XLSX.utils.table_to_sheet(document.getElementById('mainTable'));
+            if(currentFilteredData.length === 0) return alert("Não há dados para exportar.");
+            const exportData = currentFilteredData.map(row => ({
+                'Email': row.Email_Lower,
+                'Nome': row.NameDisplay,
+                'Cargo Staff': row[cols.staffRole],
+                'Cluster Staff': row[cols.staffCluster],
+                'Curso': row[cols.course],
+                'Status': row[cols.status],
+                'Data Conclusão': row[cols.date],
+                'Método': row[cols.method]
+            }));
+            const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "GapAnalysis");
-            XLSX.writeFile(wb, "Matriz_Gap_FCP.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "Dados_Cruzados");
+            XLSX.writeFile(wb, "Dados_Cruzados_Treinamento.xlsx");
         }
-
-        window.onload = () => {
-            if (sessionStorage.getItem("fcp_auth") === "true") {
-                document.getElementById('authOverlay').style.display = 'none';
-                initAutomatic();
-            }
-        };
-        window.onclick = (e) => { if (!e.target.closest('.relative')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); };
     </script>
 </body>
 </html>
