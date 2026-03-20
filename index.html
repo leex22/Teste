@@ -114,22 +114,42 @@
             }
         });
 
+        // Função inteligente para testar vários nomes e formatos de arquivo (XLSX ou CSV)
+        async function fetchWithFallback(fileNames) {
+            for (let name of fileNames) {
+                try {
+                    let res = await fetch(name);
+                    if (res.ok) return res;
+                } catch (e) {
+                    // Ignora e tenta o próximo nome
+                }
+            }
+            return null;
+        }
+
         async function loadAllData() {
             try {
                 const badge = document.getElementById('statusBadge');
                 badge.textContent = 'BAIXANDO BASES...';
 
-                // Lógica robusta para GitHub: tenta fcp_staff.csv, se falhar, tenta com espaço
-                let staffRes = await fetch('fcp_staff.csv');
-                if(!staffRes.ok) staffRes = await fetch('FCP staff.csv');
-                const trainRes = await fetch('dados.csv');
+                // Tenta carregar a base de Staff (busca por CSV ou Excel com diversos nomes comuns)
+                const staffRes = await fetchWithFallback([
+                    'FCP staff.xlsx', 'fcp_staff.xlsx', 'FCP staff.csv', 'fcp_staff.csv'
+                ]);
 
-                if (!staffRes.ok || !trainRes.ok) throw new Error("Arquivos CSV não encontrados no repositório (Erro 404).");
+                // Tenta carregar a base de Treinamentos (busca por CSV ou Excel)
+                const trainRes = await fetchWithFallback([
+                    'dados.xlsx', 'dados.csv'
+                ]);
 
-                // Em vez de ler como Texto e dividir por vírgula, lemos como ArrayBuffer para o SheetJS processar
+                if (!staffRes || !trainRes) {
+                    throw new Error("Arquivos de base (Excel ou CSV) não encontrados no repositório.");
+                }
+
                 const staffBuffer = await staffRes.arrayBuffer();
                 const trainBuffer = await trainRes.arrayBuffer();
 
+                // O SheetJS consegue ler perfeitamente ArrayBuffers tanto de XLSX quanto de CSV
                 const wbStaff = XLSX.read(new Uint8Array(staffBuffer), {type: 'array'});
                 const wbTrain = XLSX.read(new Uint8Array(trainBuffer), {type: 'array'});
 
@@ -144,7 +164,7 @@
                 console.error(e);
                 document.getElementById('statusBadge').textContent = 'ERRO - ARQUIVO NÃO ENCONTRADO';
                 document.getElementById('statusBadge').className = 'text-[10px] bg-red-100 text-red-700 px-3 py-2 rounded-full font-bold self-center';
-                alert("Erro ao carregar os dados. Verifique se os nomes dos arquivos no GitHub são exatamente 'dados.csv' e 'fcp_staff.csv'.");
+                alert("Erro ao carregar os dados. Verifique se os arquivos (ex: dados.xlsx e FCP staff.xlsx) estão na mesma pasta/repositório que este arquivo HTML.");
             }
         }
 
@@ -175,10 +195,10 @@
 
             const sDate = document.getElementById('dateStart').value;
             const eDate = document.getElementById('dateEnd').value;
-            const emailsStaffFiltrado = new Set(filteredStaff.map(s => (s.Email || s.email || '').toLowerCase().trim()));
+            const emailsStaffFiltrado = new Set(filteredStaff.map(s => (s.Email || s.email || s['FCP ID'] || '').toLowerCase().trim()));
             
             currentTrainings = rawTrainings.filter(t => {
-                const rawEmail = t.Email || t.email;
+                const rawEmail = t.Email || t.email || t['FCP ID'];
                 if(!rawEmail) return false;
                 
                 const email = String(rawEmail).toLowerCase().trim();
@@ -222,7 +242,7 @@
 
         function renderKPIs() {
             const total = filteredStaff.length;
-            const trainedEmails = new Set(currentTrainings.map(t => String(t.Email||t.email).toLowerCase().trim()));
+            const trainedEmails = new Set(currentTrainings.map(t => String(t.Email||t.email||t['FCP ID']).toLowerCase().trim()));
             const rate = total > 0 ? ((trainedEmails.size / total) * 100).toFixed(1) : 0;
 
             document.getElementById('kpiTotalStaff').textContent = total;
@@ -241,7 +261,7 @@
                 const c = t.course || t.Curso || t['Course Name'];
                 if(c) {
                     if(!courseStats[c]) courseStats[c] = new Set();
-                    courseStats[c].add(String(t.Email||t.email).toLowerCase().trim());
+                    courseStats[c].add(String(t.Email||t.email||t['FCP ID']).toLowerCase().trim());
                 }
             });
 
@@ -276,8 +296,8 @@
             });
 
             currentTrainings.forEach(t => {
-                const email = String(t.Email||t.email).toLowerCase().trim();
-                const staffMember = rawStaff.find(s => String(s.Email||s.email).toLowerCase().trim() === email);
+                const email = String(t.Email||t.email||t['FCP ID']).toLowerCase().trim();
+                const staffMember = rawStaff.find(s => String(s.Email||s.email||s['FCP ID']).toLowerCase().trim() === email);
                 if(staffMember) {
                     const c = staffMember.FCP_CLUSTER || staffMember.Cluster || 'N/A';
                     if(clusterMap[c]) clusterMap[c].trained.add(email);
@@ -296,13 +316,13 @@
         function renderTable() {
             const trainedMap = {};
             currentTrainings.forEach(t => {
-                const email = String(t.Email||t.email).toLowerCase().trim();
+                const email = String(t.Email||t.email||t['FCP ID']).toLowerCase().trim();
                 if(!trainedMap[email]) trainedMap[email] = new Set();
                 trainedMap[email].add(t.course || t.Curso || t['Course Name']);
             });
 
             const html = filteredStaff.slice(0, 150).map(s => {
-                const email = String(s.Email||s.email).toLowerCase().trim();
+                const email = String(s.Email||s.email||s['FCP ID']).toLowerCase().trim();
                 const cursos = trainedMap[email] ? Array.from(trainedMap[email]) : [];
                 const isTrained = cursos.length > 0;
                 
