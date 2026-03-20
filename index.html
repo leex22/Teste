@@ -129,34 +129,44 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
                     <span class="tooltip-text">Número fixo de colaboradores registados na base FCP Staff.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Total FCP Staff</p>
                     <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="kpiTotalStaff">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
-                    <span class="tooltip-text">Quantidade de pessoas únicas treinadas na filtragem atual.</span>
+                    <span class="tooltip-text">Quantidade de pessoas únicas com atividades registadas no filtro atual.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Pessoas Únicas</p>
                     <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
                 </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm text-center">
+                    <span class="tooltip-text">Número de pessoas do Staff que não realizaram ou iniciaram atividades neste filtro.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Sem Treinamento</p>
+                    <h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0</h2>
+                </div>
+                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center">
+                    <span class="tooltip-text">Percentagem do FCP Staff total que concluiu alguma atividade neste filtro.</span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (Staff)</p>
+                    <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiCoverage">0%</h2>
+                </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
-                    <span class="tooltip-text">Total bruto de inscrições em eventos.</span>
+                    <span class="tooltip-text">Total bruto de inscrições em eventos/cursos (inclui múltiplas inscrições por pessoa).</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Total Inscrições</p>
                     <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTotal">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm text-center">
-                    <span class="tooltip-text">Treinamentos finalizados com sucesso.</span>
+                    <span class="tooltip-text">Total de treinamentos finalizados com sucesso.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
                     <h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm text-center">
-                    <span class="tooltip-text">Matrículas iniciadas sem conclusão registada.</span>
+                    <span class="tooltip-text">Total de matrículas iniciadas sem registo de conclusão.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
                     <h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
-                    <span class="tooltip-text">Relação Concluídos / Total de Inscrições.</span>
+                    <span class="tooltip-text">Taxa de Conclusões em relação ao Total de Inscrições efetuadas.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Taxa de Eficiência</p>
                     <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
                 </div>
@@ -196,6 +206,17 @@
                     </div>
                     <div class="h-72"><canvas id="chartFacilitadores"></canvas></div>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardModalidade">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📊 Adesão por Modalidade (Método)</h3>
+                        <button onclick="exportSingleChart('cardModalidade', 'adesao-modalidade')" class="btn-export-mini">PNG</button>
+                    </div>
+                    <div class="h-64"><canvas id="chartModalidade"></canvas></div>
+                </div>
+                <div class="hidden lg:block"></div>
             </div>
 
             <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative mb-6" id="cardTimeline">
@@ -261,6 +282,9 @@
         var currentFilteredData = [];
         var charts = {};
         
+        // VARIÁVEL GLOBAL PARA OS NOVOS KPIS
+        var countStaffAtivo = 0;
+        
         var selectedFilters = { roles: [], clusters: [], courses: [], methods: [], events: [], facs: [] };
         
         var cols = { 
@@ -276,7 +300,6 @@
             staffCreated: 'Staff_CreatedDate'
         };
 
-        // Mapeamento para a lógica de Filtros em Cascata
         var filterMappings = {
             'methods': cols.method,
             'courses': cols.course,
@@ -342,7 +365,7 @@
 
         function processDataJoin() {
             var staffDict = {};
-            var countStaffAtivo = 0;
+            countStaffAtivo = 0;
             
             for (var i = 0; i < baseStaff.length; i++) {
                 var row = baseStaff[i];
@@ -507,13 +530,12 @@
 
         function updateDashboard() {
             applyFilters();
-            updateDropdownsUI(); // NOVA FUNÇÃO DE FILTROS EM CASCATA CHAMADA AQUI
+            updateDropdownsUI();
             calculateKPIs();
             updateCharts();
             renderTable();
         }
 
-        // NOVA LÓGICA: FILTROS DEPENDENTES / CASCATA
         function updateDropdownsUI() {
             var startVal = document.getElementById('dateStart').value;
             var endVal = document.getElementById('dateEnd').value;
@@ -603,17 +625,26 @@
             }
         }
 
+        // LÓGICA DE KPIS ATUALIZADA (NOVOS CARDS INCLUÍDOS)
         function calculateKPIs() {
             var d = currentFilteredData;
             var emailsSet = new Set();
+            var completedEmailsSet = new Set();
             var concluidos = 0;
             var dropout = 0;
 
             for(var i=0; i<d.length; i++) {
                 emailsSet.add(d[i].Email_Lower);
                 var status = String(d[i][cols.status]).toLowerCase();
-                if (status.includes('completed')) concluidos++;
-                if (status.includes('enrolled')) dropout++;
+                
+                if (status.includes('completed')) {
+                    concluidos++;
+                    completedEmailsSet.add(d[i].Email_Lower);
+                }
+                
+                if (status.includes('enrolled')) {
+                    dropout++;
+                }
             }
 
             document.getElementById('kpiUnique').innerText = emailsSet.size;
@@ -624,6 +655,17 @@
             var rate = '0%';
             if (d.length > 0) rate = Math.round((concluidos / d.length) * 100) + '%';
             document.getElementById('kpiRate').innerText = rate;
+
+            // CÁLCULO 1: Sem Treinamento
+            var semTreino = Math.max(0, countStaffAtivo - emailsSet.size);
+            document.getElementById('kpiNoTraining').innerText = semTreino;
+
+            // CÁLCULO 2: Cobertura (Staff)
+            var cobertura = '0%';
+            if (countStaffAtivo > 0) {
+                cobertura = Math.round((completedEmailsSet.size / countStaffAtivo) * 100) + '%';
+            }
+            document.getElementById('kpiCoverage').innerText = cobertura;
         }
 
         function updateCharts() {
@@ -690,7 +732,24 @@
                 datasets: [{ data: facSorted.map(function(i){return i[1]}), backgroundColor: '#f59e0b', borderRadius: 6 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
-            // 5. Timeline 
+            // 5. NOVO GRÁFICO: Adesão por Modalidade
+            var modalidadeCount = {};
+            for(var n=0; n<d.length; n++) {
+                var mod = d[n][cols.method];
+                if (mod && String(mod).trim() !== "" && String(mod) !== "undefined") {
+                    modalidadeCount[mod] = (modalidadeCount[mod] || 0) + 1;
+                }
+            }
+            var modalidadeSorted = Object.entries(modalidadeCount).sort(function(a,b){return b[1] - a[1]}); 
+            var modalidadeLabels = modalidadeSorted.map(function(i){return String(i[0]).substring(0,25)});
+            var modalidadeDataVals = modalidadeSorted.map(function(i){return i[1]});
+
+            updateChart('chartModalidade', 'doughnut', {
+                labels: modalidadeLabels,
+                datasets: [{ data: modalidadeDataVals, backgroundColor: ['#8b5cf6','#ec4899','#f43f5e','#10b981','#3b82f6','#f59e0b'] }]
+            }, { plugins: { legend: { position: 'right', labels: { color: tColor } } }, cutout: '60%' });
+
+            // 6. Timeline 
             var timeData = {};
             for(var m=0; m<d.length; m++) {
                 if(d[m][cols.date]) {
