@@ -3,350 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Treinamentos & Cobertura</title>
+    <title>Dashboard de Treinamentos - FCP</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { primary: '#005eb8', darkBg: '#0f172a', darkCard: '#1e293b' }
-                }
-            }
-        }
-    </script>
-
     <style>
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-        .dropdown-content { display: none; position: absolute; z-index: 100; width: 100%; max-height: 350px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .dark .dropdown-content { background: #1e293b; border-color: #475569; }
+        body { font-family: 'Inter', sans-serif; }
+        .dropdown-content { display: none; position: absolute; z-index: 100; width: 100%; max-height: 300px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .show { display: block; }
-        .dropdown-item:hover { background-color: #f1f5f9; }
-        .dark .dropdown-item:hover { background-color: #334155; }
-        input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
-        .label-filter { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: block; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th { background-color: #f8fafc; text-align: left; padding: 12px; font-weight: 700; color: #64748b; }
-        .dark th { background-color: #334155; color: #cbd5e1; }
+        .dark .dropdown-content { background: #1e293b; border-color: #475569; }
+        #authOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.825rem; }
+        th { background-color: #f8fafc; text-align: left; padding: 12px; font-weight: 700; color: #64748b; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e2e8f0; }
+        .dark th { background-color: #334155; color: #cbd5e1; border-bottom-color: #475569; }
         td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
         .dark td { border-bottom-color: #334155; }
-        .search-filter-input { position: sticky; top: 0; background: white; padding: 8px; z-index: 10; border-bottom: 1px solid #e2e8f0; }
-        .dark .search-filter-input { background: #1e293b; border-bottom-color: #475569; }
-        #authOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .kpi-card { transition: transform 0.2s; }
+        .kpi-card:hover { transform: translateY(-2px); }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 dark:bg-darkBg dark:text-slate-100 p-4 md:p-8">
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 p-4 md:p-8">
 
     <div id="authOverlay">
-        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-sm text-center dark:bg-slate-800">
             <h2 class="text-2xl font-bold mb-4">Acesso Restrito</h2>
-            <input type="password" id="passInput" placeholder="Senha" class="w-full p-3 border rounded-lg mb-4 text-center text-xl tracking-widest" onkeypress="if(event.key==='Enter') checkAuth()">
-            <button onclick="checkAuth()" class="w-full bg-primary text-white p-3 rounded-lg font-bold">Entrar</button>
-            <p id="authError" class="text-red-500 text-xs mt-2 hidden">Senha incorreta.</p>
+            <p class="text-slate-500 text-sm mb-6">Introduza a senha para aceder à Matriz FCP</p>
+            <input type="password" id="passInput" placeholder="Senha" class="w-full p-3 border rounded-lg mb-4 text-center dark:bg-slate-700 dark:border-slate-600 outline-none focus:ring-2 focus:ring-blue-500" onkeypress="if(event.key==='Enter') checkAuth()">
+            <button onclick="checkAuth()" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-bold transition">Entrar</button>
+            <p id="authError" class="text-red-500 text-xs mt-3 hidden">Senha incorreta. Tente novamente.</p>
         </div>
     </div>
 
-    <header class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-primary dark:text-blue-400">📊 Dashboard de Treinamentos</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm">Matriz de Cobertura e Gap Analysis (Staff FCP)</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <button onclick="exportFilteredData()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">📥 Exportar Excel</button>
-            <button onclick="toggleTheme()" class="bg-slate-200 dark:bg-slate-700 p-2 rounded-lg">🌓</button>
-        </div>
-    </header>
-
     <main id="dashboardContent" class="max-w-7xl mx-auto hidden">
-        <div class="bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-sm font-bold uppercase tracking-wider">🔍 Filtros de Segmentação e Conteúdo</h3>
-                <button onclick="resetAllFilters()" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase">Resetar Filtros</button>
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-blue-600 tracking-tight">📊 Matriz de Cobertura FCP</h1>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Monitorização de Treinamentos e Análise de Gaps</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="relative">
-                    <label class="label-filter">Função (Segmento)</label>
-                    <button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span></button>
-                    <div id="dropRole" class="dropdown-content"></div>
-                </div>
-                <div class="relative">
-                    <label class="label-filter">Cluster / Região (Segmento)</label>
-                    <button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span></button>
-                    <div id="dropCluster" class="dropdown-content"></div>
-                </div>
-                <div class="relative">
-                    <label class="label-filter">Curso (Conteúdo)</label>
-                    <button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span></button>
-                    <div id="dropCourse" class="dropdown-content"></div>
-                </div>
+            <div class="flex gap-3">
+                <button onclick="exportFilteredData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition">
+                    📥 Exportar Excel
+                </button>
+                <button onclick="location.reload()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 px-4 py-2 rounded-lg text-sm font-bold transition">
+                    🔄 Recarregar
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="relative group">
+                <label class="text-[11px] font-bold uppercase text-slate-500 mb-2 block tracking-widest text-center">Filtrar Função</label>
+                <button onclick="toggleDropdown('dropRole')" id="btnRole" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 w-full rounded-xl text-left text-sm flex justify-between items-center shadow-sm">
+                    <span class="truncate">Todas as Funções</span> <span class="text-slate-400">▾</span>
+                </button>
+                <div id="dropRole" class="dropdown-content mt-2 shadow-xl border-slate-200 dark:border-slate-700"></div>
+            </div>
+            <div class="relative group">
+                <label class="text-[11px] font-bold uppercase text-slate-500 mb-2 block tracking-widest text-center">Filtrar Cluster</label>
+                <button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 w-full rounded-xl text-left text-sm flex justify-between items-center shadow-sm">
+                    <span class="truncate">Todos os Clusters</span> <span class="text-slate-400">▾</span>
+                </button>
+                <div id="dropCluster" class="dropdown-content mt-2 shadow-xl border-slate-200 dark:border-slate-700"></div>
+            </div>
+            <div class="relative group">
+                <label class="text-[11px] font-bold uppercase text-blue-600 mb-2 block tracking-widest text-center">Curso em Análise (Obrigatório)</label>
+                <button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="bg-white dark:bg-slate-800 border-2 border-blue-100 dark:border-blue-900/30 p-3 w-full rounded-xl text-left text-sm flex justify-between items-center shadow-sm">
+                    <span class="truncate font-semibold text-blue-600">Selecionar Curso...</span> <span class="text-blue-400">▾</span>
+                </button>
+                <div id="dropCourse" class="dropdown-content mt-2 shadow-xl border-blue-100 dark:border-blue-900/30"></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Staff FCP (Público)</p>
-                <h2 class="text-2xl font-bold text-blue-600" id="kpiUnique">0</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border-b-4 border-blue-500 kpi-card">
+                <p class="text-[10px] font-bold text-slate-400 uppercase text-center mb-1">Público Alvo</p>
+                <h2 class="text-3xl font-black text-center" id="kpiTotal">0</h2>
             </div>
-            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Staff Treinado</p>
-                <h2 class="text-2xl font-bold text-indigo-600" id="kpiTrained">0</h2>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border-b-4 border-green-500 kpi-card">
+                <p class="text-[10px] font-bold text-slate-400 uppercase text-center mb-1">Concluídos</p>
+                <h2 class="text-3xl font-black text-center text-green-600" id="kpiDone">0</h2>
             </div>
-            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm text-center">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Gap (Pendente)</p>
-                <h2 class="text-2xl font-bold text-red-600" id="kpiUntrained">0</h2>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border-b-4 border-red-500 kpi-card">
+                <p class="text-[10px] font-bold text-slate-400 uppercase text-center mb-1">Gap (Pendentes)</p>
+                <h2 class="text-3xl font-black text-center text-red-600" id="kpiGap">0</h2>
             </div>
-            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (%)</p>
-                <h2 class="text-2xl font-bold text-purple-600" id="kpiRate">0%</h2>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80">
-                <h3 class="font-bold text-xs uppercase mb-4">Adesão por Cluster</h3>
-                <canvas id="chartCluster"></canvas>
-            </div>
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80">
-                <h3 class="font-bold text-xs uppercase mb-4">Conclusões por Curso</h3>
-                <canvas id="chartCourses"></canvas>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border-b-4 border-purple-500 kpi-card">
+                <p class="text-[10px] font-bold text-slate-400 uppercase text-center mb-1">Cobertura</p>
+                <h2 class="text-3xl font-black text-center text-purple-600" id="kpiRate">0%</h2>
             </div>
         </div>
 
-        <section class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-            <h3 class="font-bold text-sm uppercase mb-4">📋 Detalhamento (Gap Analysis Nominal)</h3>
-            <div class="overflow-x-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="text-sm font-bold uppercase tracking-tight text-slate-500">📋 Lista Nominal de Gap</h3>
+                <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold uppercase" id="tableCounter">Mostrando 0 pessoas</span>
+            </div>
+            <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
                 <table id="mainTable">
                     <thead>
                         <tr>
-                            <th>Nome</th>
-                            <th>Email</th>
-                            <th>Função</th>
+                            <th>Nome Completo</th>
+                            <th>E-mail</th>
+                            <th>Função no FCP</th>
                             <th>Cluster</th>
-                            <th>Status</th>
+                            <th class="text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
-        </section>
+        </div>
     </main>
 
-    <div id="noData" class="mt-32 text-center text-slate-400">Aguardando carregamento dos dados...</div>
+    <div id="statusMsg" class="mt-40 text-center animate-pulse">
+        <div class="inline-block p-6 rounded-full bg-slate-200 dark:bg-slate-800 mb-4">🔍</div>
+        <p class="text-slate-400 font-medium">A carregar e processar as bases de dados...</p>
+    </div>
 
     <script>
-        const SENHA_MESTRA = "1234"; 
+        const SENHA_MESTRA = "1234";
+        let globalStaff = [], globalTrain = [], filters = { roles: [], clusters: [], courses: [] };
 
         function checkAuth() {
-            if (document.getElementById('passInput').value === SENHA_MESTRA) {
-                sessionStorage.setItem("dashboard_auth", "true");
+            const input = document.getElementById('passInput').value;
+            if (input === SENHA_MESTRA) {
+                sessionStorage.setItem("fcp_auth", "true");
                 document.getElementById('authOverlay').style.display = 'none';
             } else {
                 document.getElementById('authError').classList.remove('hidden');
             }
         }
 
-        window.onload = () => {
-            if (sessionStorage.getItem("dashboard_auth") === "true") document.getElementById('authOverlay').style.display = 'none';
-            carregarDados();
-        };
+        async function loadUniversal(fileName) {
+            const res = await fetch(fileName);
+            if (!res.ok) throw new Error(`Não encontrado: ${fileName}`);
+            const buffer = await res.arrayBuffer();
+            const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+            return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
+        }
 
-        let globalStaff = [], globalTrainings = [], selectedFilters = { roles: [], clusters: [], courses: [] }, charts = {};
-
-        // Busca flexível de coluna (Case Insensitive)
-        function getCol(row, aliases) {
-            const keys = Object.keys(row);
-            for (let alias of aliases) {
-                const found = keys.find(k => k.trim().toLowerCase() === alias.toLowerCase());
-                if (found) return row[found];
+        function findCol(obj, aliases) {
+            const keys = Object.keys(obj);
+            for (let a of aliases) {
+                const match = keys.find(k => k.trim().toLowerCase() === a.toLowerCase());
+                if (match) return obj[match];
             }
             return "";
         }
 
-        async function carregarDados() {
+        async function init() {
             try {
-                const [resTrain, resStaff] = await Promise.all([fetch('dados.csv'), fetch('FCP staff.csv')]);
-                const trainText = await resTrain.text();
-                const staffText = await resStaff.text();
+                // Suporta automaticamente staff.xlsx ou staff.csv e dados.csv ou dados.xlsx
+                const [staffRaw, trainRaw] = await Promise.all([
+                    loadUniversal('FCP staff.xlsx').catch(() => loadUniversal('FCP staff.csv')),
+                    loadUniversal('dados.csv').catch(() => loadUniversal('dados.xlsx'))
+                ]);
 
-                // Converte CSV para JSON de forma mais robusta
-                const trainData = XLSX.utils.sheet_to_json(XLSX.read(trainText, {type:'string'}).Sheets.Sheet1);
-                const staffData = XLSX.utils.sheet_to_json(XLSX.read(staffText, {type:'string'}).Sheets.Sheet1);
-
-                // Mapeia Staff (Público-Alvo)
-                globalStaff = staffData.map(s => ({
-                    name: `${getCol(s, ['First Name', 'Nome'])} ${getCol(s, ['Last Name', 'Sobrenome'])}`.trim(),
-                    email: String(getCol(s, ['Email', 'E-mail'])).trim().toLowerCase(),
-                    role: getCol(s, ['Role At FCP', 'Role', 'Função', 'Job Title']),
-                    cluster: getCol(s, ['FCP Cluster', 'Cluster', 'Região', 'Regiao'])
+                globalStaff = staffRaw.map(s => ({
+                    nome: `${findCol(s, ['First Name', 'Nome'])} ${findCol(s, ['Last Name', 'Sobrenome'])}`.trim(),
+                    email: String(findCol(s, ['Email', 'E-mail'])).trim().toLowerCase(),
+                    role: findCol(s, ['Role At FCP', 'Role', 'Função']),
+                    cluster: findCol(s, ['FCP Cluster', 'Cluster', 'Região'])
                 })).filter(i => i.email && i.email !== "null");
 
-                // Mapeia Treinamentos
-                globalTrainings = trainData.map(t => ({
-                    email: String(getCol(t, ['Email', 'E-mail'])).trim().toLowerCase(),
-                    course: getCol(t, ['Course Name', 'Course', 'Curso']),
-                    status: getCol(t, ['ACTIVITY_CODE', 'Status', 'Situação'])
-                })).filter(i => i.email && i.email !== "null");
+                globalTrain = trainRaw.map(t => ({
+                    email: String(findCol(t, ['Email', 'E-mail'])).trim().toLowerCase(),
+                    curso: findCol(t, ['Course Name', 'Course', 'Curso']),
+                    status: findCol(t, ['ACTIVITY_CODE', 'Status', 'Situação'])
+                })).filter(i => i.email);
 
-                initDashboard();
+                renderFilter('dropRole', 'roles', globalStaff.map(s => s.role));
+                renderFilter('dropCluster', 'clusters', globalStaff.map(s => s.cluster));
+                renderFilter('dropCourse', 'courses', globalTrain.map(t => t.curso));
+
+                document.getElementById('statusMsg').classList.add('hidden');
+                document.getElementById('dashboardContent').classList.remove('hidden');
+                update();
             } catch (e) {
-                document.getElementById('noData').innerHTML = `<p class="text-red-500">Erro ao carregar arquivos CSV: ${e.message}<br>Certifique-se que os nomes dos arquivos estão corretos.</p>`;
+                document.getElementById('statusMsg').innerHTML = `<div class="p-6 bg-red-50 text-red-600 rounded-2xl border border-red-100 max-w-md mx-auto">
+                    <b>Erro no Carregamento:</b><br>${e.message}<br><br>
+                    <small>Verifique se os ficheiros <b>FCP staff.xlsx</b> e <b>dados.csv</b> estão na pasta correta.</small>
+                </div>`;
             }
         }
 
-        function initDashboard() {
-            document.getElementById('noData').classList.add('hidden');
-            document.getElementById('dashboardContent').classList.remove('hidden');
-            
-            // Popula os filtros com os dados reais mapeados
-            renderDropdown('dropRole', 'roles', [...new Set(globalStaff.map(i => i.role))].filter(Boolean).sort());
-            renderDropdown('dropCluster', 'clusters', [...new Set(globalStaff.map(i => i.cluster))].filter(Boolean).sort());
-            renderDropdown('dropCourse', 'courses', [...new Set(globalTrainings.map(i => i.course))].filter(Boolean).sort());
-            
-            updateDashboard();
-        }
-
-        function renderDropdown(id, key, options) {
-            const container = document.getElementById(id);
-            container.innerHTML = options.map(opt => `
-                <div class="dropdown-item p-2 text-sm flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" onchange="handleFilter('${key}', '${opt.replace(/'/g, "\\'")}')"> 
+        function renderFilter(id, key, data) {
+            const items = [...new Set(data)].filter(Boolean).sort();
+            document.getElementById(id).innerHTML = items.map(opt => `
+                <div class="p-3 text-xs hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer flex items-center gap-3 border-b dark:border-slate-700 transition" onclick="event.stopPropagation();">
+                    <input type="checkbox" class="w-4 h-4 rounded border-slate-300" onchange="handleF('${key}', '${opt.replace(/'/g, "\\'")}', this)">
                     <span class="truncate">${opt}</span>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
-        function handleFilter(key, val) {
-            const idx = selectedFilters[key].indexOf(val);
-            if(idx > -1) selectedFilters[key].splice(idx, 1);
-            else selectedFilters[key].push(val);
-            
-            const btnLabel = document.getElementById(`btn${key.charAt(0).toUpperCase() + key.slice(1, -1)}`).querySelector('span');
-            btnLabel.textContent = selectedFilters[key].length > 0 ? `${selectedFilters[key].length} selecionado(s)` : 'Selecionar...';
-            
-            updateDashboard();
+        function handleF(key, val, el) {
+            const idx = filters[key].indexOf(val);
+            if(el.checked) { if(idx === -1) filters[key].push(val); }
+            else { if(idx > -1) filters[key].splice(idx, 1); }
+            update();
         }
 
-        function toggleDropdown(id) { 
-            const drop = document.getElementById(id);
-            const isOpen = drop.classList.contains('show');
+        function toggleDropdown(id) {
+            const el = document.getElementById(id);
+            const isVisible = el.classList.contains('show');
             document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
-            if(!isOpen) drop.classList.add('show');
+            if(!isVisible) el.classList.add('show');
         }
 
-        // Fechar dropdown ao clicar fora
-        window.onclick = (e) => { if (!e.target.closest('.relative')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); };
-
-        function updateDashboard() {
-            // 1. O Público-Alvo (Denominador) - Só muda com Função e Cluster
-            const staffTarget = globalStaff.filter(s => 
-                (selectedFilters.roles.length === 0 || selectedFilters.roles.includes(s.role)) &&
-                (selectedFilters.clusters.length === 0 || selectedFilters.clusters.includes(s.cluster))
+        function update() {
+            // Filtrar o público baseado em Função e Cluster
+            const target = globalStaff.filter(s => 
+                (filters.roles.length === 0 || filters.roles.includes(s.role)) &&
+                (filters.clusters.length === 0 || filters.clusters.includes(s.cluster))
             );
 
-            // 2. O Treinado (Numerador) - Filtra quem completou o curso desejado
-            const treinadoEmails = new Set(globalTrainings
-                .filter(t => ['Completed', 'Attended', 'Concluído'].includes(t.status) &&
-                            (selectedFilters.courses.length === 0 || selectedFilters.courses.includes(t.course)))
-                .map(t => t.email)
-            );
+            // Emails de quem concluiu o(s) curso(s) selecionado(s)
+            const concluintes = new Set(globalTrain.filter(t => 
+                ['Completed', 'Attended', 'Concluído'].includes(t.status) &&
+                (filters.courses.length === 0 || filters.courses.includes(t.curso))
+            ).map(t => t.email));
 
-            const treinadosNoTarget = staffTarget.filter(s => treinadoEmails.has(s.email));
+            const treinados = target.filter(s => concluintes.has(s.email)).length;
+            const gap = target.length - treinados;
+            const rate = target.length > 0 ? Math.round((treinados / target.length) * 100) : 0;
 
-            const total = staffTarget.length;
-            const treinados = treinadosNoTarget.length;
-            const gap = total - treinados;
-            const rate = total > 0 ? ((treinados / total) * 100).toFixed(1) : 0;
+            document.getElementById('kpiTotal').innerText = target.length;
+            document.getElementById('kpiDone').innerText = treinados;
+            document.getElementById('kpiGap').innerText = gap;
+            document.getElementById('kpiRate').innerText = rate + '%';
+            document.getElementById('tableCounter').innerText = `Mostrando ${target.length} pessoas`;
 
-            // Atualiza KPIs
-            document.getElementById('kpiUnique').textContent = total;
-            document.getElementById('kpiTrained').textContent = treinados;
-            document.getElementById('kpiUntrained').textContent = gap;
-            document.getElementById('kpiRate').textContent = rate + '%';
-
-            renderTable(staffTarget, treinadoEmails);
-            renderCharts(staffTarget, treinadoEmails);
-        }
-
-        function renderTable(staff, concluintes) {
-            const html = staff.map(s => {
-                const isDone = concluintes.has(s.email);
-                return `<tr>
-                    <td class="font-medium">${s.name}</td>
-                    <td class="text-slate-500">${s.email}</td>
-                    <td>${s.role || 'N/A'}</td>
-                    <td>${s.cluster || 'N/A'}</td>
-                    <td><span class="px-2 py-1 rounded text-[10px] font-bold ${isDone ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                        ${isDone ? 'CONCLUÍDO' : 'PENDENTE'}
-                    </span></td>
+            document.getElementById('tableBody').innerHTML = target.map(s => {
+                const isOk = concluintes.has(s.email);
+                return `
+                <tr class="${isOk ? 'opacity-40 grayscale-[0.5]' : 'bg-red-50/50 dark:bg-red-900/5'} transition-all">
+                    <td class="font-bold text-slate-700 dark:text-slate-200">${s.nome}</td>
+                    <td class="text-slate-500 italic text-[11px]">${s.email}</td>
+                    <td>${s.role || 'Não Definido'}</td>
+                    <td>${s.cluster || '-'}</td>
+                    <td class="text-center">
+                        <span class="text-[9px] px-3 py-1 rounded-full font-black tracking-tighter ${isOk ? 'bg-green-100 text-green-700' : 'bg-red-500 text-white shadow-sm'}">
+                            ${isOk ? 'CONCLUÍDO' : 'PENDENTE'}
+                        </span>
+                    </td>
                 </tr>`;
             }).join('');
-            document.getElementById('tableBody').innerHTML = html;
         }
 
-        function renderCharts(staff, concluintes) {
-            const tColor = document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569';
-            
-            // Gráfico Cluster
-            const clusters = [...new Set(staff.map(s => s.cluster))].filter(Boolean);
-            const dataCluster = clusters.map(c => staff.filter(s => s.cluster === c && concluintes.has(s.email)).length);
-
-            if(charts.cluster) charts.cluster.destroy();
-            charts.cluster = new Chart(document.getElementById('chartCluster'), {
-                type: 'bar',
-                data: { labels: clusters, datasets: [{ label: 'Qtd Treinados', data: dataCluster, backgroundColor: '#3b82f6' }] },
-                options: { 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        datalabels: { 
-                            display: true, 
-                            color: tColor, 
-                            anchor: 'end', 
-                            align: 'top',
-                            formatter: (v) => v > 0 ? v : '' 
-                        },
-                        legend: { display: false }
-                    },
-                    scales: { y: { beginAtZero: true, ticks: { color: tColor } }, x: { ticks: { color: tColor } } }
-                }
-            });
-
-            // Gráfico Top Cursos (Conclusões Reais)
-            const cursosContagem = {};
-            globalTrainings.filter(t => ['Completed', 'Attended', 'Concluído'].includes(t.status))
-                           .forEach(t => { cursosContagem[t.course] = (cursosContagem[t.course] || 0) + 1; });
-            
-            const topCursos = Object.keys(cursosContagem).sort((a,b) => cursosContagem[b] - cursosContagem[a]).slice(0, 5);
-
-            if(charts.courses) charts.courses.destroy();
-            charts.courses = new Chart(document.getElementById('chartCourses'), {
-                type: 'bar',
-                data: { labels: topCursos.map(c => c.length > 20 ? c.substring(0,20)+'...' : c), datasets: [{ data: topCursos.map(c => cursosContagem[c]), backgroundColor: '#8b5cf6' }] },
-                options: { 
-                    indexAxis: 'y', 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { display: false }, datalabels: { display: true, color: '#fff' } },
-                    scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } }
-                }
-            });
-        }
-
-        function toggleTheme() { document.documentElement.classList.toggle('dark'); updateDashboard(); }
-        function resetAllFilters() { location.reload(); }
-        
         function exportFilteredData() {
-            const table = document.getElementById('mainTable');
-            const ws = XLSX.utils.table_to_sheet(table);
+            const ws = XLSX.utils.table_to_sheet(document.getElementById('mainTable'));
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Gap Analysis");
-            XLSX.writeFile(wb, "Matriz_Aderencia_FCP.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "GapAnalysis");
+            XLSX.writeFile(wb, "Matriz_Gap_FCP.xlsx");
         }
+
+        window.onload = () => {
+            if (sessionStorage.getItem("fcp_auth") === "true") document.getElementById('authOverlay').style.display = 'none';
+            init();
+        };
+        window.onclick = (e) => { if (!e.target.closest('.relative')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); };
     </script>
 </body>
 </html>
