@@ -3,287 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FCP Strategy Dashboard</title>
+    <title>Dashboard de Treinamentos & Cobertura</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { primary: '#005eb8', darkBg: '#0f172a', darkCard: '#1e293b' }
-                }
-            }
-        }
-    </script>
     <style>
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s; }
-        .chart-container { position: relative; height: 300px; width: 100%; }
+        body { font-family: 'Inter', sans-serif; }
+        .dropdown-content { display: none; position: absolute; z-index: 100; width: 100%; max-height: 300px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .show { display: block; }
+        .dark .dropdown-content { background: #1e293b; border-color: #475569; }
+        #authOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { background-color: #f8fafc; text-align: left; padding: 12px; font-weight: 700; color: #64748b; }
+        .dark th { background-color: #334155; color: #cbd5e1; }
+        td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
+        .dark td { border-bottom-color: #334155; }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-darkBg text-gray-900 dark:text-gray-100 min-h-screen">
+<body class="bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100 p-4 md:p-8">
 
-    <header class="bg-white dark:bg-darkCard shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <h1 class="text-xl font-bold text-primary">FCP Operational Excellence</h1>
-            <div class="flex gap-2">
-                <button onclick="document.body.classList.toggle('dark')" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">🌓</button>
-            </div>
+    <div id="authOverlay">
+        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-sm text-center dark:bg-slate-800">
+            <h2 class="text-2xl font-bold mb-4">Acesso Restrito</h2>
+            <input type="password" id="passInput" placeholder="Senha" class="w-full p-3 border rounded-lg mb-4 text-center dark:bg-slate-700" onkeypress="if(event.key==='Enter') checkAuth()">
+            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold">Entrar</button>
         </div>
-    </header>
+    </div>
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="p-6 bg-white dark:bg-darkCard rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                <label class="block text-sm font-semibold mb-2">1. Base de Treinamentos (dados.csv)</label>
-                <input type="file" id="fileTrainings" accept=".csv" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-primary file:text-white hover:file:bg-blue-700">
-            </div>
-            <div class="p-6 bg-white dark:bg-darkCard rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                <label class="block text-sm font-semibold mb-2">2. Base FCP Staff (cadastro.csv)</label>
-                <input type="file" id="fileStaff" accept=".csv" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-green-600 file:text-white hover:file:bg-green-700">
-            </div>
-        </div>
+    <main id="dashboardContent" class="max-w-7xl mx-auto hidden">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-blue-600">📊 Matriz de Cobertura FCP</h1>
+            <button onclick="location.reload()" class="text-xs bg-slate-200 dark:bg-slate-700 px-3 py-1 rounded">Atualizar Dados</button>
+        </header>
 
-        <div id="filtersArea" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <select id="filterCluster" class="p-2 rounded border dark:bg-gray-700 dark:border-gray-600" onchange="processData()">
-                <option value="">Todos os Clusters</option>
-            </select>
-            <select id="filterRole" class="p-2 rounded border dark:bg-gray-700 dark:border-gray-600" onchange="processData()">
-                <option value="">Todas as Funções</option>
-            </select>
-            <select id="filterSupervisor" class="p-2 rounded border dark:bg-gray-700 dark:border-gray-600" onchange="processData()">
-                <option value="">Todos os Supervisores</option>
-            </select>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border-l-4 border-primary">
-                <p class="text-sm text-gray-500 uppercase font-bold">Total Staff</p>
-                <h3 id="kpiTotalStaff" class="text-3xl font-bold">0</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="relative">
+                <label class="text-[10px] font-bold uppercase text-slate-500">Função</label>
+                <button onclick="toggleDropdown('dropRole')" id="btnRole" class="bg-white dark:bg-slate-800 border p-2 w-full rounded text-left text-sm flex justify-between"><span>Todos</span> ▾</button>
+                <div id="dropRole" class="dropdown-content"></div>
             </div>
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-                <p class="text-sm text-gray-500 uppercase font-bold">Taxa de Cobertura</p>
-                <h3 id="kpiCoverage" class="text-3xl font-bold">0%</h3>
+            <div class="relative">
+                <label class="text-[10px] font-bold uppercase text-slate-500">Cluster</label>
+                <button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="bg-white dark:bg-slate-800 border p-2 w-full rounded text-left text-sm flex justify-between"><span>Todos</span> ▾</button>
+                <div id="dropCluster" class="dropdown-content"></div>
             </div>
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
-                <p class="text-sm text-gray-500 uppercase font-bold">Pendentes</p>
-                <h3 id="kpiPending" class="text-3xl font-bold">0</h3>
-            </div>
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border-l-4 border-red-500">
-                <p class="text-sm text-gray-500 uppercase font-bold">Cursos Concluídos</p>
-                <h3 id="kpiCompleted" class="text-3xl font-bold">0</h3>
+            <div class="relative">
+                <label class="text-[10px] font-bold uppercase text-slate-500">Curso para Análise</label>
+                <button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="bg-white dark:bg-slate-800 border p-2 w-full rounded text-left text-sm flex justify-between"><span>Selecionar Curso...</span> ▾</button>
+                <div id="dropCourse" class="dropdown-content"></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                <h4 class="font-bold mb-4">Gaps por Função (Role at FCP)</h4>
-                <div class="chart-container"><canvas id="chartRoles"></canvas></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Público-Alvo</p>
+                <h2 class="text-2xl font-bold" id="kpiTotal">0</h2>
             </div>
-            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
-                <h4 class="font-bold mb-4">Engajamento por Cluster</h4>
-                <div class="chart-container"><canvas id="chartClusters"></canvas></div>
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border-l-4 border-green-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
+                <h2 class="text-2xl font-bold" id="kpiDone">0</h2>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border-l-4 border-red-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Pendentes</p>
+                <h2 class="text-2xl font-bold" id="kpiGap">0</h2>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border-l-4 border-purple-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">% Cobertura</p>
+                <h2 class="text-2xl font-bold" id="kpiRate">0%</h2>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-darkCard rounded-xl shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <h4 class="font-bold">Público-Alvo (Pessoas sem nenhum treinamento)</h4>
-                <button onclick="downloadPending()" class="text-sm bg-primary text-white px-3 py-1 rounded">Exportar CSV</button>
-            </div>
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm mb-6">
+            <h3 class="text-sm font-bold mb-4 uppercase">Lista de Gap (Quem falta treinar)</h3>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-50 dark:bg-gray-800 text-xs uppercase text-gray-500">
+                <table id="mainTable">
+                    <thead>
                         <tr>
-                            <th class="p-4">Nome</th>
-                            <th class="p-4">Email</th>
-                            <th class="p-4">Função</th>
-                            <th class="p-4">Cluster</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Função</th>
+                            <th>Cluster</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody id="tablePendingBody" class="text-sm divide-y divide-gray-100 dark:divide-gray-700">
-                        </tbody>
+                    <tbody id="tableBody"></tbody>
                 </table>
             </div>
         </div>
     </main>
 
+    <div id="statusMsg" class="mt-20 text-center text-slate-400">Carregando arquivos...</div>
+
     <script>
-        let rawTrainings = [];
-        let rawStaff = [];
-        let charts = {};
+        const SENHA = "1234";
+        let globalStaff = [], globalTrain = [], filters = { roles: [], clusters: [], courses: [] };
 
-        // Listeners para os inputs de arquivo
-        document.getElementById('fileTrainings').addEventListener('change', e => loadCSV(e.target.files[0], 'trainings'));
-        document.getElementById('fileStaff').addEventListener('change', e => loadCSV(e.target.files[0], 'staff'));
-
-        function loadCSV(file, type) {
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    if (type === 'trainings') rawTrainings = results.data;
-                    else {
-                        rawStaff = results.data;
-                        populateFilters(results.data);
-                    }
-                    if (rawTrainings.length > 0 && rawStaff.length > 0) processData();
-                }
-            });
+        function checkAuth() {
+            if (document.getElementById('passInput').value === SENHA) {
+                sessionStorage.setItem("auth", "true");
+                document.getElementById('authOverlay').style.display = 'none';
+            }
         }
 
-        function populateFilters(data) {
-            const clusters = [...new Set(data.map(i => i['FCP Cluster']).filter(Boolean))].sort();
-            const roles = [...new Set(data.map(i => i['Role At FCP']).filter(Boolean))].sort();
-            const supervisors = [...new Set(data.map(i => i['Partnership Facilitator Supervisor']).filter(Boolean))].sort();
-
-            updateSelect('filterCluster', clusters);
-            updateSelect('filterRole', roles);
-            updateSelect('filterSupervisor', supervisors);
-            document.getElementById('filtersArea').classList.remove('hidden');
+        // Função para ler arquivo Excel remoto
+        async function fetchExcel(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`Não foi possível encontrar o arquivo: ${url}`);
+            const arrayBuffer = await res.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
         }
 
-        function updateSelect(id, list) {
-            const select = document.getElementById(id);
-            const currentVal = select.value;
-            select.innerHTML = `<option value="">Todos (${list.length})</option>`;
-            list.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item;
-                opt.textContent = item;
-                select.appendChild(opt);
-            });
-            select.value = currentVal;
+        function getVal(obj, keys) {
+            for (let k of keys) {
+                const found = Object.keys(obj).find(key => key.trim().toLowerCase() === k.toLowerCase());
+                if (found) return obj[found];
+            }
+            return "";
         }
 
-        function processData() {
-            const fCluster = document.getElementById('filterCluster').value;
-            const fRole = document.getElementById('filterRole').value;
-            const fSupervisor = document.getElementById('filterSupervisor').value;
+        async function init() {
+            try {
+                const [staffData, trainData] = await Promise.all([
+                    fetchExcel('FCP staff.xlsx'),
+                    fetch('dados.csv').then(r => r.text()).then(t => XLSX.utils.sheet_to_json(XLSX.read(t, {type:'string'}).Sheets.Sheet1))
+                ]);
 
-            // 1. Filtrar a base de Staff (O Universo)
-            const staffFiltered = rawStaff.filter(person => {
-                return (!fCluster || person['FCP Cluster'] === fCluster) &&
-                       (!fRole || person['Role At FCP'] === fRole) &&
-                       (!fSupervisor || person['Partnership Facilitator Supervisor'] === fSupervisor);
-            });
+                globalStaff = staffData.map(s => ({
+                    nome: `${getVal(s, ['First Name'])} ${getVal(s, ['Last Name'])}`.trim(),
+                    email: String(getVal(s, ['Email'])).trim().toLowerCase(),
+                    role: getVal(s, ['Role At FCP', 'Role']),
+                    cluster: getVal(s, ['FCP Cluster', 'Cluster'])
+                })).filter(i => i.email);
 
-            // 2. Criar Map de treinamentos por Email
-            const trainingMap = {};
-            rawTrainings.forEach(t => {
-                const email = t.Email?.toLowerCase().trim();
-                if (!trainingMap[email]) trainingMap[email] = [];
-                trainingMap[email].push(t);
-            });
+                globalTrain = trainData.map(t => ({
+                    email: String(getVal(t, ['Email'])).trim().toLowerCase(),
+                    curso: getVal(t, ['Course Name', 'Course']),
+                    status: getVal(t, ['ACTIVITY_CODE', 'Status'])
+                })).filter(i => i.email);
 
-            // 3. Cruzamento Estratégico
-            let trainedCount = 0;
-            let totalCompletions = 0;
-            let pendingList = [];
-
-            staffFiltered.forEach(person => {
-                const email = person.Email?.toLowerCase().trim();
-                const personTrainings = trainingMap[email] || [];
+                populateFilters();
+                update();
                 
-                const completed = personTrainings.filter(t => ['Completed', 'Attended'].includes(t.ACTIVITY_CODE || t.Status));
-                
-                if (completed.length > 0) {
-                    trainedCount++;
-                    totalCompletions += completed.length;
-                } else {
-                    pendingList.push(person);
-                }
-            });
-
-            // 4. Update KPIs
-            document.getElementById('kpiTotalStaff').textContent = staffFiltered.length;
-            document.getElementById('kpiCoverage').textContent = staffFiltered.length ? Math.round((trainedCount / staffFiltered.length) * 100) + '%' : '0%';
-            document.getElementById('kpiPending').textContent = pendingList.length;
-            document.getElementById('kpiCompleted').textContent = totalCompletions;
-
-            // 5. Renderizar Gráficos e Tabela
-            renderCharts(staffFiltered, trainingMap);
-            renderTable(pendingList);
+                document.getElementById('statusMsg').classList.add('hidden');
+                document.getElementById('dashboardContent').classList.remove('hidden');
+            } catch (e) {
+                document.getElementById('statusMsg').innerHTML = `<p class="text-red-500">Erro: ${e.message}<br>Verifique se os arquivos FCP staff.xlsx e dados.csv estão na pasta.</p>`;
+            }
         }
 
-        function renderCharts(staff, tMap) {
-            // Lógica para Gap por Função
-            const rolesData = {};
-            staff.forEach(p => {
-                const r = p['Role At FCP'] || 'Indefinido';
-                if (!rolesData[r]) rolesData[r] = { total: 0, trained: 0 };
-                rolesData[r].total++;
-                if (tMap[p.Email?.toLowerCase().trim()]?.some(t => ['Completed', 'Attended'].includes(t.ACTIVITY_CODE))) {
-                    rolesData[r].trained++;
-                }
-            });
-
-            updateChart('chartRoles', 'bar', {
-                labels: Object.keys(rolesData),
-                datasets: [
-                    { label: 'Treinados', data: Object.values(rolesData).map(v => v.trained), backgroundColor: '#005eb8' },
-                    { label: 'Total Staff', data: Object.values(rolesData).map(v => v.total), backgroundColor: '#e2e8f0' }
-                ]
-            }, { indexAxis: 'y', stacked: false });
-
-            // Lógica por Cluster
-            const clusterData = {};
-            staff.forEach(p => {
-                const c = p['FCP Cluster'] || 'Outros';
-                if (!clusterData[c]) clusterData[c] = { total: 0, trained: 0 };
-                clusterData[c].total++;
-                if (tMap[p.Email?.toLowerCase().trim()]?.some(t => ['Completed', 'Attended'].includes(t.ACTIVITY_CODE))) {
-                    clusterData[c].trained++;
-                }
-            });
-
-            updateChart('chartClusters', 'doughnut', {
-                labels: Object.keys(clusterData),
-                datasets: [{
-                    data: Object.values(clusterData).map(v => v.trained),
-                    backgroundColor: ['#005eb8', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
-                }]
-            });
+        function populateFilters() {
+            const createItems = (id, key, list) => {
+                document.getElementById(id).innerHTML = [...new Set(list)].filter(Boolean).sort().map(opt => `
+                    <div class="p-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer flex gap-2">
+                        <input type="checkbox" onchange="handleF('${key}', '${opt.replace(/'/g, "\\'")}')"> ${opt}
+                    </div>`).join('');
+            };
+            createItems('dropRole', 'roles', globalStaff.map(s => s.role));
+            createItems('dropCluster', 'clusters', globalStaff.map(s => s.cluster));
+            createItems('dropCourse', 'courses', globalTrain.map(t => t.curso));
         }
 
-        function renderTable(list) {
-            const tbody = document.getElementById('tablePendingBody');
-            tbody.innerHTML = list.slice(0, 50).map(p => `
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td class="p-4 font-medium">${p['First Name'] || ''} ${p['Last Name'] || ''}</td>
-                    <td class="p-4">${p.Email || '-'}</td>
-                    <td class="p-4 text-xs bg-gray-100 dark:bg-gray-700 rounded px-2 py-1">${p['Role At FCP'] || '-'}</td>
-                    <td class="p-4">${p['FCP Cluster'] || '-'}</td>
-                </tr>
-            `).join('');
+        function handleF(key, val) {
+            const idx = filters[key].indexOf(val);
+            if(idx > -1) filters[key].splice(idx, 1); else filters[key].push(val);
+            update();
         }
 
-        function updateChart(id, type, data, options = {}) {
-            if (charts[id]) charts[id].destroy();
-            const ctx = document.getElementById(id).getContext('2d');
-            charts[id] = new Chart(ctx, {
-                type,
-                data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { color: document.body.classList.contains('dark') ? '#fff' : '#666' } }
-                    },
-                    ...options
-                }
-            });
+        function toggleDropdown(id) {
+            document.querySelectorAll('.dropdown-content').forEach(d => d.id !== id && d.classList.remove('show'));
+            document.getElementById(id).classList.toggle('show');
         }
 
-        function downloadPending() {
-            // Implementação simples de CSV download pode ser adicionada aqui
-            alert('Gerando lista de pendências para download...');
+        function update() {
+            const target = globalStaff.filter(s => 
+                (filters.roles.length === 0 || filters.roles.includes(s.role)) &&
+                (filters.clusters.length === 0 || filters.clusters.includes(s.cluster))
+            );
+
+            const conclusoes = new Set(globalTrain.filter(t => 
+                ['Completed', 'Attended', 'Concluído'].includes(t.status) &&
+                (filters.courses.length === 0 || filters.courses.includes(t.curso))
+            ).map(t => t.email));
+
+            const treinados = target.filter(s => conclusoes.has(s.email));
+            
+            document.getElementById('kpiTotal').innerText = target.length;
+            document.getElementById('kpiDone').innerText = treinados.length;
+            document.getElementById('kpiGap').innerText = target.length - treinados.length;
+            document.getElementById('kpiRate').innerText = target.length > 0 ? Math.round((treinados.length / target.length)*100) + '%' : '0%';
+
+            document.getElementById('tableBody').innerHTML = target.map(s => `
+                <tr class="${conclusoes.has(s.email) ? 'opacity-50' : 'bg-red-50 dark:bg-red-900/10'}">
+                    <td>${s.nome}</td>
+                    <td>${s.email}</td>
+                    <td>${s.role}</td>
+                    <td>${s.cluster}</td>
+                    <td><span class="font-bold ${conclusoes.has(s.email) ? 'text-green-500' : 'text-red-500'}">
+                        ${conclusoes.has(s.email) ? 'CONCLUÍDO' : 'PENDENTE'}
+                    </span></td>
+                </tr>`).join('');
         }
+
+        window.onload = () => {
+            if (sessionStorage.getItem("auth") === "true") document.getElementById('authOverlay').style.display = 'none';
+            init();
+        };
     </script>
 </body>
 </html>
