@@ -7,77 +7,107 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { primary: '#005eb8', darkBg: '#0f172a', darkCard: '#1e293b' }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .dropdown-content { display: none; position: absolute; z-index: 100; width: 100%; max-height: 300px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .show { display: block; }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        .dropdown-content { display: none; position: absolute; z-index: 100; width: 100%; max-height: 350px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .dark .dropdown-content { background: #1e293b; border-color: #475569; }
-        #authOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .show { display: block; }
+        .dropdown-item:hover { background-color: #f1f5f9; }
+        .dark .dropdown-item:hover { background-color: #334155; }
+        input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        select, input[type="date"], input[type="text"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; width: 100%; font-size: 0.875rem; background-color: inherit; }
+        .dark select, .dark input { border-color: #475569; color: white; }
+        .label-filter { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: block; }
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         th { background-color: #f8fafc; text-align: left; padding: 12px; font-weight: 700; color: #64748b; }
         .dark th { background-color: #334155; color: #cbd5e1; }
         td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
         .dark td { border-bottom-color: #334155; }
+        .search-filter-input { position: sticky; top: 0; background: white; padding: 8px; z-index: 10; border-bottom: 1px solid #e2e8f0; }
+        .dark .search-filter-input { background: #1e293b; border-bottom-color: #475569; }
+        #authOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100 p-4 md:p-8">
+<body class="bg-slate-100 text-slate-900 dark:bg-darkBg dark:text-slate-100 p-4 md:p-8">
 
     <div id="authOverlay">
-        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-sm text-center dark:bg-slate-800">
+        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-auto max-w-sm text-center">
             <h2 class="text-2xl font-bold mb-4">Acesso Restrito</h2>
-            <input type="password" id="passInput" placeholder="Senha" class="w-full p-3 border rounded-lg mb-4 text-center dark:bg-slate-700" onkeypress="if(event.key==='Enter') checkAuth()">
-            <button onclick="checkAuth()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold">Entrar</button>
+            <input type="password" id="passInput" placeholder="Senha" class="w-full p-3 border rounded-lg mb-4 text-center text-xl tracking-widest" onkeypress="if(event.key==='Enter') checkAuth()">
+            <button onclick="checkAuth()" class="w-full bg-primary text-white p-3 rounded-lg font-bold">Entrar</button>
+            <p id="authError" class="text-red-500 text-xs mt-2 hidden">Senha incorreta.</p>
         </div>
     </div>
 
-    <main id="dashboardContent" class="max-w-7xl mx-auto hidden">
-        <header class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-blue-600">📊 Matriz de Cobertura FCP</h1>
-            <button onclick="location.reload()" class="text-xs bg-slate-200 dark:bg-slate-700 px-3 py-1 rounded">Atualizar Dados</button>
-        </header>
+    <header class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-primary dark:text-blue-400">📊 Dashboard de Treinamentos</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">Matriz de Cobertura e Gap Analysis (Staff FCP)</p>
+            <p id="lastUpdateInfo" class="text-[10px] text-slate-400 font-bold uppercase mt-1"></p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="exportFilteredData()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium">📥 Excel</button>
+            <button onclick="toggleTheme()" class="bg-slate-200 dark:bg-slate-700 p-2 rounded-lg">🌓</button>
+        </div>
+    </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="relative">
-                <label class="text-[10px] font-bold uppercase text-slate-500">Função</label>
-                <button onclick="toggleDropdown('dropRole')" id="btnRole" class="bg-white dark:bg-slate-800 border p-2 w-full rounded text-left text-sm flex justify-between"><span>Todos</span> ▾</button>
-                <div id="dropRole" class="dropdown-content"></div>
-            </div>
-            <div class="relative">
-                <label class="text-[10px] font-bold uppercase text-slate-500">Cluster</label>
-                <button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="bg-white dark:bg-slate-800 border p-2 w-full rounded text-left text-sm flex justify-between"><span>Todos</span> ▾</button>
-                <div id="dropCluster" class="dropdown-content"></div>
-            </div>
-            <div class="relative">
-                <label class="text-[10px] font-bold uppercase text-slate-500">Curso para Análise</label>
-                <button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="bg-white dark:bg-slate-800 border p-2 w-full rounded text-left text-sm flex justify-between"><span>Selecionar Curso...</span> ▾</button>
-                <div id="dropCourse" class="dropdown-content"></div>
+    <main id="dashboardContent" class="max-w-7xl mx-auto hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+            <div class="lg:col-span-3 bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold uppercase">🔍 Filtros</h3>
+                    <button onclick="resetAllFilters()" class="text-[10px] text-red-600 font-bold uppercase">Limpar</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="relative"><label class="label-filter">Função</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border p-2 rounded-md w-full text-sm"><span>Selecionar...</span></button><div id="dropRole" class="dropdown-content"></div></div>
+                    <div class="relative"><label class="label-filter">Cluster</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border p-2 rounded-md w-full text-sm"><span>Selecionar...</span></button><div id="dropCluster" class="dropdown-content"></div></div>
+                    <div class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border p-2 rounded-md w-full text-sm"><span>Selecionar...</span></button><div id="dropCourse" class="dropdown-content"></div></div>
+                </div>
             </div>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Público-Alvo</p>
-                <h2 class="text-2xl font-bold" id="kpiTotal">0</h2>
+            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Staff FCP (Público)</p>
+                <h2 class="text-2xl font-bold" id="kpiUnique">0</h2>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border-l-4 border-green-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
-                <h2 class="text-2xl font-bold" id="kpiDone">0</h2>
+            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Staff Treinado</p>
+                <h2 class="text-2xl font-bold" id="kpiTrained">0</h2>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border-l-4 border-red-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Pendentes</p>
-                <h2 class="text-2xl font-bold" id="kpiGap">0</h2>
+            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Gap</p>
+                <h2 class="text-2xl font-bold" id="kpiUntrained">0</h2>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border-l-4 border-purple-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">% Cobertura</p>
+            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Índice de Cobertura</p>
                 <h2 class="text-2xl font-bold" id="kpiRate">0%</h2>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm mb-6">
-            <h3 class="text-sm font-bold mb-4 uppercase">Lista de Gap (Quem falta treinar)</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80"><canvas id="chartCluster"></canvas></div>
+            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80"><canvas id="chartCourses"></canvas></div>
+        </div>
+
+        <section class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
+            <h3 class="font-bold text-sm uppercase mb-4">📋 Detalhamento (Gap Analysis)</h3>
             <div class="overflow-x-auto">
                 <table id="mainTable">
                     <thead>
@@ -86,132 +116,172 @@
                             <th>Email</th>
                             <th>Função</th>
                             <th>Cluster</th>
+                            <th>Curso</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </main>
 
-    <div id="statusMsg" class="mt-20 text-center text-slate-400">Carregando arquivos...</div>
+    <div id="noData" class="mt-32 text-center">Carregando dados...</div>
 
     <script>
-        const SENHA = "1234";
-        let globalStaff = [], globalTrain = [], filters = { roles: [], clusters: [], courses: [] };
-
+        const SENHA_MESTRA = "1234"; 
         function checkAuth() {
-            if (document.getElementById('passInput').value === SENHA) {
-                sessionStorage.setItem("auth", "true");
+            if (document.getElementById('passInput').value === SENHA_MESTRA) {
+                sessionStorage.setItem("dashboard_auth", "true");
                 document.getElementById('authOverlay').style.display = 'none';
+            } else {
+                document.getElementById('authError').classList.remove('hidden');
             }
         }
+        window.onload = () => {
+            if (sessionStorage.getItem("dashboard_auth") === "true") document.getElementById('authOverlay').style.display = 'none';
+            carregarBaseAutomatica();
+        };
 
-        // Função para ler arquivo Excel remoto
-        async function fetchExcel(url) {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`Não foi possível encontrar o arquivo: ${url}`);
-            const arrayBuffer = await res.arrayBuffer();
-            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-        }
+        let globalStaff = [], globalTrainings = [], selectedFilters = { roles: [], clusters: [], courses: [] }, charts = {};
 
-        function getVal(obj, keys) {
-            for (let k of keys) {
-                const found = Object.keys(obj).find(key => key.trim().toLowerCase() === k.toLowerCase());
-                if (found) return obj[found];
+        // Função de busca de coluna flexível
+        function getCol(row, aliases) {
+            const keys = Object.keys(row);
+            for (let alias of aliases) {
+                const found = keys.find(k => k.trim().toLowerCase() === alias.toLowerCase());
+                if (found) return row[found];
             }
             return "";
         }
 
-        async function init() {
+        async function carregarBaseAutomatica() {
             try {
-                const [staffData, trainData] = await Promise.all([
-                    fetchExcel('FCP staff.xlsx'),
-                    fetch('dados.csv').then(r => r.text()).then(t => XLSX.utils.sheet_to_json(XLSX.read(t, {type:'string'}).Sheets.Sheet1))
-                ]);
+                const resTrain = await fetch('dados.csv');
+                const resStaff = await fetch('FCP staff.csv');
 
+                const trainText = await resTrain.text();
+                const staffText = await resStaff.text();
+
+                const trainData = XLSX.utils.sheet_to_json(XLSX.read(trainText, {type:'string'}).Sheets.Sheet1);
+                const staffData = XLSX.utils.sheet_to_json(XLSX.read(staffText, {type:'string'}).Sheets.Sheet1);
+
+                // Mapeia Staff
                 globalStaff = staffData.map(s => ({
-                    nome: `${getVal(s, ['First Name'])} ${getVal(s, ['Last Name'])}`.trim(),
-                    email: String(getVal(s, ['Email'])).trim().toLowerCase(),
-                    role: getVal(s, ['Role At FCP', 'Role']),
-                    cluster: getVal(s, ['FCP Cluster', 'Cluster'])
+                    name: (getCol(s, ['First Name']) + " " + getCol(s, ['Last Name'])).trim(),
+                    email: String(getCol(s, ['Email'])).trim().toLowerCase(),
+                    role: getCol(s, ['Role At FCP', 'Role', 'Função']),
+                    cluster: getCol(s, ['FCP Cluster', 'Cluster', 'Região'])
                 })).filter(i => i.email);
 
-                globalTrain = trainData.map(t => ({
-                    email: String(getVal(t, ['Email'])).trim().toLowerCase(),
-                    curso: getVal(t, ['Course Name', 'Course']),
-                    status: getVal(t, ['ACTIVITY_CODE', 'Status'])
+                // Mapeia Treinamentos
+                globalTrainings = trainData.map(t => ({
+                    email: String(getCol(t, ['Email'])).trim().toLowerCase(),
+                    course: getCol(t, ['Course Name', 'Course']),
+                    status: getCol(t, ['ACTIVITY_CODE', 'Status']),
+                    name: getCol(t, ['Name'])
                 })).filter(i => i.email);
 
-                populateFilters();
-                update();
-                
-                document.getElementById('statusMsg').classList.add('hidden');
-                document.getElementById('dashboardContent').classList.remove('hidden');
+                initDashboard();
             } catch (e) {
-                document.getElementById('statusMsg').innerHTML = `<p class="text-red-500">Erro: ${e.message}<br>Verifique se os arquivos FCP staff.xlsx e dados.csv estão na pasta.</p>`;
+                document.getElementById('noData').innerHTML = "Erro ao carregar arquivos: " + e.message;
             }
         }
 
-        function populateFilters() {
-            const createItems = (id, key, list) => {
-                document.getElementById(id).innerHTML = [...new Set(list)].filter(Boolean).sort().map(opt => `
-                    <div class="p-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer flex gap-2">
-                        <input type="checkbox" onchange="handleF('${key}', '${opt.replace(/'/g, "\\'")}')"> ${opt}
-                    </div>`).join('');
-            };
-            createItems('dropRole', 'roles', globalStaff.map(s => s.role));
-            createItems('dropCluster', 'clusters', globalStaff.map(s => s.cluster));
-            createItems('dropCourse', 'courses', globalTrain.map(t => t.curso));
+        function initDashboard() {
+            document.getElementById('noData').classList.add('hidden');
+            document.getElementById('dashboardContent').classList.remove('hidden');
+            
+            renderDropdown('dropRole', 'roles', [...new Set(globalStaff.map(i => i.role))].filter(Boolean).sort());
+            renderDropdown('dropCluster', 'clusters', [...new Set(globalStaff.map(i => i.cluster))].filter(Boolean).sort());
+            renderDropdown('dropCourse', 'courses', [...new Set(globalTrainings.map(i => i.course))].filter(Boolean).sort());
+            
+            updateDashboard();
         }
 
-        function handleF(key, val) {
-            const idx = filters[key].indexOf(val);
-            if(idx > -1) filters[key].splice(idx, 1); else filters[key].push(val);
-            update();
+        function renderDropdown(id, key, options) {
+            const container = document.getElementById(id);
+            container.innerHTML = options.map(opt => `
+                <div class="dropdown-item p-2 text-sm flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" onchange="handleFilter('${key}', '${opt}')"> <span>${opt}</span>
+                </div>
+            `).join('');
         }
 
-        function toggleDropdown(id) {
-            document.querySelectorAll('.dropdown-content').forEach(d => d.id !== id && d.classList.remove('show'));
-            document.getElementById(id).classList.toggle('show');
+        function handleFilter(key, val) {
+            const idx = selectedFilters[key].indexOf(val);
+            if(idx > -1) selectedFilters[key].splice(idx, 1);
+            else selectedFilters[key].push(val);
+            updateDashboard();
         }
 
-        function update() {
-            const target = globalStaff.filter(s => 
-                (filters.roles.length === 0 || filters.roles.includes(s.role)) &&
-                (filters.clusters.length === 0 || filters.clusters.includes(s.cluster))
+        function toggleDropdown(id) { document.getElementById(id).classList.toggle('show'); }
+
+        function updateDashboard() {
+            // 1. Filtrar Público-Alvo (Base Staff)
+            const staffFiltrado = globalStaff.filter(s => 
+                (selectedFilters.roles.length === 0 || selectedFilters.roles.includes(s.role)) &&
+                (selectedFilters.clusters.length === 0 || selectedFilters.clusters.includes(s.cluster))
             );
 
-            const conclusoes = new Set(globalTrain.filter(t => 
+            // 2. Filtrar Treinamentos Concluídos
+            const conclusoes = globalTrainings.filter(t => 
                 ['Completed', 'Attended', 'Concluído'].includes(t.status) &&
-                (filters.courses.length === 0 || filters.courses.includes(t.curso))
-            ).map(t => t.email));
+                (selectedFilters.courses.length === 0 || selectedFilters.courses.includes(t.course))
+            );
 
-            const treinados = target.filter(s => conclusoes.has(s.email));
-            
-            document.getElementById('kpiTotal').innerText = target.length;
-            document.getElementById('kpiDone').innerText = treinados.length;
-            document.getElementById('kpiGap').innerText = target.length - treinados.length;
-            document.getElementById('kpiRate').innerText = target.length > 0 ? Math.round((treinados.length / target.length)*100) + '%' : '0%';
+            const emailsConcluintes = new Set(conclusoes.map(c => c.email));
+            const treinadosNoTarget = staffFiltrado.filter(s => emailsConcluintes.has(s.email));
 
-            document.getElementById('tableBody').innerHTML = target.map(s => `
-                <tr class="${conclusoes.has(s.email) ? 'opacity-50' : 'bg-red-50 dark:bg-red-900/10'}">
-                    <td>${s.nome}</td>
+            const total = staffFiltrado.length;
+            const treinados = treinadosNoTarget.length;
+            const gap = total - treinados;
+            const rate = total > 0 ? ((treinados / total) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpiUnique').textContent = total;
+            document.getElementById('kpiTrained').textContent = treinados;
+            document.getElementById('kpiUntrained').textContent = gap;
+            document.getElementById('kpiRate').textContent = rate + '%';
+
+            renderTable(staffFiltrado, emailsConcluintes);
+            renderCharts(staffFiltrado, emailsConcluintes);
+        }
+
+        function renderTable(staff, concluintes) {
+            const html = staff.map(s => `
+                <tr class="${concluintes.has(s.email) ? '' : 'bg-red-50'}">
+                    <td>${s.name}</td>
                     <td>${s.email}</td>
                     <td>${s.role}</td>
                     <td>${s.cluster}</td>
-                    <td><span class="font-bold ${conclusoes.has(s.email) ? 'text-green-500' : 'text-red-500'}">
-                        ${conclusoes.has(s.email) ? 'CONCLUÍDO' : 'PENDENTE'}
+                    <td>${selectedFilters.courses.join(', ') || 'Todos'}</td>
+                    <td><span class="px-2 py-1 rounded text-[10px] font-bold ${concluintes.has(s.email) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                        ${concluintes.has(s.email) ? 'CONCLUÍDO' : 'PENDENTE'}
                     </span></td>
-                </tr>`).join('');
+                </tr>
+            `).join('');
+            document.getElementById('tableBody').innerHTML = html;
         }
 
-        window.onload = () => {
-            if (sessionStorage.getItem("auth") === "true") document.getElementById('authOverlay').style.display = 'none';
-            init();
-        };
+        function renderCharts(staff, concluintes) {
+            const ctxCluster = document.getElementById('chartCluster').getContext('2d');
+            const clusters = [...new Set(staff.map(s => s.cluster))];
+            const dataCluster = clusters.map(c => {
+                const totalInC = staff.filter(s => s.cluster === c).length;
+                const doneInC = staff.filter(s => s.cluster === c && concluintes.has(s.email)).length;
+                return doneInC;
+            });
+
+            if(charts.cluster) charts.cluster.destroy();
+            charts.cluster = new Chart(ctxCluster, {
+                type: 'bar',
+                data: { labels: clusters, datasets: [{ label: 'Concluídos', data: dataCluster, backgroundColor: '#3b82f6' }] },
+                options: { maintainAspectRatio: false, plugins: { datalabels: { display: true, formatter: (v) => v } } }
+            });
+        }
+
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+        function resetAllFilters() { location.reload(); }
     </script>
 </body>
 </html>
