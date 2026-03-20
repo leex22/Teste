@@ -56,7 +56,7 @@
         }
         .kpi-card:hover .tooltip-text { visibility: visible; opacity: 1; }
 
-        /* CSS para o Modal de Senha */
+        /* Modal de Senha */
         #authOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .auth-card { background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); width: 100%; max-width: 400px; text-align: center; }
         .auth-title { color: #1e293b; font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -75,11 +75,9 @@
         <div class="auth-card">
             <h2 class="auth-title">Portfolio Access</h2>
             <p class="auth-subtitle">Verify credentials to view global L&D data</p>
-            
             <div class="auth-input-container">
                 <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') checkAuth()">
             </div>
-            
             <button onclick="checkAuth()" class="auth-button">Unlock Dashboard</button>
             <p id="authError" class="error-msg">Senha incorreta. Tente novamente.</p>
         </div>
@@ -88,7 +86,7 @@
     <header class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
             <h1 class="text-2xl font-bold text-primary dark:text-blue-400">📊 Dashboard de Treinamentos</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm">Análise de Cobertura e Eficiência (Staff FCP)</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">Matriz de Cobertura e Gap Analysis (Staff FCP)</p>
             <p id="lastUpdateInfo" class="text-[10px] text-slate-400 font-bold uppercase mt-1"></p>
         </div>
         <div class="flex items-center gap-3">
@@ -112,12 +110,12 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Função (Segmento)</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Cluster / Região (Segmento)</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
                         <div class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
                         <div class="relative"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropEvent" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Cluster / Região</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
                         <div class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Função</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
                     </div>
                 </div>
 
@@ -129,27 +127,27 @@
 
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
-                    <span class="tooltip-text">Total de colaboradores ativos mapeados (Base FCP + Treinamentos).</span>
+                    <span class="tooltip-text">Tamanho base do público-alvo baseado na Função ou Cluster selecionado.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Staff FCP (Público)</p>
                     <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
-                    <span class="tooltip-text">Quantidade de colaboradores que concluíram pelo menos um treinamento.</span>
+                    <span class="tooltip-text">Colaboradores dentro do público-alvo que concluíram os cursos filtrados.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Staff Treinado</p>
                     <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTrained">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm text-center">
-                    <span class="tooltip-text">Colaboradores da base FCP que possuem ZERO treinamentos concluídos.</span>
+                    <span class="tooltip-text">Colaboradores do público-alvo que AINDA NÃO concluíram os cursos filtrados.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Gap (Não Atingido)</p>
                     <h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiUntrained">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
-                    <span class="tooltip-text">Percentual do Staff Total que já foi capacitado (Staff Treinado / Total).</span>
+                    <span class="tooltip-text">Percentual do Público-Alvo que concluiu o treinamento (Staff Treinado / Staff FCP).</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Índice de Cobertura</p>
                     <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm text-center">
-                    <span class="tooltip-text">Volume total de conclusões entregues.</span>
+                    <span class="tooltip-text">Volume bruto total de certificados/conclusões gerados neste filtro.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Volume Conclusões</p>
                     <h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0</h2>
                 </div>
@@ -158,7 +156,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardMethodEff">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">⚙️ Eficiência por Método (Funil)</h3>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">⚙️ Eficiência por Método</h3>
                         <button onclick="exportSingleChart('cardMethodEff', 'eficiencia-metodo')" class="btn-export-mini">PNG</button>
                     </div>
                     <div class="h-64"><canvas id="chartMethodEff"></canvas></div>
@@ -176,7 +174,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardCourses">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🏆 Top 5 Cursos (Mais Conclusões)</h3>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🏆 Top Cursos (Conclusões vs Público)</h3>
                         <button onclick="exportSingleChart('cardCourses', 'top-cursos')" class="btn-export-mini">PNG</button>
                     </div>
                     <div class="h-72"><canvas id="chartCourses"></canvas></div>
@@ -203,7 +201,7 @@
         <section class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm">
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📋 Detalhamento dos Dados (Gap Analysis)</h3>
-                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar Nome, Curso, Status..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar Nome, Email, Curso..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
             </div>
             <div class="overflow-x-auto">
                 <table>
@@ -211,6 +209,7 @@
                         <tr>
                             <th>FCP</th>
                             <th>Nome</th>
+                            <th>Email</th>
                             <th>Cluster</th>
                             <th>Curso</th>
                             <th>Evento</th>
@@ -255,11 +254,9 @@
         });
 
         Chart.register(ChartDataLabels);
-        let rawData = [], currentFilteredData = [], charts = {};
+        let globalStaff = [], globalTrainings = [], currentFilteredData = [], charts = {};
         let selectedFilters = { methods: [], courses: [], events: [], facilitators: [], roles: [], clusters: [] };
-        
-        // Colunas Padronizadas após o cruzamento
-        let cols = { fcp: 'fcp', name: 'name', email: 'email', course: 'course', event: 'event', status: 'status', role: 'role', facilitator: 'facilitator', method: 'method', date: 'date', cluster: 'cluster' };
+        let kpiUniqueGlobal = 0; // Armazena o denominador para uso nos gráficos
 
         window.onload = carregarBaseAutomatica;
 
@@ -273,7 +270,6 @@
             return null;
         }
 
-        // Função auxiliar para buscar colunas considerando variações de nome no Excel
         function getCol(row, possibleNames) {
             for (let n of possibleNames) if (row[n] !== undefined) return row[n];
             return "";
@@ -286,12 +282,10 @@
 
                 if (!resTrain) throw new Error("Base de Treinamentos não encontrada.");
 
-                // Parse Treinamentos
                 const abTrain = await resTrain.arrayBuffer();
                 const wbTrain = XLSX.read(new Uint8Array(abTrain), { type: 'array', cellDates: true });
                 let rawTrain = XLSX.utils.sheet_to_json(wbTrain.Sheets[wbTrain.SheetNames[0]], { defval: "" });
 
-                // Parse Staff (se existir, fará o Join)
                 let rawStaff = [];
                 if (resStaff) {
                     const abStaff = await resStaff.arrayBuffer();
@@ -312,7 +306,7 @@
         function preProcessarBases(train, staff) {
             let staffMap = {};
             
-            // 1. Mapear Base FCP Staff
+            // 1. Criar a Matriz de Staff (Denominador Total)
             staff.forEach(s => {
                 let email = getCol(s, ['Email', 'email', 'EMAIL', 'FCP ID', 'fcp id']);
                 if (!email) return;
@@ -323,14 +317,14 @@
                     name: getCol(s, ['Name', 'name', 'Nome', 'Full Name']),
                     role: getCol(s, ['Role at FCP', 'Role', 'Função', 'Job Title']),
                     cluster: getCol(s, ['FCP_CLUSTER', 'Cluster', 'Região', 'Region']),
-                    fcp: getCol(s, ['FCP', 'FCP ID', 'FCP_COMBINED']),
-                    hasTraining: false
+                    fcp: getCol(s, ['FCP', 'FCP ID', 'FCP_COMBINED'])
                 };
             });
 
-            rawData = [];
+            globalStaff = Object.values(staffMap);
+            globalTrainings = [];
 
-            // 2. Processar Base de Treinamentos enriquecendo com a Base Staff
+            // 2. Processar a Base de Treinamentos
             train.forEach(t => {
                 let email = getCol(t, ['Email', 'email', 'EMAIL']);
                 email = email ? String(email).trim().toLowerCase() : "";
@@ -351,37 +345,14 @@
                     cluster: getCol(t, ['FCP_CLUSTER', 'Cluster', 'Região'])
                 };
 
-                // Substituir pelas "Verdades Absolutas" da Base Staff se existir cruzamento
+                // Enriquecer com verdades da base Staff
                 if (email && staffMap[email]) {
                     if (staffMap[email].name) entry.name = staffMap[email].name;
                     if (staffMap[email].role) entry.role = staffMap[email].role;
                     if (staffMap[email].cluster) entry.cluster = staffMap[email].cluster;
                     if (staffMap[email].fcp) entry.fcp = staffMap[email].fcp;
-                    
-                    if (['Completed', 'Attended', 'Concluído'].includes(tStatus)) {
-                        staffMap[email].hasTraining = true;
-                    }
                 }
-                rawData.push(entry);
-            });
-
-            // 3. Adicionar "Fantasmas" (Staff sem nenhum treinamento registrado)
-            Object.values(staffMap).forEach(s => {
-                if (!s.hasTraining) {
-                    rawData.push({
-                        email: s.email,
-                        fcp: s.fcp || 'N/A',
-                        name: s.name,
-                        course: 'Nenhum Treinamento',
-                        event: 'N/A',
-                        status: 'Pendente',
-                        role: s.role,
-                        facilitator: 'N/A',
-                        method: 'N/A',
-                        date: new Date().toISOString(), // dummy date
-                        cluster: s.cluster
-                    });
-                }
+                globalTrainings.push(entry);
             });
 
             initDashboard();
@@ -397,10 +368,10 @@
             document.getElementById('noData').classList.add('hidden'); 
             document.getElementById('dashboardContent').classList.remove('hidden'); 
             
-            // Filtra os itens falsos (N/A) gerados pelo Gap Analysis para não poluir os Filtros
-            renderDropdown('dropMethod', 'methods', [...new Set(rawData.map(i => i[cols.method]))].filter(m=>m && m!=='N/A').sort()); 
-            renderDropdown('dropRole', 'roles', [...new Set(rawData.map(i => i[cols.role]))].sort()); 
-            renderDropdown('dropCluster', 'clusters', [...new Set(rawData.map(i => i[cols.cluster]))].sort()); 
+            // Popula os filtros com as bases puras
+            renderDropdown('dropRole', 'roles', [...new Set(globalStaff.map(i => i.role))].filter(Boolean).sort()); 
+            renderDropdown('dropCluster', 'clusters', [...new Set(globalStaff.map(i => i.cluster))].filter(Boolean).sort()); 
+            renderDropdown('dropMethod', 'methods', [...new Set(globalTrainings.map(i => i.method))].filter(Boolean).sort()); 
             
             updateCascade(); 
             updateDashboard();
@@ -418,19 +389,17 @@
             const optionsContainer = document.createElement('div');
             optionsContainer.className = 'p-2 space-y-1';
 
-            const validOptions = options.filter(o => o && String(o).trim() !== "");
-
-            if (validOptions.length > 0) {
+            if (options.length > 0) {
                 const selectAllDiv = document.createElement('div');
                 selectAllDiv.className = 'dropdown-item select-all-item flex items-center gap-2 p-2 rounded cursor-pointer text-sm font-bold border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800';
-                const isAllSelected = validOptions.every(opt => selectedFilters[filterKey].includes(opt));
+                const isAllSelected = options.every(opt => selectedFilters[filterKey].includes(opt));
                 selectAllDiv.innerHTML = `<input type="checkbox" id="selectAll_${filterKey}" ${isAllSelected ? 'checked' : ''}> <span>Selecionar Todos</span>`;
                 
                 selectAllDiv.onclick = (e) => { 
                     const cb = selectAllDiv.querySelector('input');
                     if(e.target !== cb) { cb.checked = !cb.checked; }
                     const isChecked = cb.checked;
-                    selectedFilters[filterKey] = isChecked ? [...validOptions] : [];
+                    selectedFilters[filterKey] = isChecked ? [...options] : [];
                     container.querySelectorAll('.filter-checkbox').forEach(input => input.checked = isChecked);
                     updateButtonLabel(filterKey);
                     if (['methods', 'courses'].includes(filterKey)) updateCascade();
@@ -439,7 +408,7 @@
                 optionsContainer.appendChild(selectAllDiv);
             }
 
-            validOptions.forEach(opt => {
+            options.forEach(opt => {
                 const div = document.createElement('div');
                 div.className = 'dropdown-item flex items-center gap-2 p-2 rounded cursor-pointer text-sm';
                 const isChecked = selectedFilters[filterKey].includes(opt);
@@ -464,14 +433,6 @@
             const index = selectedFilters[key].indexOf(value);
             if (index > -1) selectedFilters[key].splice(index, 1);
             else selectedFilters[key].push(value);
-            
-            const dropId = { methods: 'dropMethod', courses: 'dropCourse', events: 'dropEvent', facilitators: 'dropFac', roles: 'dropRole', clusters: 'dropCluster' }[key];
-            const selectAllCb = document.getElementById(`selectAll_${key}`);
-            if(selectAllCb) {
-                const visibleCheckboxes = document.querySelectorAll(`#${dropId} .filter-checkbox`);
-                selectAllCb.checked = Array.from(visibleCheckboxes).every(c => c.checked);
-            }
-
             updateButtonLabel(key);
             if (key === 'methods' || key === 'courses') updateCascade();
             updateDashboard();
@@ -484,164 +445,199 @@
         }
 
         function updateCascade() { 
-            let filteredByMethod = selectedFilters.methods.length > 0 ? rawData.filter(i => selectedFilters.methods.includes(i[cols.method])) : rawData; 
-            renderDropdown('dropCourse', 'courses', [...new Set(filteredByMethod.map(i => i[cols.course]))].filter(c=>c && c!=='Nenhum Treinamento').sort()); 
+            let filteredByMethod = selectedFilters.methods.length > 0 ? globalTrainings.filter(i => selectedFilters.methods.includes(i.method)) : globalTrainings; 
+            renderDropdown('dropCourse', 'courses', [...new Set(filteredByMethod.map(i => i.course))].filter(Boolean).sort()); 
 
-            let filteredByCourse = selectedFilters.courses.length > 0 ? filteredByMethod.filter(i => selectedFilters.courses.includes(i[cols.course])) : filteredByMethod;
-            renderDropdown('dropEvent', 'events', [...new Set(filteredByCourse.map(i => i[cols.event]))].filter(e=>e && e!=='N/A').sort()); 
-            renderDropdown('dropFac', 'facilitators', [...new Set(filteredByCourse.map(i => i[cols.facilitator]))].filter(f=>f && f!=='N/A').sort()); 
+            let filteredByCourse = selectedFilters.courses.length > 0 ? filteredByMethod.filter(i => selectedFilters.courses.includes(i.course)) : filteredByMethod;
+            renderDropdown('dropEvent', 'events', [...new Set(filteredByCourse.map(i => i.event))].filter(Boolean).sort()); 
+            renderDropdown('dropFac', 'facilitators', [...new Set(filteredByCourse.map(i => i.facilitator))].filter(Boolean).sort()); 
         }
 
         function updateDashboard() {
             const s = document.getElementById('dateStart').value; 
             const e = document.getElementById('dateEnd').value;
             
-            currentFilteredData = rawData.filter(i => {
-                const d = new Date(i[cols.date]); 
-                const dOk = (!s || d >= new Date(s)) && (!e || d <= new Date(e + 'T23:59:59'));
-                
-                // Tratar os casos "Gap" para garantir que não sumam caso Filtro de Data seja aplicado
-                const isGapRecord = i[cols.status] === 'Pendente' && i[cols.course] === 'Nenhum Treinamento';
-
-                return (selectedFilters.methods.length===0 || selectedFilters.methods.includes(i[cols.method]) || (isGapRecord && selectedFilters.methods.length===0)) && 
-                       (selectedFilters.courses.length===0 || selectedFilters.courses.includes(i[cols.course])) && 
-                       (selectedFilters.events.length===0 || selectedFilters.events.includes(i[cols.event])) && 
-                       (selectedFilters.facilitators.length===0 || selectedFilters.facilitators.includes(i[cols.facilitator])) && 
-                       (selectedFilters.roles.length===0 || selectedFilters.roles.includes(i[cols.role])) && 
-                       (selectedFilters.clusters.length===0 || selectedFilters.clusters.includes(i[cols.cluster])) && 
-                       (dOk || isGapRecord);
+            // 1. CAMADA DE ESCOPO (O Denominador) - Afetado SOMENTE por Função e Cluster
+            const currentStaffBase = globalStaff.filter(person => {
+                return (selectedFilters.roles.length === 0 || selectedFilters.roles.includes(person.role)) &&
+                       (selectedFilters.clusters.length === 0 || selectedFilters.clusters.includes(person.cluster));
             });
-            
-            renderKPIs(currentFilteredData); 
-            renderCharts(currentFilteredData); 
-            renderTable(currentFilteredData); 
-        }
+            kpiUniqueGlobal = currentStaffBase.length; // Salva globalmente para uso nas legendas dos gráficos
 
-        function renderKPIs(d) { 
-            const uniqueStaff = new Set();
-            const trainedStaff = new Set();
+            // 2. CAMADA DE PERFORMANCE (A Fatia) - Afetado por TODOS os filtros
+            const validTrainings = globalTrainings.filter(t => {
+                const d = new Date(t.date); 
+                const dOk = (!s || d >= new Date(s)) && (!e || d <= new Date(e + 'T23:59:59'));
+                return (selectedFilters.methods.length === 0 || selectedFilters.methods.includes(t.method)) && 
+                       (selectedFilters.courses.length === 0 || selectedFilters.courses.includes(t.course)) && 
+                       (selectedFilters.events.length === 0 || selectedFilters.events.includes(t.event)) && 
+                       (selectedFilters.facilitators.length === 0 || selectedFilters.facilitators.includes(t.facilitator)) && 
+                       (selectedFilters.roles.length === 0 || selectedFilters.roles.includes(t.role)) && 
+                       (selectedFilters.clusters.length === 0 || selectedFilters.clusters.includes(t.cluster)) && 
+                       dOk;
+            });
+
+            // 3. Processamento de KPIs de Aderência
+            const trainedEmails = new Set();
             let completedVolume = 0;
-
-            d.forEach(i => {
-                const email = i[cols.email];
-                if (email) uniqueStaff.add(email);
-                
-                if (['Completed', 'Attended', 'Concluído'].includes(i[cols.status])) {
-                    trainedStaff.add(email);
+            
+            validTrainings.forEach(t => {
+                if (['Completed', 'Attended', 'Concluído'].includes(t.status)) {
+                    trainedEmails.add(t.email);
                     completedVolume++;
                 }
             });
 
-            const totalStaff = uniqueStaff.size;
-            const totalTrained = trainedStaff.size;
-            const totalUntrained = totalStaff - totalTrained;
-            const coverageRate = totalStaff > 0 ? ((totalTrained / totalStaff) * 100).toFixed(1) : "0";
+            // Se a pessoa treinada não pertencer ao público alvo selecionado, não a contamos no Staff Treinado.
+            // Isso previne que a cobertura passe de 100% se a base de treinamentos tiver gente de fora da base FCP.
+            let staffTrainedInAudience = 0;
+            currentStaffBase.forEach(person => {
+                if(trainedEmails.has(person.email)) staffTrainedInAudience++;
+            });
 
-            document.getElementById('kpiUnique').textContent = totalStaff; 
-            document.getElementById('kpiTrained').textContent = totalTrained; 
-            document.getElementById('kpiUntrained').textContent = totalUntrained; 
+            const kpiUntrained = kpiUniqueGlobal - staffTrainedInAudience;
+            const coverageRate = kpiUniqueGlobal > 0 ? ((staffTrainedInAudience / kpiUniqueGlobal) * 100).toFixed(1) : "0";
+
+            document.getElementById('kpiUnique').textContent = kpiUniqueGlobal; 
+            document.getElementById('kpiTrained').textContent = staffTrainedInAudience; 
+            document.getElementById('kpiUntrained').textContent = kpiUntrained; 
             document.getElementById('kpiRate').textContent = coverageRate + '%'; 
-            document.getElementById('kpiCompleted').textContent = completedVolume; 
-        }
+            document.getElementById('kpiCompleted').textContent = completedVolume;
 
-        function renderTable(d) { 
-            // Remover registros 'Enrolled' se o cara já concluiu o mesmo curso
+            // 4. Montar a Tabela Dinâmica com os Gaps e a nova coluna de E-mail
+            currentFilteredData = [];
             const completedKeys = new Set();
-            d.forEach(i => {
-                if(['Completed', 'Attended', 'Concluído'].includes(i[cols.status])) {
-                    completedKeys.add(`${i[cols.email]}_${i[cols.course]}`);
+            validTrainings.forEach(i => { if(['Completed', 'Attended', 'Concluído'].includes(i.status)) completedKeys.add(`${i.email}_${i.course}`); });
+
+            // Adiciona registros válidos (esconde Enrolled se a pessoa já completou)
+            validTrainings.forEach(t => {
+                if(t.status === 'Enrolled' && completedKeys.has(`${t.email}_${t.course}`)) return;
+                currentFilteredData.push({...t, isGap: false});
+            });
+
+            // Adiciona a Lacuna (Pessoas que estão na base Staff filtrada, mas não completaram os cursos do filtro)
+            let gapCourseLabel = selectedFilters.courses.length === 1 ? selectedFilters.courses[0] + " (Pendente)" : "Nenhum Treinamento Localizado";
+            
+            currentStaffBase.forEach(person => {
+                if (!trainedEmails.has(person.email)) {
+                    currentFilteredData.push({
+                        fcp: person.fcp || '-',
+                        name: person.name,
+                        email: person.email,
+                        cluster: person.cluster || '-',
+                        course: gapCourseLabel,
+                        event: '-',
+                        status: 'Pendente',
+                        role: person.role || '-',
+                        facilitator: '-',
+                        method: '-',
+                        date: '',
+                        isGap: true
+                    });
                 }
             });
 
-            const finalDisplayData = d.filter(i => {
-                if(i[cols.status] === 'Enrolled') return !completedKeys.has(`${i[cols.email]}_${i[cols.course]}`);
-                return true;
-            });
+            renderCharts(validTrainings); 
+            renderTable(currentFilteredData); 
+        }
 
-            document.getElementById('tableBody').innerHTML = finalDisplayData.map(i => {
-                const isGap = i[cols.status] === 'Pendente';
-                const isDone = ['Completed','Attended','Concluído'].includes(i[cols.status]);
+        function renderTable(d) { 
+            document.getElementById('tableBody').innerHTML = d.map(i => {
+                const isGap = i.isGap;
+                const isDone = ['Completed','Attended','Concluído'].includes(i.status);
                 const badgeColor = isDone ? 'bg-green-100 text-green-700' : (isGap ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700');
-                const statusName = i[cols.status]==='Attended' ? 'Completed' : i[cols.status];
+                const statusName = i.status==='Attended' ? 'Completed' : i.status;
 
                 return `<tr>
-                    <td class="text-xs text-slate-500">${i[cols.fcp]||''}</td>
-                    <td class='font-bold text-xs ${isGap ? 'text-red-500 dark:text-red-400' : ''}'>${i[cols.name]||''}</td>
-                    <td class="text-xs">${i[cols.cluster]||''}</td>
-                    <td class="text-xs max-w-[200px] truncate ${isGap?'italic text-slate-400':''}" title="${i[cols.course]}">${i[cols.course]||''}</td>
-                    <td class="text-xs max-w-[150px] truncate">${i[cols.event]!=='N/A'?i[cols.event]:''}</td>
+                    <td class="text-xs text-slate-500">${i.fcp||''}</td>
+                    <td class='font-bold text-xs ${isGap ? 'text-red-500 dark:text-red-400' : ''}'>${i.name||''}</td>
+                    <td class="text-xs text-blue-500 hover:underline"><a href="mailto:${i.email}">${i.email||''}</a></td>
+                    <td class="text-xs">${i.cluster||''}</td>
+                    <td class="text-xs max-w-[150px] truncate ${isGap?'italic text-slate-400':''}" title="${i.course}">${i.course||''}</td>
+                    <td class="text-xs max-w-[100px] truncate">${i.event||''}</td>
                     <td><span class='px-2 py-0.5 rounded text-[9px] font-bold ${badgeColor}'>${statusName}</span></td>
-                    <td class="text-xs">${i[cols.role]||''}</td>
-                    <td class="text-xs">${i[cols.facilitator]!=='N/A'?i[cols.facilitator]:''}</td>
-                    <td class="text-xs">${i[cols.method]!=='N/A'?i[cols.method]:''}</td>
+                    <td class="text-xs">${i.role||''}</td>
+                    <td class="text-xs">${i.facilitator||''}</td>
+                    <td class="text-xs">${i.method||''}</td>
                 </tr>`
             }).join(''); 
-            document.getElementById('tableCounter').textContent = `Total Exibido: ${finalDisplayData.length}`; 
+            document.getElementById('tableCounter').textContent = `Total Exibido: ${d.length} registros`; 
         }
 
         function exportFilteredData() {
             if (currentFilteredData.length === 0) { alert("Sem dados."); return; }
-            const ws = XLSX.utils.json_to_sheet(currentFilteredData);
+            const exportData = currentFilteredData.map(i => {
+                const { isGap, ...rest } = i; // Remove propriedades internas do frontend
+                return rest;
+            });
+            const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "OpEx_Cobertura_Export");
-            XLSX.writeFile(wb, "Base_OpEx_Staff_Treinamentos.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "Matriz_Cobertura");
+            XLSX.writeFile(wb, "Matriz_Cobertura_Treinamentos.xlsx");
         }
 
         function resetAllFilters() { selectedFilters = { methods: [], courses: [], events: [], facilitators: [], roles: [], clusters: [] }; initDashboard(); }
 
         function getChartTextColor() { return document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569'; }
 
-        function renderCharts(d) {
-            const isDark = document.documentElement.classList.contains('dark');
-            const tColor = getChartTextColor();
+        // Configuração Padrão das Legendas (Datalabels)
+        function getDatalabelsConfig() {
+            return {
+                color: '#fff',
+                font: { weight: 'bold', size: 10 },
+                formatter: (val) => {
+                    if (!val || val === 0) return '';
+                    // Utiliza o kpiUniqueGlobal (Denominador Travado) para mostrar a % real de cobertura
+                    const perc = kpiUniqueGlobal > 0 ? ((val / kpiUniqueGlobal) * 100).toFixed(1) : 0;
+                    return `${val} (${perc}%)`;
+                }
+            };
+        }
 
-            // Filtrar os dados fantasmas para os gráficos
-            const chartData = d.filter(i => i[cols.course] !== 'Nenhum Treinamento');
+        function renderCharts(chartData) {
+            const tColor = getChartTextColor();
 
             const mapUser = (data) => {
                 const map = {};
                 data.forEach(i => {
-                    const key = `${i[cols.email]}_${i[cols.course]}_${i[cols.method]}_${i[cols.cluster]}_${i[cols.facilitator]}`;
+                    const key = `${i.email}_${i.course}_${i.method}_${i.cluster}_${i.facilitator}`;
                     if(!map[key]) map[key] = { ...i, isCompleted: false };
-                    if(['Completed', 'Attended', 'Concluído'].includes(i[cols.status])) map[key].isCompleted = true;
+                    if(['Completed', 'Attended', 'Concluído'].includes(i.status)) map[key].isCompleted = true;
                 });
                 return Object.values(map);
             };
             const uniqueData = mapUser(chartData);
-            const totalConclusoesGlobal = uniqueData.filter(i => i.isCompleted).length;
 
             // 1. Eficiência por Método
             const methodStats = {};
             uniqueData.forEach(i => {
-                const m = i[cols.method] || 'N/A';
-                if(!methodStats[m]) methodStats[m] = { total: 0, comp: 0 };
-                methodStats[m].total++;
+                const m = i.method || 'N/A';
+                if(!methodStats[m]) methodStats[m] = { comp: 0 };
                 if(i.isCompleted) methodStats[m].comp++;
             });
             const mLabels = Object.keys(methodStats);
             updateChart('chartMethodEff', 'bar', {
                 labels: mLabels,
-                datasets: [
-                    { label: 'Concluídos', data: mLabels.map(l => methodStats[l].comp), backgroundColor: '#10b981', borderRadius: 4 },
-                    { label: 'Pendentes', data: mLabels.map(l => methodStats[l].total - methodStats[l].comp), backgroundColor: '#f59e0b', borderRadius: 4 }
-                ]
-            }, { indexAxis: 'y', scales: { x: { stacked: true, ticks: {color: tColor} }, y: { stacked: true, ticks: {color: tColor, font: {size:10}} } }, plugins: { datalabels: { display: false } } });
+                datasets: [{ label: 'Concluídos', data: mLabels.map(l => methodStats[l].comp), backgroundColor: '#10b981', borderRadius: 4 }]
+            }, { indexAxis: 'y', scales: { x: { ticks: {color: tColor} }, y: { ticks: {color: tColor, font: {size:10}} } }, plugins: { datalabels: getDatalabelsConfig() } });
 
             // 2. Adesão por Cluster
             const clusterStats = {};
             uniqueData.forEach(i => {
-                const c = i[cols.cluster] || 'Sem Região';
-                clusterStats[c] = (clusterStats[c]||0) + 1;
+                if(i.isCompleted) {
+                    const c = i.cluster || 'Sem Região';
+                    clusterStats[c] = (clusterStats[c]||0) + 1;
+                }
             });
             const cLabels = Object.keys(clusterStats).sort((a,b)=>clusterStats[b]-clusterStats[a]).slice(0, 8);
             updateChart('chartCluster', 'bar', {
                 labels: cLabels.map(l => l.length > 15 ? l.substring(0,15)+'...' : l),
                 datasets: [{ data: cLabels.map(l => clusterStats[l]), backgroundColor: '#3b82f6', borderRadius: 4 }]
-            }, { plugins: { legend: { display: false }, datalabels: { color: isDark?'#fff':'#333', anchor: 'end', align: 'top', font:{weight:'bold'} } }, scales: { x: { ticks:{color: tColor, font:{size:10}} }, y: { ticks:{color: tColor} } } });
+            }, { plugins: { legend: { display: false }, datalabels: getDatalabelsConfig() }, scales: { x: { ticks:{color: tColor, font:{size:10}} }, y: { ticks:{color: tColor} } } });
 
             // 3. Top Cursos
             const courseStats = {};
-            uniqueData.filter(i=>i.isCompleted).forEach(i => { courseStats[i[cols.course]] = (courseStats[i[cols.course]]||0) + 1; });
+            uniqueData.filter(i=>i.isCompleted).forEach(i => { courseStats[i.course] = (courseStats[i.course]||0) + 1; });
             const topC = Object.keys(courseStats).sort((a,b)=>courseStats[b]-courseStats[a]).slice(0,5);
             updateChart('chartCourses', 'bar', {
                 labels: topC.map(n => n.length > 20 ? n.substring(0,20)+'...' : n),
@@ -655,13 +651,8 @@
                 indexAxis: 'y', 
                 plugins: { 
                     legend: { display: false }, 
-                    datalabels: { color: isDark?'#fff':'#333', anchor: 'end', align: 'right', font:{weight:'bold'} },
-                    tooltip: {
-                        callbacks: {
-                            title: (items) => items[0].dataset.fullNames[items[0].dataIndex],
-                            label: (ctx) => ` Conclusões: ${ctx.raw} (${totalConclusoesGlobal > 0 ? ((ctx.raw / totalConclusoesGlobal) * 100).toFixed(1) : 0}%)`
-                        }
-                    }
+                    datalabels: getDatalabelsConfig(),
+                    tooltip: { callbacks: { title: (items) => items[0].dataset.fullNames[items[0].dataIndex] } }
                 }, 
                 scales: { x:{ticks:{color: tColor}}, y:{ticks:{color: tColor, font:{size:10}}} } 
             });
@@ -669,26 +660,21 @@
             // 4. Facilitadores
             const facStats = {};
             uniqueData.forEach(i => {
-                const f = i[cols.facilitator];
-                if(f) {
-                    if(!facStats[f]) facStats[f] = { total: 0, comp: 0 };
-                    facStats[f].total++;
-                    if(i.isCompleted) facStats[f].comp++;
+                const f = i.facilitator;
+                if(f && i.isCompleted) {
+                    facStats[f] = (facStats[f]||0) + 1;
                 }
             });
-            const topF = Object.keys(facStats).sort((a,b)=>facStats[b].comp - facStats[a].comp).slice(0, 5);
+            const topF = Object.keys(facStats).sort((a,b)=>facStats[b] - facStats[a]).slice(0, 5);
             updateChart('chartFacilitators', 'bar', {
                 labels: topF,
-                datasets: [
-                    { label: 'Concluídos', data: topF.map(f => facStats[f].comp), backgroundColor: '#005eb8', borderRadius: 4 },
-                    { label: 'Pendentes', data: topF.map(f => facStats[f].total - facStats[f].comp), backgroundColor: '#cbd5e1', borderRadius: 4 }
-                ]
-            }, { scales: { x: { stacked: true, ticks:{color: tColor, font:{size:10}} }, y: { stacked: true, ticks:{color: tColor} } }, plugins: { datalabels: { display: false } } });
+                datasets: [{ label: 'Concluídos', data: topF.map(f => facStats[f]), backgroundColor: '#005eb8', borderRadius: 4 }]
+            }, { scales: { x: { ticks:{color: tColor, font:{size:10}} }, y: { ticks:{color: tColor} } }, plugins: { datalabels: getDatalabelsConfig() } });
 
-            // 5. Evolução Mensal
+            // 5. Evolução Mensal (Sem Datalabels internos para não poluir a linha)
             const timeData = new Array(12).fill(0); 
-            chartData.filter(i => ['Completed', 'Attended', 'Concluído'].includes(i[cols.status])).forEach(i => { 
-                const m = new Date(i[cols.date]).getMonth(); 
+            chartData.filter(i => ['Completed', 'Attended', 'Concluído'].includes(i.status)).forEach(i => { 
+                const m = new Date(i.date).getMonth(); 
                 if(!isNaN(m)) timeData[m]++; 
             });
             updateChart('chartTimeline', 'line', { 
