@@ -75,19 +75,19 @@
     <div id="authOverlay">
         <div class="auth-card">
             <h2 class="auth-title">Dashboard FCP</h2>
-            <p class="auth-subtitle">Digite a senha para acessar</p>
+            <p class="auth-subtitle">Digite a senha para aceder</p>
             <div class="auth-input-container">
                 <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') checkAuth()">
             </div>
-            <button onclick="checkAuth()" class="auth-button">Acessar Dashboard</button>
+            <button onclick="checkAuth()" class="auth-button">Aceder ao Dashboard</button>
             <p id="authError" class="error-msg">Senha incorreta.</p>
         </div>
     </div>
 
     <div id="loadingOverlay" style="display: none; flex-direction: column; text-align: center; color: white;">
         <div class="spinner"></div>
-        <h2 class="text-xl font-bold">Buscando bases de dados...</h2>
-        <p class="text-sm text-slate-400 mt-2">Lendo dados.csv e FCP Staff.csv direto do GitHub</p>
+        <h2 class="text-xl font-bold">A procurar bases de dados...</h2>
+        <p class="text-sm text-slate-400 mt-2">A ler dados.csv e FCP Staff.csv diretamente do GitHub</p>
         <p id="loadingError" class="error-msg mt-4 font-bold bg-red-900 p-4 rounded text-white" style="display: none;"></p>
     </div>
 
@@ -144,7 +144,7 @@
                     <h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm text-center">
-                    <span class="tooltip-text">Matrículas iniciadas sem conclusão registrada.</span>
+                    <span class="tooltip-text">Matrículas iniciadas sem conclusão registada.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
                     <h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0</h2>
                 </div>
@@ -154,7 +154,7 @@
                     <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center">
-                    <span class="tooltip-text">Tempo médio entre o cadastro do colaborador no Staff e a conclusão do primeiro curso (Onboarding Time).</span>
+                    <span class="tooltip-text">Tempo médio entre o registo do colaborador no Staff e a conclusão do primeiro curso (Onboarding Time).</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Tempo Onboarding</p>
                     <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiOnboarding">0 d</h2>
                 </div>
@@ -230,7 +230,7 @@
             if (input === SENHA_MESTRA) {
                 sessionStorage.setItem("dashboard_auth", "true");
                 document.getElementById('authOverlay').style.display = 'none';
-                carregarBasesAutomaticamente(); // Inicia o download das bases após a senha
+                carregarBasesAutomaticamente(); 
             } else {
                 error.style.display = 'block';
                 document.getElementById('passInput').value = '';
@@ -240,7 +240,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem("dashboard_auth") === "true") {
                 document.getElementById('authOverlay').style.display = 'none';
-                carregarBasesAutomaticamente(); // Inicia se já estiver autenticado
+                carregarBasesAutomaticamente(); 
             }
         });
 
@@ -269,7 +269,7 @@
                     console.warn(`Tentativa falhou para: ${name}`);
                 }
             }
-            throw new Error(`Arquivos não encontrados. Tentei: ${fileNames.join(', ')}`);
+            throw new Error(`Ficheiros não encontrados. Tentei: ${fileNames.join(', ')}`);
         }
 
         async function carregarBasesAutomaticamente() {
@@ -299,7 +299,7 @@
 
             } catch (error) {
                 console.error(error);
-                errorMsg.textContent = "ERRO: " + error.message + " Verifique se os arquivos estão na mesma pasta do repositório no GitHub com esses nomes exatos.";
+                errorMsg.textContent = "ERRO: " + error.message + " Verifique se os ficheiros estão na mesma pasta do repositório no GitHub com estes nomes exatos.";
                 errorMsg.style.display = 'block';
                 document.querySelector('.spinner').style.display = 'none';
             }
@@ -559,7 +559,7 @@
                 `;
                 rendered++;
             }
-            document.getElementById('tableCounter').innerText = `Exibindo ${rendered} de ${currentFilteredData.length} registros filtrados.`;
+            document.getElementById('tableCounter').innerText = `A exibir ${rendered} de ${currentFilteredData.length} registos filtrados.`;
         }
 
         function filterTable() { renderTable(); }
