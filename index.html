@@ -1042,6 +1042,10 @@
         function updateCharts() {
             var d = currentFilteredData;
             
+            // CORREÇÃO: As variáveis isDark e tColor agora estão devidamente declaradas e disponíveis nesta função.
+            var isDark = document.documentElement.classList.contains('dark');
+            var tColor = isDark ? '#cbd5e1' : '#475569';
+            
             var toggleSwitch = document.getElementById('toggleMetas');
             var metasAtivas = toggleSwitch && toggleSwitch.checked;
             var metaConfig = metasAtivas ? getMetaConfig() : null;
@@ -1259,7 +1263,7 @@
                 datasets: [{ label: 'Cobertura (%)', data: facSorted.map(function(i){return i[1]}), backgroundColor: '#f59e0b', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getPercentDatalabelsConfig(), tooltip: getPercentTooltipConfig(facCompSizes, facDenominators) } });
 
-            // 5. Adesão por Modalidade
+            // 5. Adesão por Modalidade (Usa o tColor perfeitamente agora)
             var modalidadeCount = {};
             for(var n=0; n<d_unique.length; n++) {
                 var mod = d_unique[n][cols.method];
