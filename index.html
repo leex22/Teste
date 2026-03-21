@@ -75,6 +75,39 @@
 </head>
 <body class="bg-slate-100 text-slate-900 dark:bg-darkBg dark:text-slate-100 p-4 md:p-8">
 
+    <div id="helpModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[10000] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkCard w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden relative border border-slate-200 dark:border-slate-700">
+            <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">❓ Guia Rápido do Dashboard</h2>
+                <button onclick="toggleHelpModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition text-2xl font-bold leading-none">&times;</button>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto text-sm text-slate-600 dark:text-slate-300 space-y-5">
+                <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-primary p-4 rounded-r-lg text-slate-800 dark:text-slate-200">
+                    <h3 class="font-bold mb-2 text-primary dark:text-blue-400">A Regra de Ouro (Alcance vs. Performance):</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Cobertura = Alcance:</strong> Gráficos com a palavra "Cobertura" olham para o <strong>total de pessoas na empresa</strong> (Base FCP Staff). Eles medem se a cultura de treinamento está a alcançar todos.</li>
+                        <li><strong>Eficiência = Performance:</strong> Os cards da linha inferior (Taxa de Eficiência, Concluídos) olham <strong>apenas para quem se inscreveu</strong>. Eles medem se os cursos são bons e retêm os alunos até ao fim.</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-slate-800 dark:text-slate-100 mb-3 text-base">O que cada gráfico mostra:</h3>
+                    <ul class="space-y-3">
+                        <li><strong>🎯 Cobertura por Cargo (%):</strong> A percentagem de pessoas dentro de cada função na empresa que já finalizaram os treinamentos. Serve para ver quais os cargos que estão a bater a meta de estudo e quais estão atrasados.</li>
+                        <li><strong>👥 Cobertura Facilitador (%):</strong> A taxa de sucesso de cada facilitador. Mede quantos alunos (em %) debaixo da tutela daquele facilitador já concluíram os cursos, avaliando o engajamento daquela região.</li>
+                        <li><strong>📍 Top 5 - Adesão por Cluster:</strong> O ranking das 5 regiões ou grupos que geraram o maior número de alunos únicos participando nos cursos.</li>
+                        <li><strong>🏆 Top 5 Cursos:</strong> A lista dos 5 cursos que acumulam o maior número de conclusões reais.</li>
+                        <li><strong>📊 Adesão por Modalidade:</strong> A divisão do total de inscrições pelos formatos de ensino (Online, Presencial, Virtual). Mostra como o seu público prefere consumir o conteúdo.</li>
+                        <li><strong>📈 Evolução de Treinamentos ao Longo do Tempo:</strong> Uma linha do tempo com o volume de atividades (inscrições e conclusões) mês a mês, para identificar picos de estudo ou épocas de queda.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex justify-end">
+                <button onclick="toggleHelpModal()" class="bg-primary hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition font-medium text-sm shadow-sm">Entendido</button>
+            </div>
+        </div>
+    </div>
+
     <div id="authOverlay">
         <div class="auth-card">
             <h2 class="auth-title">Dashboard FCP</h2>
@@ -100,6 +133,7 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm">Integração: Operacional (Cursos) x Talentos (Staff)</p>
         </div>
         <div class="flex items-center gap-3">
+            <button onclick="toggleHelpModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition shadow-md font-medium text-sm flex items-center gap-2">❓ Ajuda</button>
             <button onclick="exportFilteredData()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow-md font-medium text-sm flex items-center gap-2">📥 Excel</button>
             <button onclick="exportDashboardToPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow-md font-medium text-sm flex items-center gap-2">📄 PDF</button>
             <button onclick="toggleTheme()" class="bg-slate-200 dark:bg-slate-700 p-2 rounded-lg">🌓</button>
@@ -302,6 +336,15 @@
             }
         });
 
+        function toggleHelpModal() {
+            var modal = document.getElementById('helpModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
         Chart.register(ChartDataLabels);
         var baseTraining = [];
         var baseStaff = [];
@@ -477,6 +520,11 @@
             if (!e.target.closest('.relative')) {
                 var dropdowns = document.querySelectorAll('.dropdown-content');
                 for(var i=0; i<dropdowns.length; i++) dropdowns[i].classList.remove('show');
+            }
+            
+            var modal = document.getElementById('helpModal');
+            if (e.target === modal) {
+                modal.classList.add('hidden');
             }
         }
 
