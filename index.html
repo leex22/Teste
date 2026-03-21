@@ -1101,9 +1101,33 @@
         function exportFilteredData() {
             if(currentFilteredData.length === 0) return alert("Não existem dados para exportar.");
             
-            var exportData = [];
+            // --- REGRA DE DEDUPLICAÇÃO (A mesma do Total Inscrições e Tabela) ---
+            var uniqueEnrollments = {};
             for(var i=0; i<currentFilteredData.length; i++) {
-                var row = currentFilteredData[i];
+                var email = currentFilteredData[i].Email_Lower;
+                var course = currentFilteredData[i][cols.course];
+                var key = email + "|_|" + course;
+                if (!uniqueEnrollments[key]) {
+                    uniqueEnrollments[key] = currentFilteredData[i];
+                } else {
+                    if(String(currentFilteredData[i][cols.status]).toLowerCase().includes('completed')) {
+                        uniqueEnrollments[key] = currentFilteredData[i];
+                    }
+                }
+            }
+            var d_unique_export = Object.values(uniqueEnrollments);
+            // -----------------------------------------------------------
+
+            var searchInput = document.getElementById('tableSearch').value.toLowerCase();
+            var exportData = [];
+
+            for(var j=0; j<d_unique_export.length; j++) {
+                var row = d_unique_export[j];
+                
+                // Aplicar o filtro da barra de pesquisa de texto
+                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
+                if (searchInput && text.indexOf(searchInput) === -1) continue;
+
                 exportData.push({
                     'FCP ID': row.FCP_ID_Display,
                     'Email': row.Email_Lower,
@@ -1111,6 +1135,7 @@
                     'Cargo Staff': row[cols.staffRole],
                     'Cluster Staff': row[cols.staffCluster],
                     'Curso': row[cols.course],
+                    'Evento': row[cols.event],
                     'Status': row[cols.status],
                     'Data Conclusão': row[cols.date],
                     'Método': row[cols.method],
@@ -1118,6 +1143,8 @@
                 });
             }
             
+            if(exportData.length === 0) return alert("Não existem dados para exportar com a pesquisa atual.");
+
             var ws = XLSX.utils.json_to_sheet(exportData);
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Dados_Cruzados");
