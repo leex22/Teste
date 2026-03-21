@@ -116,12 +116,12 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropEvent" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Cluster (Staff)</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Função / Cargo (Staff)</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropEvent" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Cluster (Staff)</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
+                        <div class="relative"><label class="label-filter">Função / Cargo (Staff)</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
                     </div>
                 </div>
 
@@ -176,17 +176,23 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardSkillGap">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Cobertura por Cargo (%)</h3>
-                        <button onclick="exportSingleChart('cardSkillGap', 'cobertura-cargo')" class="btn-export-mini">PNG</button>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Cobertura por Cargo (%)</h3>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual do cargo na base FCP que já concluiu os treinamentos.</p>
+                        </div>
+                        <button onclick="exportSingleChart('cardSkillGap', 'cobertura-cargo')" class="btn-export-mini mt-1">PNG</button>
                     </div>
                     <div class="h-64"><canvas id="chartSkillGap"></canvas></div>
                 </div>
                 
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardCluster">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📍 Top 5 - Adesão por Cluster</h3>
-                        <button onclick="exportSingleChart('cardCluster', 'adesao-cluster')" class="btn-export-mini">PNG</button>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📍 Top 5 - Adesão por Cluster</h3>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Volume de inscrições reais e deduplicadas geradas por região.</p>
+                        </div>
+                        <button onclick="exportSingleChart('cardCluster', 'adesao-cluster')" class="btn-export-mini mt-1">PNG</button>
                     </div>
                     <div class="h-64"><canvas id="chartCluster"></canvas></div>
                 </div>
@@ -194,34 +200,46 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardCourses">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🏆 Top 5 Cursos</h3>
-                        <button onclick="exportSingleChart('cardCourses', 'top-cursos')" class="btn-export-mini">PNG</button>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🏆 Top 5 Cursos</h3>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Volume de conclusões reais consolidadas por curso.</p>
+                        </div>
+                        <button onclick="exportSingleChart('cardCourses', 'top-cursos')" class="btn-export-mini mt-1">PNG</button>
                     </div>
                     <div class="h-72"><canvas id="chartCourses"></canvas></div>
                 </div>
 
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardModalidade">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📊 Adesão por Modalidade</h3>
-                        <button onclick="exportSingleChart('cardModalidade', 'adesao-modalidade')" class="btn-export-mini">PNG</button>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📊 Adesão por Modalidade</h3>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Distribuição de inscrições reais e deduplicadas por formato.</p>
+                        </div>
+                        <button onclick="exportSingleChart('cardModalidade', 'adesao-modalidade')" class="btn-export-mini mt-1">PNG</button>
                     </div>
                     <div class="h-72"><canvas id="chartModalidade"></canvas></div>
                 </div>
 
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardFacilitadores">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Cobertura por Facilitador (%)</h3>
-                        <button onclick="exportSingleChart('cardFacilitadores', 'cobertura-facilitador')" class="btn-export-mini">PNG</button>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Cobertura Facilitador (%)</h3>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual de alunos sob a tutela que concluíram os cursos.</p>
+                        </div>
+                        <button onclick="exportSingleChart('cardFacilitadores', 'cobertura-facilitador')" class="btn-export-mini mt-1">PNG</button>
                     </div>
                     <div class="h-72"><canvas id="chartFacilitadores"></canvas></div>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative mb-6" id="cardTimeline">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📈 Evolução de Treinamentos ao Longo do Tempo</h3>
-                    <button onclick="exportSingleChart('cardTimeline', 'evolucao-mensal')" class="btn-export-mini">PNG</button>
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📈 Evolução de Treinamentos ao Longo do Tempo</h3>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Visão temporal das interações ativas na plataforma (Inscrições e Conclusões).</p>
+                    </div>
+                    <button onclick="exportSingleChart('cardTimeline', 'evolucao-mensal')" class="btn-export-mini mt-1">PNG</button>
                 </div>
                 <div class="h-64"><canvas id="chartTimeline"></canvas></div>
             </div>
@@ -543,6 +561,28 @@
             calculateKPIs();
             updateCharts();
             renderTable();
+            updateFilterButtonsText();
+        }
+
+        function updateFilterButtonsText() {
+            var mappings = { 'methods': 'btnMethod', 'courses': 'btnCourse', 'events': 'btnEvent', 'clusters': 'btnCluster', 'facs': 'btnFac', 'roles': 'btnRole' };
+            for (var key in selectedFilters) {
+                var btnId = mappings[key];
+                if(btnId) {
+                    var btn = document.getElementById(btnId);
+                    if(btn) {
+                        var count = selectedFilters[key].length;
+                        var span = btn.querySelector('span:first-child');
+                        if (count > 0) {
+                            span.innerText = 'Selecionados (' + count + ')';
+                            btn.classList.add('border-primary', 'text-primary', 'font-semibold');
+                        } else {
+                            span.innerText = 'Selecionar...';
+                            btn.classList.remove('border-primary', 'text-primary', 'font-semibold');
+                        }
+                    }
+                }
+            }
         }
 
         function updateDropdownsUI() {
@@ -640,7 +680,6 @@
             var completedEmailsSet = new Set();
             var userCourseDict = {};
 
-            // 1. CÁLCULO DINÂMICO DO TOTAL DE STAFF BASEADO NOS FILTROS (Roles/Clusters)
             var dynamicStaffCount = 0;
             var validStaffEmails = new Set();
             for (var i = 0; i < baseStaff.length; i++) {
@@ -755,7 +794,20 @@
             };
         }
 
-        // FORMATADORES EXCLUSIVOS PARA OS GRÁFICOS DE COBERTURA (%)
+        // NOVO HOVER MAIS RICO PARA GRÁFICOS DE COBERTURA
+        function getPercentTooltipConfig(compDict, totDict) {
+            return {
+                callbacks: {
+                    label: function(context) {
+                        var label = context.label;
+                        var comp = compDict[label] || 0;
+                        var tot = totDict[label] || 0;
+                        return ' ' + comp + ' de ' + tot + ' unid. (' + Math.round(context.raw) + '%)';
+                    }
+                }
+            };
+        }
+
         function getPercentDatalabelsConfig() {
             return {
                 color: '#000',
@@ -767,20 +819,26 @@
             };
         }
 
-        function getPercentTooltipConfig() {
-            return {
-                callbacks: {
-                    label: function(context) {
-                        return ' Cobertura: ' + Math.round(context.raw) + '%';
-                    }
-                }
-            };
-        }
-
         function updateCharts() {
             var d = currentFilteredData;
             var isDark = document.documentElement.classList.contains('dark');
             var tColor = isDark ? '#cbd5e1' : '#475569';
+
+            // REGRA DE DEDUPLICAÇÃO PARA GRÁFICOS DE VOLUME (Cluster e Modalidade)
+            var uniqueEnrollments = {};
+            for(var i=0; i<d.length; i++) {
+                var email = d[i].Email_Lower;
+                var course = d[i][cols.course];
+                var key = email + "|_|" + course;
+                if (!uniqueEnrollments[key]) {
+                    uniqueEnrollments[key] = d[i];
+                } else {
+                    if(String(d[i][cols.status]).toLowerCase().includes('completed')) {
+                        uniqueEnrollments[key] = d[i];
+                    }
+                }
+            }
+            var d_unique = Object.values(uniqueEnrollments);
 
             // 1. COBERTURA POR CARGO (%)
             var staffRoleDenominators = {};
@@ -813,8 +871,10 @@
             }
 
             var roleCoverage = {};
+            var roleCompSizes = {};
             for(var r in roleCompletedEmails) {
                 var comp = roleCompletedEmails[r].size;
+                roleCompSizes[r] = comp;
                 var tot = staffRoleDenominators[r] || 0;
                 if(tot > 0) {
                     roleCoverage[r] = (comp / tot) * 100;
@@ -827,12 +887,12 @@
             updateChart('chartSkillGap', 'bar', {
                 labels: roleSorted.map(function(i){return i[0]}),
                 datasets: [{ label: 'Cobertura (%)', data: roleSorted.map(function(i){return i[1]}), backgroundColor: '#3b82f6', borderRadius: 4 }]
-            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getPercentDatalabelsConfig(), tooltip: getPercentTooltipConfig() }, scales: { x: { ticks: { color: tColor }, max: 100 }, y: { ticks: { color: tColor } } } });
+            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getPercentDatalabelsConfig(), tooltip: getPercentTooltipConfig(roleCompSizes, staffRoleDenominators) }, scales: { x: { ticks: { color: tColor }, max: 100 }, y: { ticks: { color: tColor } } } });
 
-            // 2. Clusters (Top 5)
+            // 2. Clusters (Top 5) - AGORA DEDUPLICADO
             var clusterCount = {};
-            for(var j=0; j<d.length; j++) {
-                var cluster = d[j][cols.staffCluster];
+            for(var j=0; j<d_unique.length; j++) {
+                var cluster = d_unique[j][cols.staffCluster];
                 clusterCount[cluster] = (clusterCount[cluster] || 0) + 1;
             }
             var clusterSorted = Object.entries(clusterCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 5);
@@ -844,7 +904,7 @@
                 datasets: [{ data: clusterDataVals, backgroundColor: '#06b6d4', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
-            // 3. Courses
+            // 3. Courses - DEDUPLICADO AUTOMATICAMENTE POR PROCURAR APENAS 'COMPLETED'
             var courseCount = {};
             for(var k=0; k<d.length; k++) {
                 if(String(d[k][cols.status]).toLowerCase().includes('completed')) {
@@ -888,8 +948,10 @@
                 }
             }
             var facCoverage = {};
+            var facCompSizes = {};
             for(var fc in facCompletedEmails) {
                 var comp = facCompletedEmails[fc].size;
+                facCompSizes[fc] = comp;
                 var tot = facDenominators[fc] || 0;
                 if(tot > 0) {
                     facCoverage[fc] = (comp / tot) * 100;
@@ -902,12 +964,12 @@
             updateChart('chartFacilitadores', 'bar', {
                 labels: facSorted.map(function(i){return String(i[0]).substring(0,25)}),
                 datasets: [{ label: 'Cobertura (%)', data: facSorted.map(function(i){return i[1]}), backgroundColor: '#f59e0b', borderRadius: 4 }]
-            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getPercentDatalabelsConfig(), tooltip: getPercentTooltipConfig() }, scales: { x: { ticks: { color: tColor }, max: 100 }, y: { ticks: { color: tColor } } } });
+            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getPercentDatalabelsConfig(), tooltip: getPercentTooltipConfig(facCompSizes, facDenominators) }, scales: { x: { ticks: { color: tColor }, max: 100 }, y: { ticks: { color: tColor } } } });
 
-            // 5. Adesão por Modalidade
+            // 5. Adesão por Modalidade - AGORA DEDUPLICADO
             var modalidadeCount = {};
-            for(var n=0; n<d.length; n++) {
-                var mod = d[n][cols.method];
+            for(var n=0; n<d_unique.length; n++) {
+                var mod = d_unique[n][cols.method];
                 if (mod && String(mod).trim() !== "" && String(mod) !== "undefined") {
                     modalidadeCount[mod] = (modalidadeCount[mod] || 0) + 1;
                 }
