@@ -676,8 +676,8 @@
             
             // Lógica de esconder os filtros do Modo Foco
             document.getElementById('filterMethod').style.display = metasAtivas ? 'none' : 'block';
-            document.getElementById('filterCourse').style.display = metasAtivas ? 'none' : 'block';
             document.getElementById('filterEvent').style.display = metasAtivas ? 'none' : 'block';
+            // NOTA: filterCourse permanece sempre visível
 
             applyFilters();
             updateDropdownsUI();
@@ -714,6 +714,18 @@
             var start = startVal ? new Date(startVal) : null;
             var end = endVal ? new Date(endVal) : null;
 
+            var toggleSwitch = document.getElementById('toggleMetas');
+            var metasAtivas = toggleSwitch && toggleSwitch.checked;
+            var cursosComMeta = [];
+            if(metasAtivas && baseMetas.length > 0) {
+                for(var b=0; b<baseMetas.length; b++) {
+                    var c = baseMetas[b]['Curso'];
+                    if(c && String(c).toUpperCase() !== 'PADRÃO' && String(c).toUpperCase() !== 'PADRAO') {
+                        cursosComMeta.push(String(c).toLowerCase().trim());
+                    }
+                }
+            }
+
             var keys = Object.keys(filterMappings);
             for (var k = 0; k < keys.length; k++) {
                 var currentFilterKey = keys[k];
@@ -724,7 +736,13 @@
                     var row = joinedData[i];
                     var isValid = true;
                     
-                    if ((start || end) && row[cols.date]) {
+                    // LÓGICA MODO METAS: Se estiver ligado, mostra apenas opções relacionadas aos cursos da meta
+                    if (metasAtivas) {
+                        var cName = String(row[cols.course]).toLowerCase().trim();
+                        if (!cursosComMeta.includes(cName)) isValid = false;
+                    }
+                    
+                    if (isValid && (start || end) && row[cols.date]) {
                         var rDate = new Date(row[cols.date]);
                         if (start && rDate < start) isValid = false;
                         if (end && rDate > end) isValid = false;
@@ -870,6 +888,16 @@
                 el.classList.add('semaforo-vermelho');
                 card.classList.add('border-red-500', 'glow-red');
             }
+        }
+
+        function resetSemaforo(textId, cardId, metaId, textColorClass, borderColorClass) {
+            var card = document.getElementById(cardId);
+            var txt = document.getElementById(textId);
+            var lbl = document.getElementById(metaId);
+            
+            card.className = 'kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 shadow-sm text-center transition-all duration-300 ' + borderColorClass;
+            txt.className = 'text-2xl font-bold ' + textColorClass;
+            if(lbl) lbl.classList.add('hidden');
         }
 
         function calculateKPIs() {
