@@ -682,7 +682,6 @@
                 }
             }
 
-            // CORREÇÃO: O total agora é exatamente a soma dos Concluídos REAIS + Pendentes REAIS.
             var realTotalInscricoes = concluidos + dropout;
 
             document.getElementById('kpiUnique').innerText = emailsSet.size;
@@ -692,25 +691,21 @@
             if (realTotalInscricoes > 0) rate = Math.round((concluidos / realTotalInscricoes) * 100) + '%';
             document.getElementById('kpiRate').innerText = rate;
 
-            // Sem Treinamento
             var semTreino = Math.max(0, countStaffAtivo - emailsSet.size);
             var percSemTreino = countStaffAtivo > 0 ? Math.round((semTreino / countStaffAtivo) * 100) + '%' : '0%';
             document.getElementById('kpiNoTraining').innerHTML = percSemTreino + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + semTreino + ' unid.)</span>';
 
-            // Cobertura Staff
             var cobertura = countStaffAtivo > 0 ? Math.round((completedEmailsSet.size / countStaffAtivo) * 100) + '%' : '0%';
             document.getElementById('kpiCoverage').innerText = cobertura;
 
-            // Concluídos 
             var percConcluidos = realTotalInscricoes > 0 ? Math.round((concluidos / realTotalInscricoes) * 100) + '%' : '0%';
             document.getElementById('kpiCompleted').innerHTML = percConcluidos + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + concluidos + ' unid.)</span>';
 
-            // Pendentes 
             var percDropout = realTotalInscricoes > 0 ? Math.round((dropout / realTotalInscricoes) * 100) + '%' : '0%';
             document.getElementById('kpiDropout').innerHTML = percDropout + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + dropout + ' unid.)</span>';
         }
 
-        // CONFIGURAÇÕES VISUAIS DOS GRÁFICOS (PERCENTAGENS E TOOLTIPS)
+        // CONFIGURAÇÕES VISUAIS DOS GRÁFICOS
         function getDatalabelsConfig() {
             return {
                 color: '#000',
@@ -757,7 +752,7 @@
                 datasets: [{ label: 'Cursos Concluídos', data: roleSorted.map(function(i){return i[1]}), backgroundColor: '#3b82f6', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
-            // 2. Clusters
+            // 2. Clusters (Top 5)
             var clusterCount = {};
             for(var j=0; j<d.length; j++) {
                 var cluster = d[j][cols.staffCluster];
@@ -774,3 +769,115 @@
 
             // 3. Courses
             var courseCount = {};
+            for(var k=0; k<d.length; k++) {
+                if(String(d[k][cols.status]).toLowerCase().includes('completed')) {
+                    var course = d[k][cols.course];
+                    courseCount[course] = (courseCount[course] || 0) + 1;
+                }
+            }
+            var courseSorted = Object.entries(courseCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 5);
+            updateChart('chartCourses', 'bar', {
+                labels: courseSorted.map(function(i){return String(i[0]).substring(0,25) + '...'}),
+                datasets: [{ data: courseSorted.map(function(i){return i[1]}), backgroundColor: '#10b981', borderRadius: 4 }]
+            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+
+            // 4. Performance Facilitador
+            var facCount = {};
+            for(var f=0; f<d.length; f++) {
+                if(String(d[f][cols.status]).toLowerCase().includes('completed')) {
+                    var fc = d[f][cols.fac];
+                    if (fc && String(fc).trim() !== "" && String(fc) !== "undefined") {
+                        facCount[fc] = (facCount[fc] || 0) + 1;
+                    }
+                }
+            }
+            var facSorted = Object.entries(facCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 6); 
+            updateChart('chartFacilitadores', 'bar', {
+                labels: facSorted.map(function(i){return String(i[0]).substring(0,25)}),
+                datasets: [{ data: facSorted.map(function(i){return i[1]}), backgroundColor: '#f59e0b', borderRadius: 4 }]
+            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+
+            // 5. Adesão por Modalidade
+            var modalidadeCount = {};
+            for(var n=0; n<d.length; n++) {
+                var mod = d[n][cols.method];
+                if (mod && String(mod).trim() !== "" && String(mod) !== "undefined") {
+                    modalidadeCount[mod] = (modalidadeCount[mod] || 0) + 1;
+                }
+            }
+            var modalidadeSorted = Object.entries(modalidadeCount).sort(function(a,b){return b[1] - a[1]}); 
+            var modalidadeLabels = modalidadeSorted.map(function(i){return String(i[0]).substring(0,25)});
+            var modalidadeDataVals = modalidadeSorted.map(function(i){return i[1]});
+
+            updateChart('chartModalidade', 'pie', {
+                labels: modalidadeLabels,
+                datasets: [{ data: modalidadeDataVals, backgroundColor: ['#8b5cf6','#ec4899','#f43f5e','#10b981','#3b82f6','#f59e0b'] }]
+            }, { plugins: { legend: { position: 'right', labels: { color: tColor } }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() } });
+
+            // 6. Timeline
+            var timeData = {};
+            for(var m=0; m<d.length; m++) {
+                if(d[m][cols.date]) {
+                    var dt = new Date(d[m][cols.date]);
+                    if(!isNaN(dt)) {
+                        var month = String(dt.getMonth() + 1).padStart(2, '0');
+                        var key = dt.getFullYear() + '-' + month;
+                        timeData[key] = (timeData[key] || 0) + 1;
+                    }
+                }
+            }
+            var timeSortedKeys = Object.keys(timeData).sort();
+            updateChart('chartTimeline', 'line', {
+                labels: timeSortedKeys,
+                datasets: [{ label: 'Interações', data: timeSortedKeys.map(function(k){return timeData[k]}), borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.2)', fill: true, tension: 0.3 }]
+            }, { plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+        }
+
+        function updateChart(id, type, data, options) {
+            if (charts[id]) charts[id].destroy();
+            charts[id] = new Chart(document.getElementById(id), { 
+                type: type, 
+                data: data, 
+                options: Object.assign({}, options, { maintainAspectRatio: false }) 
+            });
+        }
+
+        function updateChartsColors() { updateDashboard(); }
+
+        function renderTable() {
+            var tbody = document.getElementById('tableBody');
+            var searchInput = document.getElementById('tableSearch').value.toLowerCase();
+            
+            var htmlString = "";
+            var rendered = 0;
+            var maxRows = 100;
+
+            for (var i = 0; i < currentFilteredData.length; i++) {
+                if (rendered >= maxRows) break;
+                var row = currentFilteredData[i];
+                
+                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.course] + " " + row[cols.staffCluster]).toLowerCase();
+                if (searchInput && text.indexOf(searchInput) === -1) continue;
+
+                var statusColor = 'text-amber-600 bg-amber-100';
+                if (String(row[cols.status]).toLowerCase().includes('completed')) {
+                    statusColor = 'text-green-600 bg-green-100 font-bold';
+                }
+                
+                var dataFormatada = "";
+                if(row[cols.date]) {
+                    var dObj = new Date(row[cols.date]);
+                    if(!isNaN(dObj)) dataFormatada = dObj.toLocaleDateString('pt-PT');
+                }
+
+                htmlString += "<tr>";
+                htmlString += "  <td class='font-bold text-slate-600 dark:text-slate-300'>" + row.FCP_ID_Display + "</td>";
+                htmlString += "  <td class='font-medium'>" + row.NameDisplay + " <br><span class='text-[10px] text-slate-400'>" + row.Email_Lower + "</span></td>";
+                htmlString += "  <td>" + row[cols.staffRole] + "</td>";
+                htmlString += "  <td>" + row[cols.staffCluster] + "</td>";
+                htmlString += "  <td class='text-xs max-w-xs truncate' title='" + row[cols.course] + "'>" + row[cols.course] + "</td>";
+                htmlString += "  <td><span class='px-2 py-1 rounded text-[10px] " + statusColor + "'>" + row[cols.status] + "</span></td>";
+                htmlString += "  <td class='text-xs text-slate-500'>" + dataFormatada + "</td>";
+                htmlString += "</tr>";
+                
+                rendered
