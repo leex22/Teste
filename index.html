@@ -96,9 +96,9 @@
                 <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-primary p-4 rounded-r-lg text-slate-800 dark:text-slate-200">
                     <h3 class="font-bold mb-2 text-primary dark:text-blue-400">A Regra de Ouro (Alcance vs. Performance):</h3>
                     <ul class="list-disc pl-5 space-y-2">
-                        <li><strong>Cobertura = Alcance:</strong> Gráficos com a palavra "Cobertura" olham para o <strong>total de pessoas na empresa</strong> (Base FCP Staff). Eles medem se a cultura de treinamento está a alcançar todos.</li>
-                        <li><strong>Eficiência = Performance:</strong> Os cards da linha inferior (Taxa de Eficiência, Concluídos) olham <strong>apenas para quem se inscreveu</strong>. Eles medem se os cursos são bons e retêm os alunos até ao fim.</li>
-                        <li><strong>🎯 O Modo Metas (Switch):</strong> Ao ligar o interruptor, o dashboard esconde os cursos comuns e acende os semáforos, focando exclusivamente na cobrança. A tabela vira um "Plano de Ação", listando quem está pendente no topo.</li>
+                        <li><strong>Cobertura = Alcance:</strong> Gráficos com a palavra "Cobertura" olham para o total de pessoas na empresa (Base FCP Staff). Medem se a cultura de treinamento está a alcançar todos.</li>
+                        <li><strong>Eficiência = Performance:</strong> Olham apenas para quem se inscreveu. Medem se os cursos são bons e retêm os alunos até ao fim.</li>
+                        <li><strong>🎯 O Modo Metas (Switch):</strong> Ao ligar o interruptor, o dashboard esconde os cursos comuns, foca o layout num "Funil de Cobrança" e lista quem está pendente no topo da tabela.</li>
                     </ul>
                 </div>
             </div>
@@ -143,7 +143,7 @@
     <main id="dashboardContent" class="max-w-7xl mx-auto hidden">
         <div id="pdfArea">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-                <div class="lg:col-span-3 bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary">
+                <div class="lg:col-span-3 bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary transition-all">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-sm font-bold uppercase tracking-wider">🔍 Filtros Inteligentes Cruzados</h3>
                         <div class="flex items-center gap-4">
@@ -159,12 +159,12 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropEvent" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Cluster (Staff)</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Função / Cargo (Staff)</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
+                        <div id="filterMethod" class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
+                        <div id="filterCourse" class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
+                        <div id="filterEvent" class="relative"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropEvent" class="dropdown-content"></div></div>
+                        <div id="filterCluster" class="relative"><label class="label-filter">Cluster (Staff)</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
+                        <div id="filterFac" class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
+                        <div id="filterRole" class="relative"><label class="label-filter">Função / Cargo (Staff)</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
                     </div>
                 </div>
 
@@ -174,57 +174,88 @@
                 </div>
             </div>
 
-            <div class="mb-6">
-                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">👥 Análise de População e Alcance</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
-                        <span class="tooltip-text">Número de parceiros na base FCP Staff que correspondem aos filtros atuais de Cargo/Cluster.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase" id="lblTotalStaff">Total FCP Staff</p>
-                        <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="kpiTotalStaff">0</h2>
+            <div id="visaoGeralCards">
+                <div class="mb-6">
+                    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">👥 Análise de População e Alcance</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
+                            <span class="tooltip-text">Número de parceiros na base FCP Staff que correspondem aos filtros.</span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase" id="lblTotalStaff">Total FCP Staff</p>
+                            <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="kpiTotalStaff">0</h2>
+                        </div>
+                        <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
+                            <span class="tooltip-text">Quantidade de entidades únicas com atividades de treinamento no filtro atual.</span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Acessos Únicos</p>
+                            <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
+                        </div>
+                        <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm flex flex-col justify-center items-center text-center">
+                            <span class="tooltip-text">Percentagem e número do alvo que não realizou nenhum treinamento.</span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Sem Treinamento</p>
+                            <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0%</h2></div>
+                        </div>
+                        <div id="cardKpiCoverage" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center transition-all duration-300">
+                            <span class="tooltip-text">Percentagem do alvo que cumpriu o treinamento.</span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (Staff)</p>
+                            <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiCoverage">0%</h2>
+                        </div>
                     </div>
-                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
-                        <span class="tooltip-text">Quantidade de entidades únicas com atividades de treinamento no filtro atual.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Acessos Únicos</p>
-                        <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
-                    </div>
-                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="tooltip-text">Percentagem e número do alvo que não realizou nenhum treinamento no filtro atual.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Sem Treinamento</p>
-                        <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0%</h2></div>
-                    </div>
-                    <div id="cardKpiCoverage" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center transition-all duration-300">
-                        <span class="tooltip-text">Percentagem do alvo que cumpriu o treinamento. Liga o semáforo no Modo Metas.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (Staff)</p>
-                        <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiCoverage">0%</h2>
-                        <p id="kpiCoverageMeta" class="text-[9px] font-bold text-slate-400 mt-1 hidden"></p>
-                        <p id="kpiCoverageFaltam" class="hidden"></p> 
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">⚙️ Análise de Processo e Eficiência</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
+                            <span class="tooltip-text">Volume Real Deduplicado: Soma exata de inscrições limpas.</span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Total Inscrições</p>
+                            <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTotal">0</h2>
+                        </div>
+                        <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm flex flex-col justify-center items-center text-center">
+                            <span class="tooltip-text">Percentagem de treinamentos finalizados com sucesso.</span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
+                            <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0%</h2></div>
+                        </div>
+                        <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm flex flex-col justify-center items-center text-center">
+                            <span class="tooltip-text">Percentagem e total de matrículas pendentes reais.</span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
+                            <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0%</h2></div>
+                        </div>
+                        <div id="cardKpiRate" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center transition-all duration-300">
+                            <span class="tooltip-text">Taxa de Conclusões em relação às inscrições.</span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Taxa de Eficiência</p>
+                            <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">⚙️ Análise de Processo e Eficiência</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
-                        <span class="tooltip-text">Volume Real Deduplicado: Soma exata de inscrições limpas.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Total Inscrições</p>
-                        <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTotal">0</h2>
+            <div id="modoMetasCards" class="mb-6 hidden">
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">🚀 Funil de Execução (Foco na Cobrança)</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
+                        <span class="tooltip-text">Público total (Pessoas ou Instituições) monitorizado nos filtros atuais.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase" id="mmLblAlvo">Público Alvo</p>
+                        <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="mmKpiAlvo">0</h2>
                     </div>
-                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="tooltip-text">Percentagem de treinamentos finalizados com sucesso.</span>
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm text-center">
+                        <span class="tooltip-text">Volume do público alvo que já atingiu o objetivo.</span>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
-                        <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0%</h2></div>
+                        <h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="mmKpiConcluidos">0</h2>
                     </div>
-                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="tooltip-text">Percentagem e total de matrículas pendentes reais.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
-                        <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0%</h2></div>
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm text-center">
+                        <span class="tooltip-text">Número exato de conversões que faltam para a meta ficar verde.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Faltam (Meta Verde)</p>
+                        <h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="mmKpiFaltam">0</h2>
                     </div>
-                    <div id="cardKpiRate" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center transition-all duration-300">
-                        <span class="tooltip-text">Taxa de Conclusões em relação às inscrições. Liga o semáforo no Modo Metas.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Taxa de Eficiência</p>
-                        <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
-                        <p id="kpiRateMeta" class="text-[9px] font-bold text-slate-400 mt-1 hidden"></p>
+                    <div id="mmCardStatus" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center transition-all duration-300">
+                        <span class="tooltip-text">Percentagem atual de alcance da meta.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura Atual</p>
+                        <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="mmKpiStatus">0%</h2>
+                        <p id="mmKpiMetaLabel" class="text-[9px] font-bold text-slate-400 mt-1 hidden"></p>
+                    </div>
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm text-center">
+                        <span class="tooltip-text">Pessoas do público-alvo que iniciaram, mas estão pendentes/dropout.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Pendentes</p>
+                        <h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="mmKpiPendentes">0</h2>
                     </div>
                 </div>
             </div>
@@ -234,7 +265,7 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Alcance por Função (%)</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual do cargo na base que já concluiu os treinamentos.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1" id="lblSubtitleSkillGap">Percentual do cargo na base que já concluiu os treinamentos.</p>
                         </div>
                         <button onclick="exportSingleChart('cardSkillGap', 'cobertura-cargo')" class="btn-export-mini mt-1">PNG</button>
                     </div>
@@ -640,6 +671,14 @@
         }
 
         function updateDashboard() {
+            var toggleSwitch = document.getElementById('toggleMetas');
+            var metasAtivas = toggleSwitch && toggleSwitch.checked;
+            
+            // Lógica de esconder os filtros do Modo Foco
+            document.getElementById('filterMethod').style.display = metasAtivas ? 'none' : 'block';
+            document.getElementById('filterCourse').style.display = metasAtivas ? 'none' : 'block';
+            document.getElementById('filterEvent').style.display = metasAtivas ? 'none' : 'block';
+
             applyFilters();
             updateDropdownsUI();
             calculateKPIs();
@@ -811,6 +850,8 @@
             var card = document.getElementById(cardId);
             var lbl = document.getElementById(metaId);
             
+            if(!el || !card) return;
+
             el.className = 'text-2xl font-bold'; 
             card.classList.remove('glow-red', 'border-green-500', 'border-amber-500', 'border-red-500', 'border-teal-500', 'border-purple-500');
             
@@ -831,16 +872,6 @@
             }
         }
 
-        function resetSemaforo(textId, cardId, metaId, textColorClass, borderColorClass) {
-            var card = document.getElementById(cardId);
-            var txt = document.getElementById(textId);
-            var lbl = document.getElementById(metaId);
-            
-            card.className = 'kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 shadow-sm text-center transition-all duration-300 ' + borderColorClass;
-            txt.className = 'text-2xl font-bold ' + textColorClass;
-            if(lbl) lbl.classList.add('hidden');
-        }
-
         function calculateKPIs() {
             var d = currentFilteredData;
             
@@ -859,8 +890,17 @@
                 }
             }
 
-            document.getElementById('lblTotalStaff').innerText = isHybrid ? "Total FCPs (Inst.)" : "Total FCP Staff";
-            
+            // Alternar containers de cards
+            var visaoGeral = document.getElementById('visaoGeralCards');
+            var modoMetas = document.getElementById('modoMetasCards');
+            if (metasAtivas) {
+                if(visaoGeral) visaoGeral.classList.add('hidden');
+                if(modoMetas) modoMetas.classList.remove('hidden');
+            } else {
+                if(visaoGeral) visaoGeral.classList.remove('hidden');
+                if(modoMetas) modoMetas.classList.add('hidden');
+            }
+
             var validStaffEmails = new Set();
             var validFcps = new Set();
             var dynamicStaffCount = 0;
@@ -948,42 +988,18 @@
                 concluidosAlvo = completedEmailsSet.size;
             }
 
-            document.getElementById('kpiTotalStaff').innerText = universoTotal;
-            document.getElementById('kpiUnique').innerText = isHybrid ? Object.keys(fcpCompletedCounts).length : emailsSet.size;
-            document.getElementById('kpiTotal').innerText = realTotalInscricoes;
-            
             var covVal = universoTotal > 0 ? Math.round((concluidosAlvo / universoTotal) * 100) : 0;
-            document.getElementById('kpiCoverage').innerText = covVal + '%';
-
             var rateVal = realTotalInscricoes > 0 ? Math.round((concluidos / realTotalInscricoes) * 100) : 0;
+
+            // PREENCHER CARDS (VISÃO GERAL)
+            document.getElementById('lblTotalStaff').innerText = "Total FCP Staff";
+            document.getElementById('kpiTotalStaff').innerText = universoTotal;
+            document.getElementById('kpiUnique').innerText = emailsSet.size;
+            document.getElementById('kpiTotal').innerText = realTotalInscricoes;
+            document.getElementById('kpiCoverage').innerText = covVal + '%';
             document.getElementById('kpiRate').innerText = rateVal + '%';
 
-            // TRADUTOR DE METAS (Adicionado)
-            var pFaltam = document.getElementById('kpiCoverageFaltam');
-
-            if (metasAtivas) {
-                applySemaforo('kpiCoverage', 'cardKpiCoverage', 'kpiCoverageMeta', covVal, metaConfig);
-                applySemaforo('kpiRate', 'cardKpiRate', 'kpiRateMeta', rateVal, metaConfig);
-                
-                var metaVerdeAbsoluta = Math.ceil((metaConfig.verde / 100) * universoTotal);
-                var faltamParaVerde = metaVerdeAbsoluta - concluidosAlvo;
-                
-                if(pFaltam) {
-                    if (faltamParaVerde > 0) {
-                        pFaltam.innerText = "Faltam " + faltamParaVerde + (isHybrid ? " Inst." : " pessoas") + " para bater a meta";
-                        pFaltam.className = 'text-[10px] font-bold mt-1 text-red-500 dark:text-red-400 block';
-                    } else {
-                        pFaltam.innerText = "Meta Atingida! 🎉";
-                        pFaltam.className = 'text-[10px] font-bold mt-1 text-green-600 dark:text-green-400 block';
-                    }
-                }
-            } else {
-                resetSemaforo('kpiCoverage', 'cardKpiCoverage', 'kpiCoverageMeta', 'text-teal-600 dark:text-teal-400', 'border-teal-500');
-                resetSemaforo('kpiRate', 'cardKpiRate', 'kpiRateMeta', 'text-purple-600 dark:text-purple-400', 'border-purple-500');
-                if(pFaltam) pFaltam.className = 'hidden';
-            }
-
-            var semTreino = Math.max(0, universoTotal - (isHybrid ? Object.keys(fcpCompletedCounts).length : emailsSet.size));
+            var semTreino = Math.max(0, universoTotal - emailsSet.size);
             var percSemTreino = universoTotal > 0 ? Math.round((semTreino / universoTotal) * 100) + '%' : '0%';
             document.getElementById('kpiNoTraining').innerHTML = percSemTreino + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + semTreino + ' unid.)</span>';
 
@@ -992,6 +1008,40 @@
 
             var percDropout = realTotalInscricoes > 0 ? Math.round((dropout / realTotalInscricoes) * 100) + '%' : '0%';
             document.getElementById('kpiDropout').innerHTML = percDropout + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + dropout + ' unid.)</span>';
+
+            // PREENCHER CARDS (MODO METAS - SUPER CARDS)
+            if (metasAtivas) {
+                var elAlvo = document.getElementById('mmKpiAlvo');
+                var elLblAlvo = document.getElementById('mmLblAlvo');
+                if(elAlvo) elAlvo.innerText = universoTotal;
+                if(elLblAlvo) elLblAlvo.innerText = isHybrid ? "FCPs Alvo (Inst.)" : "Público Alvo (Staff)";
+
+                var elConc = document.getElementById('mmKpiConcluidos');
+                if(elConc) elConc.innerText = concluidosAlvo;
+                
+                var elPend = document.getElementById('mmKpiPendentes');
+                if(elPend) elPend.innerText = dropout;
+
+                var metaVerdeAbsoluta = Math.ceil((metaConfig.verde / 100) * universoTotal);
+                var faltamParaVerde = metaVerdeAbsoluta - concluidosAlvo;
+                
+                var elFaltam = document.getElementById('mmKpiFaltam');
+                if(elFaltam) {
+                    if (faltamParaVerde > 0) {
+                        elFaltam.innerText = faltamParaVerde;
+                        elFaltam.className = 'text-2xl font-bold text-red-600 dark:text-red-400';
+                    } else {
+                        elFaltam.innerText = "0";
+                        elFaltam.className = 'text-2xl font-bold text-green-600 dark:text-green-400';
+                    }
+                }
+
+                var elStatus = document.getElementById('mmKpiStatus');
+                if(elStatus) {
+                    elStatus.innerText = covVal + '%';
+                    applySemaforo('mmKpiStatus', 'mmCardStatus', 'mmKpiMetaLabel', covVal, metaConfig);
+                }
+            }
         }
 
         function getDatalabelsConfig() {
@@ -1150,6 +1200,34 @@
                 }
             }
 
+            // LIMPEZA DO GRÁFICO DE FUNÇÕES (MODO METAS)
+            var lblSubtitleSkillGap = document.getElementById('lblSubtitleSkillGap');
+            if (metasAtivas) {
+                if (lblSubtitleSkillGap) lblSubtitleSkillGap.innerText = "Exibindo apenas cargos monitorizados na Meta atual.";
+                var monitoredRoles = new Set();
+                var hasGenericMeta = false;
+                for (var b = 0; b < baseMetas.length; b++) {
+                    var mCargo = String(baseMetas[b]['Cargo'] || baseMetas[b]['Role at the FCP'] || '').toLowerCase().trim();
+                    if (mCargo === '' || mCargo === 'todos' || mCargo === 'padrão') {
+                        hasGenericMeta = true;
+                    } else {
+                        monitoredRoles.add(mCargo);
+                    }
+                }
+                
+                if (!hasGenericMeta && monitoredRoles.size > 0) {
+                    var filteredRoleCoverage = {};
+                    for (var rc in roleCoverage) {
+                        if (monitoredRoles.has(rc.toLowerCase().trim())) {
+                            filteredRoleCoverage[rc] = roleCoverage[rc];
+                        }
+                    }
+                    roleCoverage = filteredRoleCoverage;
+                }
+            } else {
+                if (lblSubtitleSkillGap) lblSubtitleSkillGap.innerText = "Percentual do cargo na base que já concluiu os treinamentos.";
+            }
+
             var roleSorted = Object.entries(roleCoverage).sort(function(a,b){return b[1] - a[1]}).slice(0, 8);
             updateChart('chartSkillGap', 'bar', {
                 labels: roleSorted.map(function(i){return i[0]}),
@@ -1267,36 +1345,38 @@
             }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getPercentDatalabelsConfig(), tooltip: getPercentTooltipConfig(facCompSizes, facDenominators) } });
 
             // 5. Adesão por Modalidade
-            var modalidadeCount = {};
-            for(var n=0; n<d_unique.length; n++) {
-                var mod = d_unique[n][cols.method];
-                if (mod && String(mod).trim() !== "" && String(mod) !== "undefined") {
-                    modalidadeCount[mod] = (modalidadeCount[mod] || 0) + 1;
-                }
-            }
-            var modalidadeSorted = Object.entries(modalidadeCount).sort(function(a,b){return b[1] - a[1]}); 
-            updateChart('chartModalidade', 'pie', {
-                labels: modalidadeSorted.map(function(i){return String(i[0]).substring(0,25)}),
-                datasets: [{ data: modalidadeSorted.map(function(i){return i[1]}), backgroundColor: ['#8b5cf6','#ec4899','#f43f5e','#10b981','#3b82f6','#f59e0b'] }]
-            }, { plugins: { legend: { position: 'right', labels: { color: tColor } }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() } });
-
-            // 6. Timeline
-            var timeData = {};
-            for(var m=0; m<d.length; m++) {
-                if(d[m][cols.date]) {
-                    var dt = new Date(d[m][cols.date]);
-                    if(!isNaN(dt)) {
-                        var month = String(dt.getMonth() + 1).padStart(2, '0');
-                        var key = dt.getFullYear() + '-' + month;
-                        timeData[key] = (timeData[key] || 0) + 1;
+            if (!metasAtivas) {
+                var modalidadeCount = {};
+                for(var n=0; n<d_unique.length; n++) {
+                    var mod = d_unique[n][cols.method];
+                    if (mod && String(mod).trim() !== "" && String(mod) !== "undefined") {
+                        modalidadeCount[mod] = (modalidadeCount[mod] || 0) + 1;
                     }
                 }
+                var modalidadeSorted = Object.entries(modalidadeCount).sort(function(a,b){return b[1] - a[1]}); 
+                updateChart('chartModalidade', 'pie', {
+                    labels: modalidadeSorted.map(function(i){return String(i[0]).substring(0,25)}),
+                    datasets: [{ data: modalidadeSorted.map(function(i){return i[1]}), backgroundColor: ['#8b5cf6','#ec4899','#f43f5e','#10b981','#3b82f6','#f59e0b'] }]
+                }, { plugins: { legend: { position: 'right', labels: { color: tColor } }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() } });
+
+                // 6. Timeline
+                var timeData = {};
+                for(var m=0; m<d.length; m++) {
+                    if(d[m][cols.date]) {
+                        var dt = new Date(d[m][cols.date]);
+                        if(!isNaN(dt)) {
+                            var month = String(dt.getMonth() + 1).padStart(2, '0');
+                            var key = dt.getFullYear() + '-' + month;
+                            timeData[key] = (timeData[key] || 0) + 1;
+                        }
+                    }
+                }
+                var timeSortedKeys = Object.keys(timeData).sort();
+                updateChart('chartTimeline', 'line', {
+                    labels: timeSortedKeys,
+                    datasets: [{ label: 'Interações', data: timeSortedKeys.map(function(k){return timeData[k]}), borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.2)', fill: true, tension: 0.3 }]
+                }, { plugins: { legend: { display: false }, datalabels: { display: false } } });
             }
-            var timeSortedKeys = Object.keys(timeData).sort();
-            updateChart('chartTimeline', 'line', {
-                labels: timeSortedKeys,
-                datasets: [{ label: 'Interações', data: timeSortedKeys.map(function(k){return timeData[k]}), borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.2)', fill: true, tension: 0.3 }]
-            }, { plugins: { legend: { display: false }, datalabels: { display: false } } });
         }
 
         function updateChart(id, type, data, options) {
