@@ -131,46 +131,55 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
-                    <span class="tooltip-text">Número de colaboradores na base FCP Staff que correspondem aos filtros atuais de Cargo/Cluster.</span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Total FCP Staff</p>
-                    <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="kpiTotalStaff">0</h2>
+            <div class="mb-6">
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">👥 Análise de População e Alcance</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
+                        <span class="tooltip-text">Número de colaboradores na base FCP Staff que correspondem aos filtros atuais de Cargo/Cluster.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Total FCP Staff</p>
+                        <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="kpiTotalStaff">0</h2>
+                    </div>
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
+                        <span class="tooltip-text">Quantidade de pessoas únicas com atividades registadas no filtro atual.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Pessoas Únicas</p>
+                        <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
+                    </div>
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm flex flex-col justify-center items-center text-center">
+                        <span class="tooltip-text">Percentagem e número do Staff focado que não realizou atividades neste filtro.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Sem Treinamento</p>
+                        <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0%</h2></div>
+                    </div>
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center">
+                        <span class="tooltip-text">Percentagem do Staff em foco que concluiu alguma atividade neste filtro.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (Staff)</p>
+                        <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiCoverage">0%</h2>
+                    </div>
                 </div>
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
-                    <span class="tooltip-text">Quantidade de pessoas únicas com atividades registadas no filtro atual.</span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Pessoas Únicas</p>
-                    <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
-                </div>
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm flex flex-col justify-center items-center text-center">
-                    <span class="tooltip-text">Percentagem e número do Staff focado que não realizou atividades neste filtro.</span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Sem Treinamento</p>
-                    <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0%</h2></div>
-                </div>
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center">
-                    <span class="tooltip-text">Percentagem do Staff em foco que concluiu alguma atividade neste filtro.</span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (Staff)</p>
-                    <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiCoverage">0%</h2>
-                </div>
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
-                    <span class="tooltip-text">Volume Real Deduplicado: Soma exata de inscrições limpas (Concluídos + Pendentes reais) neste filtro.</span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Total Inscrições</p>
-                    <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTotal">0</h2>
-                </div>
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm flex flex-col justify-center items-center text-center">
-                    <span class="tooltip-text">Percentagem e total de treinamentos finalizados com sucesso (face ao Total de Inscrições reais).</span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
-                    <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0%</h2></div>
-                </div>
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm flex flex-col justify-center items-center text-center">
-                    <span class="tooltip-text">Percentagem e total de matrículas pendentes reais (face ao Total de Inscrições reais).</span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
-                    <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0%</h2></div>
-                </div>
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
-                    <span class="tooltip-text">Taxa de Conclusões em relação ao Volume Real Deduplicado de Inscrições.</span>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Taxa de Eficiência</p>
-                    <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">⚙️ Análise de Processo e Eficiência</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
+                        <span class="tooltip-text">Volume Real Deduplicado: Soma exata de inscrições limpas (Concluídos + Pendentes reais) neste filtro.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Total Inscrições</p>
+                        <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTotal">0</h2>
+                    </div>
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm flex flex-col justify-center items-center text-center">
+                        <span class="tooltip-text">Percentagem e total de treinamentos finalizados com sucesso (face ao Total de Inscrições reais).</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
+                        <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0%</h2></div>
+                    </div>
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm flex flex-col justify-center items-center text-center">
+                        <span class="tooltip-text">Percentagem e total de matrículas pendentes reais (face ao Total de Inscrições reais).</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
+                        <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0%</h2></div>
+                    </div>
+                    <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
+                        <span class="tooltip-text">Taxa de Conclusões em relação ao Volume Real Deduplicado de Inscrições.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Taxa de Eficiência</p>
+                        <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
+                    </div>
                 </div>
             </div>
 
