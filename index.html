@@ -98,18 +98,18 @@
                     <ul class="list-disc pl-5 space-y-2">
                         <li><strong>Cobertura = Alcance:</strong> Gráficos com a palavra "Cobertura" olham para o <strong>total de pessoas na empresa</strong> (Base FCP Staff). Eles medem se a cultura de treinamento está a alcançar todos.</li>
                         <li><strong>Eficiência = Performance:</strong> Os cards da linha inferior (Taxa de Eficiência, Concluídos) olham <strong>apenas para quem se inscreveu</strong>. Eles medem se os cursos são bons e retêm os alunos até ao fim.</li>
+                        <li><strong>🎯 O Modo Metas (Switch):</strong> Ao ligar o interruptor, o dashboard esconde os cursos comuns e acende os semáforos, focando exclusivamente na cobrança dos cursos obrigatórios da base de metas.</li>
                     </ul>
                 </div>
                 
                 <div>
                     <h3 class="font-bold text-slate-800 dark:text-slate-100 mb-3 text-base">O que cada gráfico mostra:</h3>
                     <ul class="space-y-3">
-                        <li><strong>🎯 Alcance por Cargo (%):</strong> A percentagem de pessoas dentro de cada função na igreja que já finalizaram os treinamentos. Serve para ver quais os cargos que estão a bater a meta de treinamento e quais estão atrasados.</li>
-                        <li><strong>👥 Alcance Facilitador (%):</strong> A taxa de sucesso de cada facilitador. Mede quantos parceiros (em %) debaixo da supervisão daquele facilitador já concluíram os cursos, avaliando o engajamento daquela região.</li>
-                        <li><strong>📍 Top 5 - Adesão por Cluster:</strong> O ranking das 5 regiões ou grupos que geraram o maior número de alunos únicos participando nos cursos.</li>
-                        <li><strong>🏆 Top 5 Cursos:</strong> A lista dos 5 cursos que acumulam o maior número de conclusões reais.</li>
-                        <li><strong>📊 Adesão por Modalidade:</strong> A divisão do total de inscrições pelos formatos de ensino (Online, Presencial, Virtual). Mostra como o seu público prefere consumir o conteúdo.</li>
-                        <li><strong>📈 Evolução de Treinamentos ao Longo do Tempo:</strong> Uma linha do tempo com o volume de atividades (inscrições e conclusões) mês a mês, para identificar picos de estudo ou épocas de queda.</li>
+                        <li><strong>🎯 Alcance por Cargo (%):</strong> A percentagem de pessoas dentro de cada função que já finalizaram os treinamentos.</li>
+                        <li><strong>👥 Alcance Facilitador (%):</strong> A taxa de sucesso de cada facilitador, avaliando o engajamento daquela região.</li>
+                        <li><strong>📍 Top 5 - Adesão por Cluster:</strong> O ranking das regiões que geraram o maior número de alunos únicos.</li>
+                        <li><strong>🏆 Top 5 Cursos:</strong> A lista dos 5 cursos com o maior número de conclusões reais.</li>
+                        <li><strong>📊 Adesão por Modalidade:</strong> A divisão do total de inscrições pelos formatos de ensino.</li>
                     </ul>
                 </div>
             </div>
@@ -157,7 +157,16 @@
                 <div class="lg:col-span-3 bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-sm font-bold uppercase tracking-wider">🔍 Filtros Inteligentes Cruzados</h3>
-                        <button onclick="resetAllFilters()" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase hover:bg-red-200">Limpar Filtros</button>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded border border-slate-200 dark:border-slate-700 shadow-sm" title="Filtra apenas os cursos obrigatórios e liga os semáforos">
+                                <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">🎯 Modo Metas</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                  <input type="checkbox" id="toggleMetas" class="sr-only peer" onchange="updateDashboard()">
+                                  <div class="w-8 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-green-500"></div>
+                                </label>
+                            </div>
+                            <button onclick="resetAllFilters()" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase hover:bg-red-200">Limpar Filtros</button>
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -185,17 +194,17 @@
                         <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="kpiTotalStaff">0</h2>
                     </div>
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
-                        <span class="tooltip-text">Quantidade de pessoas únicas com atividades de treinamento (concluídas ou não) no filtro atual.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Pessoas Únicas</p>
+                        <span class="tooltip-text">Quantidade de entidades únicas com atividades de treinamento no filtro atual.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Acessos Únicos</p>
                         <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
                     </div>
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="tooltip-text">Percentagem e número do Staff da igreja que não realizou nenhum treinamento no filtro atual.</span>
+                        <span class="tooltip-text">Percentagem e número do alvo que não realizou nenhum treinamento no filtro atual.</span>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Sem Treinamento</p>
                         <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0%</h2></div>
                     </div>
                     <div id="cardKpiCoverage" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center transition-all duration-300">
-                        <span class="tooltip-text">Percentagem da FCP Staff(Connect) que concluiu alguma atividade de treinamento neste filtro.</span>
+                        <span class="tooltip-text">Percentagem do alvo que cumpriu o treinamento. Liga o semáforo no Modo Metas.</span>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (Staff)</p>
                         <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiCoverage">0%</h2>
                         <p id="kpiCoverageMeta" class="text-[9px] font-bold text-slate-400 mt-1 hidden"></p>
@@ -207,22 +216,22 @@
                 <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">⚙️ Análise de Processo e Eficiência</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
-                        <span class="tooltip-text">Volume Real Deduplicado: Soma exata de inscrições limpas (Concluídos + Pendentes reais) neste filtro.</span>
+                        <span class="tooltip-text">Volume Real Deduplicado: Soma exata de inscrições limpas.</span>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Total Inscrições</p>
                         <h2 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="kpiTotal">0</h2>
                     </div>
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="tooltip-text">Percentagem e total de treinamentos finalizados com sucesso (face ao Total de Inscrições reais).</span>
+                        <span class="tooltip-text">Percentagem de treinamentos finalizados com sucesso.</span>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
                         <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="kpiCompleted">0%</h2></div>
                     </div>
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="tooltip-text">Percentagem e total de matrículas pendentes reais (face ao Total de Inscrições reais).</span>
+                        <span class="tooltip-text">Percentagem e total de matrículas pendentes reais.</span>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Pendente / Drop-out</p>
                         <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="kpiDropout">0%</h2></div>
                     </div>
                     <div id="cardKpiRate" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center transition-all duration-300">
-                        <span class="tooltip-text">Taxa de Conclusões em relação ao Volume Real Deduplicado de Inscrições.</span>
+                        <span class="tooltip-text">Taxa de Conclusões em relação às inscrições. Liga o semáforo no Modo Metas.</span>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Taxa de Eficiência</p>
                         <h2 class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="kpiRate">0%</h2>
                         <p id="kpiRateMeta" class="text-[9px] font-bold text-slate-400 mt-1 hidden"></p>
@@ -235,7 +244,7 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Alcance por Função (%)</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual do cargo na base FCP(Connect) que já concluiu os treinamentos.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual do cargo na base que já concluiu os treinamentos.</p>
                         </div>
                         <button onclick="exportSingleChart('cardSkillGap', 'cobertura-cargo')" class="btn-export-mini mt-1">PNG</button>
                     </div>
@@ -246,7 +255,7 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📍 Top 5 - Adesão por Cluster</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Volume de inscrições reais e deduplicadas geradas por região.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Volume de inscrições reais geradas por região.</p>
                         </div>
                         <button onclick="exportSingleChart('cardCluster', 'adesao-cluster')" class="btn-export-mini mt-1">PNG</button>
                     </div>
@@ -270,7 +279,7 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Alcance Facilitador (%)</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual de FCP Staff que concluíram os cursos.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual de sucesso da equipe de cada facilitador.</p>
                         </div>
                         <button onclick="exportSingleChart('cardFacilitadores', 'cobertura-facilitador')" class="btn-export-mini mt-1">PNG</button>
                     </div>
@@ -283,7 +292,6 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📊 Adesão por Modalidade</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Distribuição de inscrições reais e deduplicadas por formato.</p>
                         </div>
                         <button onclick="exportSingleChart('cardModalidade', 'adesao-modalidade')" class="btn-export-mini mt-1">PNG</button>
                     </div>
@@ -294,7 +302,7 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📈 Evolução de Treinamentos ao Longo do Tempo</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Visão temporal das interações ativas na plataforma (Inscrições e Conclusões).</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Visão temporal das interações ativas na plataforma.</p>
                         </div>
                         <button onclick="exportSingleChart('cardTimeline', 'evolucao-mensal')" class="btn-export-mini mt-1">PNG</button>
                     </div>
@@ -414,7 +422,7 @@
                     console.warn("Tentativa falhou para: " + name);
                 }
             }
-            throw new Error("Não foi possível encontrar nenhum ficheiro correspondente. Nomes procurados: " + fileNames.join(', '));
+            throw new Error("Não foi possível encontrar ficheiro. Nomes procurados: " + fileNames.join(', '));
         }
 
         async function carregarBasesAutomaticamente() {
@@ -727,37 +735,7 @@
             }
         }
 
-        function applyFilters() {
-            var startVal = document.getElementById('dateStart').value;
-            var endVal = document.getElementById('dateEnd').value;
-            var start = startVal ? new Date(startVal) : null;
-            var end = endVal ? new Date(endVal) : null;
-
-            currentFilteredData = [];
-            for (var i = 0; i < joinedData.length; i++) {
-                var row = joinedData[i];
-                
-                var dMethod = (selectedFilters.methods.length === 0) || selectedFilters.methods.includes(row[cols.method]);
-                var dCourse = (selectedFilters.courses.length === 0) || selectedFilters.courses.includes(row[cols.course]);
-                var dEvent = (selectedFilters.events.length === 0) || selectedFilters.events.includes(row[cols.event]);
-                var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(row[cols.staffCluster]);
-                var dFac = (selectedFilters.facs.length === 0) || selectedFilters.facs.includes(row[cols.fac]);
-                var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(row[cols.staffRole]);
-                
-                var dDate = true;
-                if ((start || end) && row[cols.date]) {
-                    var rDate = new Date(row[cols.date]);
-                    if (start && rDate < start) dDate = false;
-                    if (end && rDate > end) dDate = false;
-                }
-                
-                if (dMethod && dCourse && dEvent && dCluster && dFac && dRole && dDate) {
-                    currentFilteredData.push(row);
-                }
-            }
-        }
-
-        // MOTOR DE METAS (Lê e avalia a base externa)
+        // FUNÇÃO DE LEITURA DAS METAS
         function getMetaConfig() {
             var sCursos = selectedFilters.courses;
             var sRoles = selectedFilters.roles;
@@ -792,17 +770,63 @@
             return matchCurso || matchPadrao || defaultMeta;
         }
 
-        // SEMÁFORO E GLOW
-        function applySemaforo(elementId, cardId, labelMetaId, valuePercent, metaConfig) {
-            var el = document.getElementById(elementId);
+        // LÓGICA DO SWITCH NA APLICAÇÃO DOS FILTROS
+        function applyFilters() {
+            var s = document.getElementById('dateStart').value, e = document.getElementById('dateEnd').value;
+            var dS = s ? new Date(s) : null, dE = e ? new Date(e) : null;
+            
+            var toggleSwitch = document.getElementById('toggleMetas');
+            var metasAtivas = toggleSwitch && toggleSwitch.checked;
+            
+            var cursosComMeta = [];
+            if(metasAtivas && baseMetas.length > 0) {
+                for(var i=0; i<baseMetas.length; i++) {
+                    var c = baseMetas[i]['Curso'];
+                    if(c && String(c).toUpperCase() !== 'PADRÃO' && String(c).toUpperCase() !== 'PADRAO') {
+                        cursosComMeta.push(String(c).toLowerCase().trim());
+                    }
+                }
+            }
+
+            currentFilteredData = [];
+            for (var i = 0; i < joinedData.length; i++) {
+                var row = joinedData[i];
+                
+                var cName = String(row[cols.course]).toLowerCase().trim();
+                var passaMeta = metasAtivas ? cursosComMeta.includes(cName) : true;
+
+                var dMethod = (selectedFilters.methods.length === 0) || selectedFilters.methods.includes(row[cols.method]);
+                var dCourse = (selectedFilters.courses.length === 0) || selectedFilters.courses.includes(row[cols.course]);
+                var dEvent = (selectedFilters.events.length === 0) || selectedFilters.events.includes(row[cols.event]);
+                var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(row[cols.staffCluster]);
+                var dFac = (selectedFilters.facs.length === 0) || selectedFilters.facs.includes(row[cols.fac]);
+                var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(row[cols.staffRole]);
+                
+                var dDate = true;
+                if ((dS || dE) && row[cols.date]) {
+                    var rDate = new Date(row[cols.date]);
+                    if (dS && rDate < dS) dDate = false;
+                    if (dE && rDate > dE) dDate = false;
+                }
+                
+                if (passaMeta && dMethod && dCourse && dEvent && dCluster && dFac && dRole && dDate) {
+                    currentFilteredData.push(row);
+                }
+            }
+        }
+
+        function applySemaforo(textId, cardId, metaId, valuePercent, metaConfig) {
+            var el = document.getElementById(textId);
             var card = document.getElementById(cardId);
-            var lbl = document.getElementById(labelMetaId);
+            var lbl = document.getElementById(metaId);
             
             el.className = 'text-2xl font-bold'; 
-            card.classList.remove('glow-red', 'border-green-500', 'border-amber-500', 'border-red-500');
+            card.classList.remove('glow-red', 'border-green-500', 'border-amber-500', 'border-red-500', 'border-teal-500', 'border-purple-500');
             
-            lbl.innerText = 'Meta: >' + metaConfig.verde + '%';
-            lbl.classList.remove('hidden');
+            if(lbl) {
+                lbl.innerText = 'Meta: >' + metaConfig.verde + '%';
+                lbl.classList.remove('hidden');
+            }
 
             if (valuePercent >= metaConfig.verde) {
                 el.classList.add('semaforo-verde');
@@ -816,19 +840,31 @@
             }
         }
 
+        function resetSemaforo(textId, cardId, metaId, textColorClass, borderColorClass) {
+            var card = document.getElementById(cardId);
+            var txt = document.getElementById(textId);
+            var lbl = document.getElementById(metaId);
+            
+            card.className = 'kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 shadow-sm text-center transition-all duration-300 ' + borderColorClass;
+            txt.className = 'text-2xl font-bold ' + textColorClass;
+            if(lbl) lbl.classList.add('hidden');
+        }
+
         function calculateKPIs() {
             var d = currentFilteredData;
-            var metaConfig = getMetaConfig();
-            var isHybrid = metaConfig.minFcp !== null && metaConfig.minFcp > 0;
+            
+            var toggleSwitch = document.getElementById('toggleMetas');
+            var metasAtivas = toggleSwitch && toggleSwitch.checked;
+            var metaConfig = metasAtivas ? getMetaConfig() : null;
+            var isHybrid = metasAtivas && metaConfig && metaConfig.minFcp > 0;
 
             var alertMeta = document.getElementById('metaAtivaLabel');
             if(alertMeta) {
-                if(isHybrid) {
-                    alertMeta.innerText = "🎯 Métrica Institucional (Mín. " + metaConfig.minFcp + "/FCP)";
+                if(metasAtivas) {
+                    alertMeta.innerText = isHybrid ? "🎯 Métrica Institucional (Mín. " + metaConfig.minFcp + "/FCP)" : "🎯 Modo Metas Ativo";
                     alertMeta.classList.remove('hidden');
                 } else {
-                    alertMeta.innerText = "🎯 Meta Aplicada";
-                    alertMeta.classList.remove('hidden');
+                    alertMeta.classList.add('hidden');
                 }
             }
 
@@ -906,7 +942,7 @@
 
             var realTotalInscricoes = concluidos + dropout;
 
-            // MATEMÁTICA HÍBRIDA (Instituição vs Indivíduo)
+            // MATEMÁTICA HÍBRIDA 
             var universoTotal = 0;
             var concluidosAlvo = 0;
 
@@ -926,17 +962,23 @@
             document.getElementById('kpiUnique').innerText = isHybrid ? Object.keys(fcpCompletedCounts).length : emailsSet.size;
             document.getElementById('kpiTotal').innerText = realTotalInscricoes;
             
+            var covVal = universoTotal > 0 ? Math.round((concluidosAlvo / universoTotal) * 100) : 0;
+            document.getElementById('kpiCoverage').innerText = covVal + '%';
+
             var rateVal = realTotalInscricoes > 0 ? Math.round((concluidos / realTotalInscricoes) * 100) : 0;
             document.getElementById('kpiRate').innerText = rateVal + '%';
-            applySemaforo('kpiRate', 'cardKpiRate', 'kpiRateMeta', rateVal, metaConfig);
+
+            if (metasAtivas) {
+                applySemaforo('kpiCoverage', 'cardKpiCoverage', 'kpiCoverageMeta', covVal, metaConfig);
+                applySemaforo('kpiRate', 'cardKpiRate', 'kpiRateMeta', rateVal, metaConfig);
+            } else {
+                resetSemaforo('kpiCoverage', 'cardKpiCoverage', 'kpiCoverageMeta', 'text-teal-600 dark:text-teal-400', 'border-teal-500');
+                resetSemaforo('kpiRate', 'cardKpiRate', 'kpiRateMeta', 'text-purple-600 dark:text-purple-400', 'border-purple-500');
+            }
 
             var semTreino = Math.max(0, universoTotal - (isHybrid ? Object.keys(fcpCompletedCounts).length : emailsSet.size));
             var percSemTreino = universoTotal > 0 ? Math.round((semTreino / universoTotal) * 100) + '%' : '0%';
             document.getElementById('kpiNoTraining').innerHTML = percSemTreino + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + semTreino + ' unid.)</span>';
-
-            var covVal = universoTotal > 0 ? Math.round((concluidosAlvo / universoTotal) * 100) : 0;
-            document.getElementById('kpiCoverage').innerText = covVal + '%';
-            applySemaforo('kpiCoverage', 'cardKpiCoverage', 'kpiCoverageMeta', covVal, metaConfig);
 
             var percConcluidos = realTotalInscricoes > 0 ? Math.round((concluidos / realTotalInscricoes) * 100) + '%' : '0%';
             document.getElementById('kpiCompleted').innerHTML = percConcluidos + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + concluidos + ' unid.)</span>';
@@ -999,11 +1041,11 @@
 
         function updateCharts() {
             var d = currentFilteredData;
-            var isDark = document.documentElement.classList.contains('dark');
-            var tColor = isDark ? '#cbd5e1' : '#475569';
             
-            var metaConfig = getMetaConfig();
-            var isHybrid = metaConfig.minFcp !== null && metaConfig.minFcp > 0;
+            var toggleSwitch = document.getElementById('toggleMetas');
+            var metasAtivas = toggleSwitch && toggleSwitch.checked;
+            var metaConfig = metasAtivas ? getMetaConfig() : null;
+            var isHybrid = metasAtivas && metaConfig && metaConfig.minFcp > 0;
 
             var uniqueEnrollments = {};
             for(var i=0; i<d.length; i++) {
@@ -1266,7 +1308,7 @@
                 options.scales.x.ticks.color = tColor;
                 options.scales.y.ticks.color = tColor;
                 
-                if(options.indexAxis === 'y' && !options.scales.x.max && id.includes('SkillGap') || id.includes('Facilitadores')) {
+                if(options.indexAxis === 'y' && !options.scales.x.max && (id.includes('SkillGap') || id.includes('Facilitadores'))) {
                     options.scales.x.max = 100;
                 }
             }
