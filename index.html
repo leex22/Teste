@@ -248,7 +248,7 @@
         <section class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm mb-8">
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📋 Detalhamento Enriquecido</h3>
-                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar FCP ID, Nome, Curso..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar FCP ID, Nome, Curso, Evento..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
             </div>
             <div class="overflow-x-auto max-h-96">
                 <table>
@@ -259,6 +259,7 @@
                             <th>Cargo Real (Staff)</th>
                             <th>Cluster (Staff)</th>
                             <th>Curso</th>
+                            <th>Evento</th>
                             <th>Status</th>
                             <th>Data</th>
                         </tr>
@@ -1017,15 +1018,32 @@
             var tbody = document.getElementById('tableBody');
             var searchInput = document.getElementById('tableSearch').value.toLowerCase();
             
+            // --- REGRA DE DEDUPLICAÇÃO (A mesma do Total Inscrições) ---
+            var uniqueEnrollments = {};
+            for(var i=0; i<currentFilteredData.length; i++) {
+                var email = currentFilteredData[i].Email_Lower;
+                var course = currentFilteredData[i][cols.course];
+                var key = email + "|_|" + course;
+                if (!uniqueEnrollments[key]) {
+                    uniqueEnrollments[key] = currentFilteredData[i];
+                } else {
+                    if(String(currentFilteredData[i][cols.status]).toLowerCase().includes('completed')) {
+                        uniqueEnrollments[key] = currentFilteredData[i];
+                    }
+                }
+            }
+            var d_unique_table = Object.values(uniqueEnrollments);
+            // -----------------------------------------------------------
+
             var htmlString = "";
             var rendered = 0;
             var maxRows = 100;
 
-            for (var i = 0; i < currentFilteredData.length; i++) {
+            for (var i = 0; i < d_unique_table.length; i++) {
                 if (rendered >= maxRows) break;
-                var row = currentFilteredData[i];
+                var row = d_unique_table[i];
                 
-                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.course] + " " + row[cols.staffCluster]).toLowerCase();
+                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
                 if (searchInput && text.indexOf(searchInput) === -1) continue;
 
                 var statusColor = 'text-amber-600 bg-amber-100';
@@ -1045,6 +1063,7 @@
                 htmlString += "  <td>" + row[cols.staffRole] + "</td>";
                 htmlString += "  <td>" + row[cols.staffCluster] + "</td>";
                 htmlString += "  <td class='text-xs max-w-xs truncate' title='" + row[cols.course] + "'>" + row[cols.course] + "</td>";
+                htmlString += "  <td class='text-xs max-w-xs truncate' title='" + row[cols.event] + "'>" + row[cols.event] + "</td>";
                 htmlString += "  <td><span class='px-2 py-1 rounded text-[10px] " + statusColor + "'>" + row[cols.status] + "</span></td>";
                 htmlString += "  <td class='text-xs text-slate-500'>" + dataFormatada + "</td>";
                 htmlString += "</tr>";
@@ -1053,7 +1072,7 @@
             }
             
             tbody.innerHTML = htmlString;
-            document.getElementById('tableCounter').innerText = "Foram listados " + rendered + " de " + currentFilteredData.length + " registos.";
+            document.getElementById('tableCounter').innerText = "Foram listados " + rendered + " de " + d_unique_table.length + " registos únicos.";
         }
 
         function filterTable() { renderTable(); }
