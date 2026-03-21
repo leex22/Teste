@@ -159,13 +159,13 @@
                     </div>
                     
                     <div class="flex flex-col gap-3">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div id="rowFilters1" class="grid grid-cols-1 md:grid-cols-4 gap-3 transition-all duration-300">
                             <div id="filterManager" class="relative"><label class="label-filter text-indigo-600 dark:text-indigo-400">Gerente (Supervisor)</label><button onclick="toggleDropdown('dropManager')" id="btnManager" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropManager" class="dropdown-content"></div></div>
                             <div id="filterFac" class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
                             <div id="filterCluster" class="relative"><label class="label-filter">Cluster (Staff)</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
                             <div id="filterRole" class="relative"><label class="label-filter">Função / Cargo</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div id="rowFilters2" class="grid grid-cols-1 md:grid-cols-3 gap-3 transition-all duration-300">
                             <div id="filterMethod" class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
                             <div id="filterCourse" class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
                             <div id="filterEvent" class="relative"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropEvent" class="dropdown-content"></div></div>
@@ -686,9 +686,55 @@
             var toggleSwitch = document.getElementById('toggleMetas');
             var metasAtivas = toggleSwitch && toggleSwitch.checked;
             
-            // MODO FOCO: Esconder Método e Evento no Modo Metas
-            document.getElementById('filterMethod').style.display = metasAtivas ? 'none' : '';
-            document.getElementById('filterEvent').style.display = metasAtivas ? 'none' : '';
+            // REORGANIZAÇÃO DOS FILTROS (MODO GERAL VS MODO METAS)
+            var fManager = document.getElementById('filterManager');
+            var fFac = document.getElementById('filterFac');
+            var fCluster = document.getElementById('filterCluster');
+            var fRole = document.getElementById('filterRole');
+            var fMethod = document.getElementById('filterMethod');
+            var fCourse = document.getElementById('filterCourse');
+            var fEvent = document.getElementById('filterEvent');
+            
+            var row1 = document.getElementById('rowFilters1');
+            var row2 = document.getElementById('rowFilters2');
+
+            if (row1 && row2) {
+                if (metasAtivas) {
+                    // MODO METAS: Esconder Método e Evento.
+                    // Linha 1 (2 itens): Gerente, Curso
+                    // Linha 2 (3 itens): Facilitador, Cluster, Role
+                    fMethod.style.display = 'none';
+                    fEvent.style.display = 'none';
+                    
+                    row1.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 transition-all duration-300';
+                    row1.appendChild(fManager);
+                    row1.appendChild(fCourse);
+                    
+                    row2.className = 'grid grid-cols-1 md:grid-cols-3 gap-3 transition-all duration-300';
+                    row2.appendChild(fFac);
+                    row2.appendChild(fCluster);
+                    row2.appendChild(fRole);
+                    row2.appendChild(fMethod); // invisível
+                    row2.appendChild(fEvent);  // invisível
+                } else {
+                    // VISÃO GERAL: Mostrar tudo.
+                    // Linha 1 (4 itens): Gerente, Fac, Cluster, Role
+                    // Linha 2 (3 itens): Método, Curso, Evento
+                    fMethod.style.display = '';
+                    fEvent.style.display = '';
+                    
+                    row1.className = 'grid grid-cols-1 md:grid-cols-4 gap-3 transition-all duration-300';
+                    row1.appendChild(fManager);
+                    row1.appendChild(fFac);
+                    row1.appendChild(fCluster);
+                    row1.appendChild(fRole);
+                    
+                    row2.className = 'grid grid-cols-1 md:grid-cols-3 gap-3 transition-all duration-300';
+                    row2.appendChild(fMethod);
+                    row2.appendChild(fCourse);
+                    row2.appendChild(fEvent);
+                }
+            }
 
             applyFilters();
             updateDropdownsUI();
@@ -929,7 +975,6 @@
                 }
             }
 
-            // Alternar containers de cards
             var visaoGeral = document.getElementById('visaoGeralCards');
             var modoMetas = document.getElementById('modoMetasCards');
             if (metasAtivas) {
@@ -1138,7 +1183,6 @@
             var metaConfig = metasAtivas ? getMetaConfig() : null;
             var isHybrid = metasAtivas && metaConfig && metaConfig.minFcp > 0;
 
-            // MODO FOCO (Esconder Gráficos de Fundo)
             var rowBottom = document.getElementById('rowBottomCharts');
             if (metasAtivas) {
                 if(rowBottom) rowBottom.style.display = 'none';
@@ -1247,7 +1291,6 @@
                 }
             }
 
-            // LIMPEZA DO GRÁFICO DE FUNÇÕES (MODO METAS)
             var lblSubtitleSkillGap = document.getElementById('lblSubtitleSkillGap');
             if (metasAtivas) {
                 if (lblSubtitleSkillGap) lblSubtitleSkillGap.innerText = "Exibindo apenas cargos monitorizados na Meta atual.";
@@ -1281,7 +1324,7 @@
                 datasets: [{ label: 'Cobertura (%)', data: roleSorted.map(function(i){return i[1]}), backgroundColor: '#3b82f6', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getPercentDatalabelsConfig(), tooltip: getPercentTooltipConfig(roleCompSizes, staffRoleDenominators) } });
 
-            // 2. Clusters (Top 5)
+            // 2. Clusters
             var clusterCount = {};
             for(var j=0; j<d_unique.length; j++) {
                 var cluster = d_unique[j][cols.staffCluster];
