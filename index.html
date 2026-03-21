@@ -16,198 +16,111 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { primary: '#005eb8', darkBg: '#0f172a', darkCard: '#1e293b' }
-                }
-            }
+            theme: { extend: { colors: { primary: '#005eb8', darkBg: '#0f172a', darkCard: '#1e293b' } } }
         }
     </script>
 
     <style>
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-        .dropdown-content { display: none; position: absolute; z-index: 100; width: 100%; max-height: 350px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .dropdown-content { display: none; position: absolute; z-index: 100; width: 100%; max-height: 300px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); min-width: 200px; }
         .dark .dropdown-content { background: #1e293b; border-color: #475569; }
         .show { display: block; }
-        .dropdown-item:hover { background-color: #f1f5f9; }
-        .dark .dropdown-item:hover { background-color: #334155; }
-        input[type="checkbox"] { cursor: pointer; }
-        select, input[type="date"], input[type="text"] { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; width: 100%; font-size: 0.875rem; background-color: inherit; }
-        .dark select, .dark input { border-color: #475569; color: white; }
-        .label-filter { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; display: block; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th { background-color: #f8fafc; text-align: left; padding: 12px; font-weight: 700; color: #64748b; }
-        .dark th { background-color: #334155; color: #cbd5e1; }
-        td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
-        .dark td { border-bottom-color: #334155; }
-        .btn-export-mini { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; color: #475569; font-weight: bold; transition: all 0.2s; }
-        .dark .btn-export-mini { background: #334155; color: #cbd5e1; }
-        .btn-export-mini:hover { background: #cbd5e1; }
-        .dark .btn-export-mini:hover { background: #475569; }
-        .search-filter-input { position: sticky; top: 0; background: white; padding: 8px; z-index: 10; border-bottom: 1px solid #e2e8f0; }
-        .dark .search-filter-input { background: #1e293b; border-bottom-color: #475569; }
-        
-        .kpi-card { transition: transform 0.2s; position: relative; cursor: help; }
-        .kpi-card:hover { transform: translateY(-2px); }
-        .tooltip-text { 
-            visibility: hidden; width: 220px; background-color: #334155; color: #fff; text-align: center; 
-            border-radius: 6px; padding: 8px; position: absolute; z-index: 50; bottom: 110%; left: 50%; 
-            margin-left: -110px; opacity: 0; transition: opacity 0.3s; font-size: 11px; font-weight: 400; line-height: 1.4;
-        }
-        .kpi-card:hover .tooltip-text { visibility: visible; opacity: 1; }
-
-        #authOverlay, #loadingOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); width: 100%; max-width: 400px; text-align: center; }
-        .auth-title { color: #1e293b; font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .auth-subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 2rem; }
-        .auth-input-container { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 0.75rem; margin-bottom: 1.5rem; transition: border-color 0.2s; }
-        .auth-input-container:focus-within { border-color: #6366f1; }
-        #passInput { background: transparent; border: none; outline: none; width: 100%; padding: 1rem; text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; color: #1e293b; }
-        .auth-button { background: #5356ff; color: white; width: 100%; padding: 1rem; border-radius: 0.75rem; font-weight: 600; transition: background 0.2s; cursor: pointer; border: none; }
-        .auth-button:hover { background: #4346e5; }
-        .error-msg { color: #ef4444; font-size: 0.75rem; margin-top: 0.5rem; display: none; }
-        
-        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); width: 40px; height: 40px; border-radius: 50%; border-left-color: #fff; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .hidden-search { display: none !important; }
-
-        /* ANIMAÇÃO GLOW VERMELHO PULSANTE */
         @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
             70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-        .glow-red {
-            animation: pulse-red 2s infinite;
-            border-color: #ef4444 !important;
-        }
-        
+        .glow-red { animation: pulse-red 2s infinite; border-color: #ef4444 !important; }
         .semaforo-verde { color: #10b981 !important; }
         .semaforo-amarelo { color: #f59e0b !important; }
         .semaforo-vermelho { color: #ef4444 !important; }
+        #authOverlay, #loadingOverlay { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; color: white; }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); width: 40px; height: 40px; border-radius: 50%; border-left-color: #fff; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        th { background: #f8fafc; padding: 10px; text-align: left; position: sticky; top: 0; }
+        .dark th { background: #334155; }
+        td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+        .dark td { border-bottom-color: #334155; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-900 dark:bg-darkBg dark:text-slate-100 p-4 md:p-8">
 
-    <div id="helpModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[10000] hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-darkCard w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden relative border border-slate-200 dark:border-slate-700">
-            <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">❓ Guia Rápido do Dashboard</h2>
-                <button onclick="toggleHelpModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition text-2xl font-bold leading-none">&times;</button>
-            </div>
-            <div class="p-6 max-h-[70vh] overflow-y-auto text-sm text-slate-600 dark:text-slate-300 space-y-5">
-                <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-primary p-4 rounded-r-lg text-slate-800 dark:text-slate-200">
-                    <h3 class="font-bold mb-2 text-primary dark:text-blue-400">Alcance vs. Performance:</h3>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li><strong>Cobertura:</strong> Mede se o treinamento alcançou todos (Indivíduos ou Instituições).</li>
-                        <li><strong>Eficiência:</strong> Mede o sucesso de quem se inscreveu (Evita drop-outs).</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex justify-end">
-                <button onclick="toggleHelpModal()" class="bg-primary hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition font-medium text-sm shadow-sm">Entendido</button>
-            </div>
-        </div>
-    </div>
-
     <div id="authOverlay">
-        <div class="auth-card">
-            <h2 class="auth-title">Dashboard FCP</h2>
-            <p class="auth-subtitle">Digite a senha para aceder</p>
-            <div class="auth-input-container">
-                <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') window.efetuarLogin()">
-            </div>
-            <button onclick="window.efetuarLogin()" class="auth-button">Aceder ao Dashboard</button>
-            <p id="authError" class="error-msg">Senha incorreta. Tente "1234".</p>
+        <div class="bg-white text-slate-900 p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+            <h2 class="text-2xl font-bold mb-4">Dashboard FCP</h2>
+            <input type="password" id="passInput" placeholder="Senha" class="border p-3 w-full mb-4 text-center text-2xl rounded-lg" onkeypress="if(event.key==='Enter') window.efetuarLogin()">
+            <button onclick="window.efetuarLogin()" class="bg-primary text-white w-full py-3 rounded-lg font-bold">Aceder</button>
+            <p id="authError" class="text-red-500 text-sm mt-2 hidden">Senha incorreta.</p>
         </div>
     </div>
 
-    <div id="loadingOverlay" style="display: none; flex-direction: column; text-align: center; color: white;">
+    <div id="loadingOverlay" style="display: none;">
         <div class="spinner"></div>
         <h2 class="text-xl font-bold">A carregar bases de dados...</h2>
+        <p id="loadingStatus" class="text-xs text-slate-400 mt-2"></p>
     </div>
 
-    <header class="max-w-7xl mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+    <header class="max-w-7xl mx-auto mb-6 flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-primary dark:text-blue-400">📊 Estratégia de Treinamentos</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm">Operacional x Talentos <span id="metaAtivaLabel" class="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] rounded-full hidden font-bold">🎯 Meta Dinâmica</span></p>
+            <span id="metaAtivaLabel" class="hidden px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] rounded font-bold">🎯 Meta Aplicada</span>
         </div>
-        <div class="flex items-center gap-3">
-            <button onclick="toggleHelpModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2">❓ Ajuda</button>
-            <button onclick="exportFilteredData()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2">📥 Excel</button>
-            <button onclick="exportDashboardToPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2">📄 PDF</button>
+        <div class="flex gap-2">
             <button onclick="toggleTheme()" class="bg-slate-200 dark:bg-slate-700 p-2 rounded-lg">🌓</button>
         </div>
     </header>
 
     <main id="dashboardContent" class="max-w-7xl mx-auto hidden">
-        <div id="pdfArea">
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-                <div class="lg:col-span-3 bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-primary">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="bg-white dark:bg-slate-800 border p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span></button><div id="dropMethod" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="bg-white dark:bg-slate-800 border p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span></button><div id="dropCourse" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="bg-white dark:bg-slate-800 border p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span></button><div id="dropEvent" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Cluster</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="bg-white dark:bg-slate-800 border p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span></button><div id="dropCluster" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="bg-white dark:bg-slate-800 border p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span></button><div id="dropFac" class="dropdown-content"></div></div>
-                        <div class="relative"><label class="label-filter">Cargo</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="bg-white dark:bg-slate-800 border p-2 rounded-md w-full text-left text-sm"><span>Selecionar...</span></button><div id="dropRole" class="dropdown-content"></div></div>
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-darkCard p-5 rounded-xl shadow-sm border-t-4 border-amber-500">
-                    <label class="label-filter">Período</label>
-                    <div class="grid grid-cols-1 gap-2"><input type="date" id="dateStart" onchange="updateDashboard()"><input type="date" id="dateEnd" onchange="updateDashboard()"></div>
-                </div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+            <div class="lg:col-span-3 bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="relative"><label class="text-[10px] font-bold text-slate-400 uppercase">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="border p-2 w-full text-left text-sm rounded bg-transparent truncate">Selecionar...</button><div id="dropCourse" class="dropdown-content"></div></div>
+                <div class="relative"><label class="text-[10px] font-bold text-slate-400 uppercase">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="border p-2 w-full text-left text-sm rounded bg-transparent truncate">Selecionar...</button><div id="dropFac" class="dropdown-content"></div></div>
+                <div class="relative"><label class="text-[10px] font-bold text-slate-400 uppercase">Cargo</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="border p-2 w-full text-left text-sm rounded bg-transparent truncate">Selecionar...</button><div id="dropRole" class="dropdown-content"></div></div>
             </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase" id="lblTotalStaff">Total Alvo</p>
-                    <h2 class="text-2xl font-bold" id="kpiTotalStaff">0</h2>
-                </div>
-                <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-blue-500 shadow-sm text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase" id="lblUnique">Acessos Únicos</p>
-                    <h2 class="text-2xl font-bold text-blue-600" id="kpiUnique">0</h2>
-                </div>
-                <div id="cardKpiCoverage" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (Staff)</p>
-                    <h2 class="text-2xl font-bold" id="kpiCoverage">0%</h2>
-                    <p id="kpiCoverageMeta" class="text-[9px] font-bold text-slate-400 mt-1 hidden"></p>
-                </div>
-                <div id="cardKpiRate" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Taxa de Eficiência</p>
-                    <h2 class="text-2xl font-bold" id="kpiRate">0%</h2>
-                    <p id="kpiRateMeta" class="text-[9px] font-bold text-slate-400 mt-1 hidden"></p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-72"><canvas id="chartSkillGap"></canvas></div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-72"><canvas id="chartCluster"></canvas></div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80"><canvas id="chartCourses"></canvas></div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80"><canvas id="chartFacilitadores"></canvas></div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-64 lg:col-span-1"><canvas id="chartModalidade"></canvas></div>
-                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-64 lg:col-span-2"><canvas id="chartTimeline"></canvas></div>
+            <div class="bg-white dark:bg-darkCard p-4 rounded-xl shadow-sm flex flex-col justify-center">
+                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1">Período</label>
+                <div class="flex gap-2"><input type="date" id="dateStart" onchange="updateDashboard()" class="text-xs w-full"><input type="date" id="dateEnd" onchange="updateDashboard()" class="text-xs w-full"></div>
             </div>
         </div>
 
-        <section class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm mb-8">
-            <input type="text" id="tableSearch" placeholder="🔍 Pesquisar..." onkeyup="filterTable()" class="mb-4 w-full md:w-72 text-sm">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase" id="lblTotalStaff">Total Alvo</p>
+                <h2 class="text-2xl font-bold" id="kpiTotalStaff">0</h2>
+            </div>
+            <div id="cardKpiCoverage" class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center transition-all">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (Staff)</p>
+                <h2 class="text-2xl font-bold" id="kpiCoverage">0%</h2>
+                <p id="kpiCoverageMeta" class="text-[9px] font-bold mt-1 hidden"></p>
+            </div>
+            <div class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-indigo-500 shadow-sm text-center">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Total Inscritos</p>
+                <h2 class="text-2xl font-bold text-indigo-600" id="kpiTotal">0</h2>
+            </div>
+            <div id="cardKpiRate" class="bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-purple-500 shadow-sm text-center transition-all">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Eficiência</p>
+                <h2 class="text-2xl font-bold" id="kpiRate">0%</h2>
+                <p id="kpiRateMeta" class="text-[9px] font-bold mt-1 hidden"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80"><canvas id="chartCourses"></canvas></div>
+            <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm h-80"><canvas id="chartFacilitadores"></canvas></div>
+        </div>
+
+        <section class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm overflow-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-sm uppercase">📋 Detalhes</h3>
+                <input type="text" id="tableSearch" placeholder="Pesquisar..." onkeyup="renderTable()" class="border p-1.5 text-xs rounded w-64">
+            </div>
             <div class="overflow-x-auto max-h-96">
-                <table>
-                    <thead class="sticky top-0 z-10">
-                        <tr><th>FCP ID</th><th>Nome</th><th>Cargo</th><th>Cluster</th><th>Curso</th><th>Evento</th><th>Status</th><th>Data</th></tr>
-                    </thead>
+                <table id="mainTable">
+                    <thead><tr><th>FCP ID</th><th>Nome</th><th>Cargo</th><th>Curso</th><th>Status</th><th>Data</th></tr></thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
-            <p id="tableCounter" class="text-[10px] text-slate-400 mt-4 font-bold uppercase"></p>
         </section>
     </main>
 
@@ -216,10 +129,8 @@
             if (document.getElementById('passInput').value === "1234") {
                 sessionStorage.setItem("dashboard_auth", "true");
                 document.getElementById('authOverlay').style.display = 'none';
-                carregarBasesAutomaticamente(); 
-            } else {
-                document.getElementById('authError').style.display = 'block';
-            }
+                carregarBasesAutomaticamente();
+            } else { document.getElementById('authError').classList.remove('hidden'); }
         };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -229,76 +140,86 @@
             }
         });
 
-        function toggleHelpModal() { document.getElementById('helpModal').classList.toggle('hidden'); }
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); updateDashboard(); }
+        function toggleDropdown(id) { 
+            document.querySelectorAll('.dropdown-content').forEach(d => { if(d.id !== id) d.classList.remove('show'); });
+            document.getElementById(id).classList.toggle('show'); 
+        }
+        window.onclick = (e) => { if(!e.target.closest('.relative')) document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); };
 
         Chart.register(ChartDataLabels);
         var baseTraining = [], baseStaff = [], baseMetas = [], joinedData = [], currentFilteredData = [], charts = {};
-        var selectedFilters = { roles: [], clusters: [], courses: [], methods: [], events: [], facs: [] };
-        var cols = { email: 'Email', course: 'Course Name', event: 'EVENT_NAME', status: 'ACTIVITY_CODE', date: 'ACTIVITY_DATE_TIME', method: 'Training Method', fac: 'Partnership Facilitator', staffRole: 'Staff_Role', staffCluster: 'Staff_Cluster', staffFcp: 'FCP ID' };
+        var selectedFilters = { roles: [], courses: [], facs: [] };
+        var cols = { email: 'Email', course: 'Course Name', status: 'ACTIVITY_CODE', date: 'ACTIVITY_DATE_TIME', fac: 'Partnership Facilitator', staffRole: 'Staff_Role', staffFcp: 'FCP ID' };
 
         async function fetchFile(names) {
             for (let name of names) {
                 try {
+                    document.getElementById('loadingStatus').innerText = "A procurar " + name + "...";
                     let res = await fetch(name);
                     if (res.ok) return await res.arrayBuffer();
                 } catch(e) {}
             }
-            throw new Error("Não foi possível encontrar: " + names.join(', '));
+            return null;
         }
 
         async function carregarBasesAutomaticamente() {
             document.getElementById('loadingOverlay').style.display = 'flex';
-            try {
-                // BLINDAGEM PARA GITHUB PAGES (Maiúsculas/Minúsculas)
-                let bT = await fetchFile(['dados.csv','dados.xlsx','Dados.csv','Dados.xlsx']);
-                let bS = await fetchFile(['FCP staff.csv','FCP staff.xlsx','FCP Staff.csv','FCP Staff.xlsx','FCP_Staff.csv','FCP_Staff.xlsx']);
-                
-                baseTraining = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(bT), {type:'array', cellDates:true}).Sheets[XLSX.read(new Uint8Array(bT), {type:'array'}).SheetNames[0]], {defval:""});
-                baseStaff = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(bS), {type:'array', cellDates:true}).Sheets[XLSX.read(new Uint8Array(bS), {type:'array'}).SheetNames[0]], {defval:""});
+            
+            let bT = await fetchFile(['dados.csv','dados.xlsx','Dados.csv','Dados.xlsx','DADOS.csv','DADOS.xlsx']);
+            let bS = await fetchFile(['FCP staff.csv','FCP staff.xlsx','FCP Staff.csv','FCP Staff.xlsx','FCP_Staff.csv','FCP_Staff.xlsx','fcp_staff.csv']);
+            let bM = await fetchFile(['metas.xlsx','metas.csv','Metas.xlsx','Metas.csv','METAS.xlsx','METAS.csv']);
 
-                try {
-                    let bM = await fetchFile(['metas.xlsx','metas.csv','Metas.xlsx','Metas.csv','METAS.xlsx','METAS.csv']);
-                    baseMetas = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(bM), {type:'array'}).Sheets[XLSX.read(new Uint8Array(bM), {type:'array'}).SheetNames[0]], {defval:""});
-                } catch(e) { baseMetas = []; }
+            if (!bT || !bS) { alert("Erro ao carregar arquivos base. Verifique os nomes no GitHub."); return; }
 
-                processDataJoin();
-                document.getElementById('loadingOverlay').style.display = 'none';
-            } catch (e) { alert(e.message); }
-        }
+            baseTraining = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(bT), {type:'array', cellDates:true}).Sheets[XLSX.read(new Uint8Array(bT), {type:'array'}).SheetNames[0]], {defval:""});
+            baseStaff = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(bS), {type:'array', cellDates:true}).Sheets[XLSX.read(new Uint8Array(bS), {type:'array'}).SheetNames[0]], {defval:""});
+            if(bM) baseMetas = XLSX.utils.sheet_to_json(XLSX.read(new Uint8Array(bM), {type:'array'}).Sheets[XLSX.read(new Uint8Array(bM), {type:'array'}).SheetNames[0]], {defval:""});
 
-        function processDataJoin() {
             let staffDict = {};
-            baseStaff.forEach(row => {
-                let em = String(row['Email'] || '').trim().toLowerCase();
-                if(em && !staffDict[em]) staffDict[em] = row;
-            });
+            baseStaff.forEach(s => { let em = String(s['Email']||'').trim().toLowerCase(); if(em) staffDict[em] = s; });
 
             joinedData = baseTraining.map(t => {
-                let em = String(t['Email'] || t['EMAIL'] || '').trim().toLowerCase();
+                let em = String(t['Email']||t['EMAIL']||'').trim().toLowerCase();
                 let s = staffDict[em] || {};
                 return {
                     ...t, Email_Lower: em,
                     [cols.status]: t['ACTIVITY_CODE'] || t['STATUS'] || '',
                     [cols.date]: t['ACTIVITY_DATE_TIME'] || '',
-                    [cols.event]: t['EVENT_NAME'] || 'Sem Evento',
+                    [cols.course]: t['Course Name'] || '',
+                    [cols.fac]: t['Partnership Facilitator'] || 'Não Atribuído',
                     [cols.staffRole]: s['Role At FCP'] || s['Role at FCP'] || 'Não Identificado',
-                    [cols.staffCluster]: s['FCP Cluster'] || s['FCP_CLUSTER'] || 'Não Identificado',
                     [cols.staffFcp]: s['FCP ID'] || 'N/A',
                     NameDisplay: s['First Name'] ? (s['First Name']+' '+(s['Last Name']||'')) : (t['Name']||em)
                 };
             });
-            initDashboard();
-        }
 
-        function initDashboard() {
-            document.getElementById('dashboardContent').classList.remove('hidden');
-            const getU = (key) => [...new Set(joinedData.map(i => i[key]))].sort();
-            renderDropdown('dropMethod', 'methods', getU(cols.method));
+            const getU = (key) => [...new Set(joinedData.map(i => i[key]))].filter(x => x && x !== "").sort();
             renderDropdown('dropCourse', 'courses', getU(cols.course));
-            renderDropdown('dropEvent', 'events', getU(cols.event));
-            renderDropdown('dropCluster', 'clusters', getU(cols.staffCluster));
             renderDropdown('dropFac', 'facs', getU(cols.fac));
             renderDropdown('dropRole', 'roles', getU(cols.staffRole));
+
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('dashboardContent').classList.remove('hidden');
+            updateDashboard();
+        }
+
+        // FUNÇÕES DE DROPDOWN CORRIGIDAS
+        function renderDropdown(id, key, options) {
+            let container = document.getElementById(id);
+            container.innerHTML = options.map(opt => `
+                <div class="dropdown-item p-2 text-xs flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer" onclick="handleFilterClick(event, '${key}', '${opt}')">
+                    <input type="checkbox" value="${opt}" class="filter-cb-${key}" onclick="event.stopPropagation()">
+                    <span class="truncate">${opt}</span>
+                </div>
+            `).join('');
+        }
+
+        function handleFilterClick(e, key, val) {
+            let cb = e.currentTarget.querySelector('input');
+            cb.checked = !cb.checked;
+            if(cb.checked) selectedFilters[key].push(val);
+            else selectedFilters[key] = selectedFilters[key].filter(v => v !== val);
             updateDashboard();
         }
 
@@ -306,18 +227,12 @@
             let c = selectedFilters.courses.length === 1 ? selectedFilters.courses[0].toLowerCase() : null;
             let r = selectedFilters.roles.length === 1 ? selectedFilters.roles[0].toLowerCase() : null;
             let def = { verde: 80, amarelo: 60, minFcp: null };
-            let padrao = baseMetas.find(m => String(m['Curso']).toLowerCase().includes('padrão')) || {};
-            
-            let match = baseMetas.find(m => {
-                let mC = String(m['Curso']).toLowerCase();
-                let mR = String(m['Cargo']).toLowerCase();
-                return mC === c && (mR === r || mR === 'todos' || mR === '');
-            });
-
-            let active = match || padrao;
+            let padrao = baseMetas.find(m => String(m['Curso']).toLowerCase().includes('padr')) || {};
+            let match = baseMetas.find(m => String(m['Curso']).toLowerCase() === c && (String(m['Cargo']).toLowerCase() === r || !m['Cargo'] || m['Cargo'] === 'Todos'));
+            let active = match || padrao || def;
             return {
-                verde: Number(active['Verde_Acima_De']) || def.verde,
-                amarelo: Number(active['Amarelo_Acima_De']) || def.amarelo,
+                verde: Number(active['Verde_Acima_De']) || 80,
+                amarelo: Number(active['Amarelo_Acima_De']) || 60,
                 minFcp: active['Minimo_Por_FCP'] ? Number(active['Minimo_Por_FCP']) : null
             };
         }
@@ -340,27 +255,22 @@
 
             let validStaff = new Set(), validFcps = new Set();
             baseStaff.forEach(s => {
-                let em = String(s['Email']).toLowerCase().trim();
                 let r = s['Role At FCP'] || s['Role at FCP'] || 'Não Identificado';
-                let cl = s['FCP Cluster'] || 'Não Identificado';
-                if((selectedFilters.clusters.length === 0 || selectedFilters.clusters.includes(cl)) &&
-                   (selectedFilters.roles.length === 0 || selectedFilters.roles.includes(r))) {
-                    validStaff.add(em); validFcps.add(s['FCP ID']);
+                if(selectedFilters.roles.length === 0 || selectedFilters.roles.includes(r)) {
+                    validStaff.add(String(s['Email']).toLowerCase().trim()); validFcps.add(s['FCP ID']);
                 }
             });
 
             let completedEmails = new Set(), fcpCompletions = {}, userCourse = {};
             currentFilteredData.forEach(d => {
-                let em = d.Email_Lower, fcp = d[cols.staffFcp], course = d[cols.course], st = String(d[cols.status]).toLowerCase();
+                let em = d.Email_Lower, fcp = d[cols.staffFcp], st = String(d[cols.status]).toLowerCase();
                 if(st.includes('completed')) {
                     completedEmails.add(em);
                     if(!fcpCompletions[fcp]) fcpCompletions[fcp] = new Set();
                     fcpCompletions[fcp].add(em);
                 }
-                let key = em + "|" + course;
-                if(!userCourse[key]) userCourse[key] = { c: false, e: false };
-                if(st.includes('completed')) userCourse[key].c = true;
-                else if(st.includes('enrolled')) userCourse[key].e = true;
+                let key = em + "|" + d[cols.course];
+                if(!userCourse[key]) userCourse[key] = { c: st.includes('comp'), e: st.includes('enrol') };
             });
 
             let totalAlvo = isHybrid ? validFcps.size : validStaff.size;
@@ -371,37 +281,60 @@
 
             let cov = totalAlvo > 0 ? Math.round((concluidosAlvo / totalAlvo) * 100) : 0;
             document.getElementById('kpiTotalStaff').innerText = totalAlvo;
-            document.getElementById('kpiUnique').innerText = isHybrid ? Object.keys(fcpCompletions).length : completedEmails.size;
             document.getElementById('kpiCoverage').innerText = cov + '%';
             applySemaforo('cardKpiCoverage', 'kpiCoverage', 'kpiCoverageMeta', cov, cfg);
 
             let cR = 0, dR = 0;
             Object.values(userCourse).forEach(v => { if(v.c) cR++; else if(v.e) dR++; });
-            let tI = cR + dR;
-            let ef = tI > 0 ? Math.round((cR / tI) * 100) : 0;
-            document.getElementById('kpiTotal').innerText = tI;
+            let ef = (cR + dR) > 0 ? Math.round((cR / (cR + dR)) * 100) : 0;
+            document.getElementById('kpiTotal').innerText = (cR + dR);
             document.getElementById('kpiRate').innerText = ef + '%';
             applySemaforo('cardKpiRate', 'kpiRate', 'kpiRateMeta', ef, cfg);
         }
 
-        // Gráficos e UI (Simplificado para o código final)
+        function updateDashboard() {
+            let s = document.getElementById('dateStart').value, e = document.getElementById('dateEnd').value;
+            let dS = s ? new Date(s) : null, dE = e ? new Date(e) : null;
+            currentFilteredData = joinedData.filter(d => {
+                let rD = d[cols.date] ? new Date(d[cols.date]) : null;
+                return (!dS || rD >= dS) && (!dE || rD <= dE) &&
+                       (selectedFilters.courses.length === 0 || selectedFilters.courses.includes(d[cols.course])) &&
+                       (selectedFilters.roles.length === 0 || selectedFilters.roles.includes(d[cols.staffRole])) &&
+                       (selectedFilters.facs.length === 0 || selectedFilters.facs.includes(d[cols.fac]));
+            });
+
+            calculateKPIs();
+            updateCharts();
+            renderTable();
+
+            // Update button texts
+            ['Course', 'Fac', 'Role'].forEach(k => {
+                let count = selectedFilters[k.toLowerCase() + 's'].length;
+                document.getElementById('btn' + k).innerText = count > 0 ? `Selecionados (${count})` : "Selecionar...";
+            });
+        }
+
         function updateCharts() {
-            const isDark = document.documentElement.classList.contains('dark');
-            const tColor = isDark ? '#cbd5e1' : '#475569';
-            const cfgS = { x: { ticks:{color:tColor}, grid:{display:false} }, y: { ticks:{color:tColor}, grid:{display:false} } };
+            const isDark = document.documentElement.classList.contains('dark'), tColor = isDark ? '#cbd5e1' : '#475569';
+            const scaleCfg = { x: { ticks:{color:tColor}, grid:{display:false} }, y: { ticks:{color:tColor}, grid:{display:false} } };
 
-            // Exemplo: Top Cursos
-            let counts = {};
-            currentFilteredData.forEach(d => { if(String(d[cols.status]).toLowerCase().includes('comp')) counts[d[cols.course]] = (counts[d[cols.course]]||0)+1; });
-            let sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-            
+            // Top Cursos
+            let courses = {};
+            currentFilteredData.forEach(d => { if(String(d[cols.status]).toLowerCase().includes('comp')) courses[d[cols.course]] = (courses[d[cols.course]]||0)+1; });
+            let sortedC = Object.entries(courses).sort((a,b)=>b[1]-a[1]).slice(0,5);
             updateChart('chartCourses', 'bar', {
-                labels: sorted.map(i => i[0].substring(0,20)+'...'),
-                datasets: [{ data: sorted.map(i=>i[1]), backgroundColor:'#8b5cf6', borderRadius:4 }]
-            }, { indexAxis:'y', plugins:{legend:{display:false}}, scales: cfgS });
+                labels: sortedC.map(i => i[0].substring(0,20)+'...'),
+                datasets: [{ label: 'Concluídos', data: sortedC.map(i=>i[1]), backgroundColor: '#8b5cf6', borderRadius: 4 }]
+            }, { indexAxis:'y', plugins:{legend:{display:false}}, scales: scaleCfg });
 
-            // (Repetir lógica similar para outros gráficos conforme versões anteriores...)
-            // Facilitadores, Clusters, SkillGap...
+            // Facilitadores
+            let facs = {};
+            currentFilteredData.forEach(d => { if(String(d[cols.status]).toLowerCase().includes('comp')) facs[d[cols.fac]] = (facs[d[cols.fac]]||0)+1; });
+            let sortedF = Object.entries(facs).sort((a,b)=>b[1]-a[1]).slice(0,5);
+            updateChart('chartFacilitadores', 'bar', {
+                labels: sortedF.map(i => i[0].substring(0,20)),
+                datasets: [{ label: 'Concluídos', data: sortedF.map(i=>i[1]), backgroundColor: '#10b981', borderRadius: 4 }]
+            }, { indexAxis:'y', plugins:{legend:{display:false}}, scales: scaleCfg });
         }
 
         function updateChart(id, type, data, options) {
@@ -409,32 +342,17 @@
             charts[id] = new Chart(document.getElementById(id), { type, data, options: {...options, maintainAspectRatio:false} });
         }
 
-        function updateDashboard() { applyFilters(); calculateKPIs(); updateCharts(); renderTable(); updateFilterButtonsText(); }
-        function applyFilters() {
-            let s = document.getElementById('dateStart').value, e = document.getElementById('dateEnd').value;
-            let dS = s ? new Date(s) : null, dE = e ? new Date(e) : null;
-            currentFilteredData = joinedData.filter(d => {
-                let rD = d[cols.date] ? new Date(d[cols.date]) : null;
-                return (!dS || rD >= dS) && (!dE || rD <= dE) &&
-                       (selectedFilters.methods.length === 0 || selectedFilters.methods.includes(d[cols.method])) &&
-                       (selectedFilters.courses.length === 0 || selectedFilters.courses.includes(d[cols.course])) &&
-                       (selectedFilters.clusters.length === 0 || selectedFilters.clusters.includes(d[cols.staffCluster])) &&
-                       (selectedFilters.roles.length === 0 || selectedFilters.roles.includes(d[cols.staffRole])) &&
-                       (selectedFilters.facs.length === 0 || selectedFilters.facs.includes(d[cols.fac]));
-            });
-        }
-
         function renderTable() {
-            let html = "";
-            currentFilteredData.slice(0,100).forEach(row => {
-                html += `<tr><td>${row[cols.staffFcp]}</td><td>${row.NameDisplay}</td><td>${row[cols.staffRole]}</td><td>${row[cols.staffCluster]}</td><td>${row[cols.course]}</td><td>${row[cols.event]}</td><td>${row[cols.status]}</td><td>${row[cols.date]}</td></tr>`;
-            });
+            let search = document.getElementById('tableSearch').value.toLowerCase();
+            let html = currentFilteredData.filter(d => 
+                d.NameDisplay.toLowerCase().includes(search) || d[cols.staffFcp].toLowerCase().includes(search)
+            ).slice(0,50).map(row => `
+                <tr><td>${row[cols.staffFcp]}</td><td>${row.NameDisplay}</td><td>${row[cols.staffRole]}</td><td>${row[cols.course]}</td><td>${row[cols.status]}</td><td>${row[cols.date]}</td></tr>
+            `).join('');
             document.getElementById('tableBody').innerHTML = html;
         }
 
-        function toggleDropdown(id) { document.getElementById(id).classList.toggle('show'); }
-        function toggleTheme() { document.documentElement.classList.toggle('dark'); updateDashboard(); }
-        // Outros Helpers de Dropdown e Export...
+        function toggleHelpModal() { document.getElementById('helpModal').classList.toggle('hidden'); }
     </script>
 </body>
 </html>
