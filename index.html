@@ -133,7 +133,7 @@
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
-                    <span class="tooltip-text">Número fixo de colaboradores registados na base FCP Staff.</span>
+                    <span class="tooltip-text">Número de colaboradores na base FCP Staff que correspondem aos filtros atuais de Cargo/Cluster.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Total FCP Staff</p>
                     <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="kpiTotalStaff">0</h2>
                 </div>
@@ -143,12 +143,12 @@
                     <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm flex flex-col justify-center items-center text-center">
-                    <span class="tooltip-text">Percentagem e número do Staff total que não realizaram atividades neste filtro.</span>
+                    <span class="tooltip-text">Percentagem e número do Staff focado que não realizou atividades neste filtro.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Sem Treinamento</p>
                     <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0%</h2></div>
                 </div>
                 <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center">
-                    <span class="tooltip-text">Percentagem do FCP Staff total que concluiu alguma atividade neste filtro.</span>
+                    <span class="tooltip-text">Percentagem do Staff em foco que concluiu alguma atividade neste filtro.</span>
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura (Staff)</p>
                     <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="kpiCoverage">0%</h2>
                 </div>
@@ -177,8 +177,8 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardSkillGap">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Skill Gap por Cargo (Cursos Concluídos)</h3>
-                        <button onclick="exportSingleChart('cardSkillGap', 'skillgap-cargo')" class="btn-export-mini">PNG</button>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Cobertura por Cargo (%)</h3>
+                        <button onclick="exportSingleChart('cardSkillGap', 'cobertura-cargo')" class="btn-export-mini">PNG</button>
                     </div>
                     <div class="h-64"><canvas id="chartSkillGap"></canvas></div>
                 </div>
@@ -211,8 +211,8 @@
 
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardFacilitadores">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Performance por Facilitador</h3>
-                        <button onclick="exportSingleChart('cardFacilitadores', 'performance-facilitador')" class="btn-export-mini">PNG</button>
+                        <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Cobertura por Facilitador (%)</h3>
+                        <button onclick="exportSingleChart('cardFacilitadores', 'cobertura-facilitador')" class="btn-export-mini">PNG</button>
                     </div>
                     <div class="h-72"><canvas id="chartFacilitadores"></canvas></div>
                 </div>
@@ -640,6 +640,27 @@
             var completedEmailsSet = new Set();
             var userCourseDict = {};
 
+            // 1. CÁLCULO DINÂMICO DO TOTAL DE STAFF BASEADO NOS FILTROS (Roles/Clusters)
+            var dynamicStaffCount = 0;
+            var validStaffEmails = new Set();
+            for (var i = 0; i < baseStaff.length; i++) {
+                var row = baseStaff[i];
+                var emailRaw = row['Email'];
+                if (emailRaw && String(emailRaw).trim() !== "") {
+                    var emailStr = String(emailRaw).trim().toLowerCase();
+                    if (!validStaffEmails.has(emailStr)) {
+                        var roleFCP = row['Role At FCP'] || row['Role at FCP'] || 'Não Identificado';
+                        var clusterFCP = row['FCP Cluster'] || row['FCP_CLUSTER'] || 'Não Identificado';
+                        var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(clusterFCP);
+                        var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(roleFCP);
+                        if (dCluster && dRole) {
+                            validStaffEmails.add(emailStr);
+                            dynamicStaffCount++;
+                        }
+                    }
+                }
+            }
+
             for(var i=0; i<d.length; i++) {
                 var email = d[i].Email_Lower;
                 var course = d[i][cols.course];
@@ -684,6 +705,7 @@
 
             var realTotalInscricoes = concluidos + dropout;
 
+            document.getElementById('kpiTotalStaff').innerText = dynamicStaffCount;
             document.getElementById('kpiUnique').innerText = emailsSet.size;
             document.getElementById('kpiTotal').innerText = realTotalInscricoes;
             
@@ -691,11 +713,11 @@
             if (realTotalInscricoes > 0) rate = Math.round((concluidos / realTotalInscricoes) * 100) + '%';
             document.getElementById('kpiRate').innerText = rate;
 
-            var semTreino = Math.max(0, countStaffAtivo - emailsSet.size);
-            var percSemTreino = countStaffAtivo > 0 ? Math.round((semTreino / countStaffAtivo) * 100) + '%' : '0%';
+            var semTreino = Math.max(0, dynamicStaffCount - emailsSet.size);
+            var percSemTreino = dynamicStaffCount > 0 ? Math.round((semTreino / dynamicStaffCount) * 100) + '%' : '0%';
             document.getElementById('kpiNoTraining').innerHTML = percSemTreino + ' <span class="text-sm text-slate-400 ml-1 font-normal">(' + semTreino + ' unid.)</span>';
 
-            var cobertura = countStaffAtivo > 0 ? Math.round((completedEmailsSet.size / countStaffAtivo) * 100) + '%' : '0%';
+            var cobertura = dynamicStaffCount > 0 ? Math.round((completedEmailsSet.size / dynamicStaffCount) * 100) + '%' : '0%';
             document.getElementById('kpiCoverage').innerText = cobertura;
 
             var percConcluidos = realTotalInscricoes > 0 ? Math.round((concluidos / realTotalInscricoes) * 100) + '%' : '0%';
@@ -733,24 +755,79 @@
             };
         }
 
+        // FORMATADORES EXCLUSIVOS PARA OS GRÁFICOS DE COBERTURA (%)
+        function getPercentDatalabelsConfig() {
+            return {
+                color: '#000',
+                font: { weight: 'bold', size: 11 },
+                formatter: function(value) {
+                    if(!value) return '';
+                    return Math.round(value) + '%';
+                }
+            };
+        }
+
+        function getPercentTooltipConfig() {
+            return {
+                callbacks: {
+                    label: function(context) {
+                        return ' Cobertura: ' + Math.round(context.raw) + '%';
+                    }
+                }
+            };
+        }
+
         function updateCharts() {
             var d = currentFilteredData;
             var isDark = document.documentElement.classList.contains('dark');
             var tColor = isDark ? '#cbd5e1' : '#475569';
 
-            // 1. Skill Gap
-            var roleCount = {};
+            // 1. COBERTURA POR CARGO (%)
+            var staffRoleDenominators = {};
+            var validEmails = new Set();
+            for (var i = 0; i < baseStaff.length; i++) {
+                var row = baseStaff[i];
+                var emailRaw = row['Email'];
+                if (emailRaw && String(emailRaw).trim() !== "") {
+                    var emailStr = String(emailRaw).trim().toLowerCase();
+                    if (!validEmails.has(emailStr)) {
+                        var roleFCP = row['Role At FCP'] || row['Role at FCP'] || 'Não Identificado';
+                        var clusterFCP = row['FCP Cluster'] || row['FCP_CLUSTER'] || 'Não Identificado';
+                        var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(clusterFCP);
+                        var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(roleFCP);
+                        if (dCluster && dRole) {
+                            validEmails.add(emailStr);
+                            staffRoleDenominators[roleFCP] = (staffRoleDenominators[roleFCP] || 0) + 1;
+                        }
+                    }
+                }
+            }
+
+            var roleCompletedEmails = {};
             for(var i=0; i<d.length; i++) {
                 if(String(d[i][cols.status]).toLowerCase().includes('completed')) {
                     var role = d[i][cols.staffRole];
-                    roleCount[role] = (roleCount[role] || 0) + 1;
+                    if (!roleCompletedEmails[role]) roleCompletedEmails[role] = new Set();
+                    roleCompletedEmails[role].add(d[i].Email_Lower);
                 }
             }
-            var roleSorted = Object.entries(roleCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 8);
+
+            var roleCoverage = {};
+            for(var r in roleCompletedEmails) {
+                var comp = roleCompletedEmails[r].size;
+                var tot = staffRoleDenominators[r] || 0;
+                if(tot > 0) {
+                    roleCoverage[r] = (comp / tot) * 100;
+                } else {
+                    roleCoverage[r] = 0;
+                }
+            }
+            var roleSorted = Object.entries(roleCoverage).sort(function(a,b){return b[1] - a[1]}).slice(0, 8);
+
             updateChart('chartSkillGap', 'bar', {
                 labels: roleSorted.map(function(i){return i[0]}),
-                datasets: [{ label: 'Cursos Concluídos', data: roleSorted.map(function(i){return i[1]}), backgroundColor: '#3b82f6', borderRadius: 4 }]
-            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+                datasets: [{ label: 'Cobertura (%)', data: roleSorted.map(function(i){return i[1]}), backgroundColor: '#3b82f6', borderRadius: 4 }]
+            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getPercentDatalabelsConfig(), tooltip: getPercentTooltipConfig() }, scales: { x: { ticks: { color: tColor }, max: 100 }, y: { ticks: { color: tColor } } } });
 
             // 2. Clusters (Top 5)
             var clusterCount = {};
@@ -781,21 +858,51 @@
                 datasets: [{ data: courseSorted.map(function(i){return i[1]}), backgroundColor: '#10b981', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
-            // 4. Performance Facilitador
-            var facCount = {};
+            // 4. COBERTURA POR FACILITADOR (%)
+            var facDenominators = {};
+            var facEmails = {};
+            for(var i=0; i<joinedData.length; i++) {
+                var row = joinedData[i];
+                var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(row[cols.staffCluster]);
+                var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(row[cols.staffRole]);
+                if (dCluster && dRole) {
+                    var fac = row[cols.fac];
+                    if (fac && String(fac).trim() !== "" && String(fac) !== "undefined") {
+                        if (!facEmails[fac]) facEmails[fac] = new Set();
+                        facEmails[fac].add(row.Email_Lower);
+                    }
+                }
+            }
+            for(var f in facEmails) {
+                facDenominators[f] = facEmails[f].size;
+            }
+
+            var facCompletedEmails = {};
             for(var f=0; f<d.length; f++) {
                 if(String(d[f][cols.status]).toLowerCase().includes('completed')) {
                     var fc = d[f][cols.fac];
                     if (fc && String(fc).trim() !== "" && String(fc) !== "undefined") {
-                        facCount[fc] = (facCount[fc] || 0) + 1;
+                        if (!facCompletedEmails[fc]) facCompletedEmails[fc] = new Set();
+                        facCompletedEmails[fc].add(d[f].Email_Lower);
                     }
                 }
             }
-            var facSorted = Object.entries(facCount).sort(function(a,b){return b[1] - a[1]}).slice(0, 6); 
+            var facCoverage = {};
+            for(var fc in facCompletedEmails) {
+                var comp = facCompletedEmails[fc].size;
+                var tot = facDenominators[fc] || 0;
+                if(tot > 0) {
+                    facCoverage[fc] = (comp / tot) * 100;
+                } else {
+                    facCoverage[fc] = 0;
+                }
+            }
+            var facSorted = Object.entries(facCoverage).sort(function(a,b){return b[1] - a[1]}).slice(0, 6);
+
             updateChart('chartFacilitadores', 'bar', {
                 labels: facSorted.map(function(i){return String(i[0]).substring(0,25)}),
-                datasets: [{ data: facSorted.map(function(i){return i[1]}), backgroundColor: '#f59e0b', borderRadius: 4 }]
-            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getDatalabelsConfig(), tooltip: getTooltipConfig() }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
+                datasets: [{ label: 'Cobertura (%)', data: facSorted.map(function(i){return i[1]}), backgroundColor: '#f59e0b', borderRadius: 4 }]
+            }, { indexAxis: 'y', plugins: { legend: { display: false }, datalabels: getPercentDatalabelsConfig(), tooltip: getPercentTooltipConfig() }, scales: { x: { ticks: { color: tColor }, max: 100 }, y: { ticks: { color: tColor } } } });
 
             // 5. Adesão por Modalidade
             var modalidadeCount = {};
