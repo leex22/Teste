@@ -343,7 +343,7 @@
                     <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📋 Detalhamento Enriquecido</h3>
                     <p id="tableActionPlanText" class="text-[10px] text-red-500 font-bold uppercase hidden mt-1">⚠️ Ordenado por Prioridade de Ação (Lista de Cobrança)</p>
                 </div>
-                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar FCP ID, Nome, Curso, Gerente..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar FCP ID, Nome, Curso, Gerente, Facilitador..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
             </div>
             <div class="overflow-x-auto max-h-96">
                 <table>
@@ -352,6 +352,7 @@
                             <th>FCP ID</th>
                             <th>Nome (Email)</th>
                             <th>Gerente (Sup.)</th>
+                            <th>Facilitador</th>
                             <th>Cargo Real</th>
                             <th>Cluster</th>
                             <th>Curso</th>
@@ -686,7 +687,6 @@
             var toggleSwitch = document.getElementById('toggleMetas');
             var metasAtivas = toggleSwitch && toggleSwitch.checked;
             
-            // REORGANIZAÇÃO DOS FILTROS (MODO GERAL VS MODO METAS)
             var fManager = document.getElementById('filterManager');
             var fFac = document.getElementById('filterFac');
             var fCluster = document.getElementById('filterCluster');
@@ -700,9 +700,6 @@
 
             if (row1 && row2) {
                 if (metasAtivas) {
-                    // MODO METAS: Esconder Método e Evento.
-                    // Linha 1 (2 itens): Gerente, Curso
-                    // Linha 2 (3 itens): Facilitador, Cluster, Role
                     fMethod.style.display = 'none';
                     fEvent.style.display = 'none';
                     
@@ -714,12 +711,9 @@
                     row2.appendChild(fFac);
                     row2.appendChild(fCluster);
                     row2.appendChild(fRole);
-                    row2.appendChild(fMethod); // invisível
-                    row2.appendChild(fEvent);  // invisível
+                    row2.appendChild(fMethod); 
+                    row2.appendChild(fEvent);  
                 } else {
-                    // VISÃO GERAL: Mostrar tudo.
-                    // Linha 1 (4 itens): Gerente, Fac, Cluster, Role
-                    // Linha 2 (3 itens): Método, Curso, Evento
                     fMethod.style.display = '';
                     fEvent.style.display = '';
                     
@@ -1548,6 +1542,7 @@
                             fakeRow.NameDisplay = sRow['First Name'] ? (sRow['First Name'] + ' ' + (sRow['Last Name']||'')) : sEm;
                             fakeRow.Email_Lower = sEm;
                             fakeRow[cols.manager] = sMan;
+                            fakeRow[cols.fac] = sRow['Partnership Facilitator'] || sRow['Facilitator'] || 'Não Identificado';
                             fakeRow[cols.staffRole] = sRole;
                             fakeRow[cols.staffCluster] = sClus;
                             fakeRow[cols.course] = "Nenhum curso iniciado";
@@ -1580,7 +1575,7 @@
             for (var i = 0; i < d_unique_table.length; i++) {
                 var row = d_unique_table[i];
                 
-                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.manager] + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
+                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.manager] + " " + (row[cols.fac]||"") + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
                 if (searchInput && text.indexOf(searchInput) === -1) continue;
 
                 var stLower = String(row[cols.status]).toLowerCase();
@@ -1604,6 +1599,7 @@
                 htmlString += "  <td class='font-bold text-slate-600 dark:text-slate-300'>" + row.FCP_ID_Display + "</td>";
                 htmlString += "  <td class='font-medium'>" + row.NameDisplay + " <br><span class='text-[10px] text-slate-400'>" + row.Email_Lower + "</span></td>";
                 htmlString += "  <td class='text-xs truncate max-w-[120px]' title='" + row[cols.manager] + "'>" + row[cols.manager] + "</td>";
+                htmlString += "  <td class='text-xs truncate max-w-[120px]' title='" + (row[cols.fac] || '-') + "'>" + (row[cols.fac] || '-') + "</td>";
                 htmlString += "  <td>" + row[cols.staffRole] + "</td>";
                 htmlString += "  <td>" + row[cols.staffCluster] + "</td>";
                 htmlString += "  <td class='text-xs max-w-xs truncate' title='" + row[cols.course] + "'>" + row[cols.course] + "</td>";
@@ -1665,7 +1661,7 @@
             for(var j=0; j<d_unique_export.length; j++) {
                 var row = d_unique_export[j];
                 
-                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.manager] + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
+                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.manager] + " " + (row[cols.fac]||"") + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
                 if (searchInput && text.indexOf(searchInput) === -1) continue;
 
                 exportData.push({
@@ -1673,14 +1669,14 @@
                     'Email': row.Email_Lower,
                     'Nome': row.NameDisplay,
                     'Gerente (Sup.)': row[cols.manager],
+                    'Facilitador': row[cols.fac],
                     'Cargo Staff': row[cols.staffRole],
                     'Cluster Staff': row[cols.staffCluster],
                     'Curso': row[cols.course],
                     'Evento': row[cols.event],
                     'Status': row[cols.status],
                     'Data Conclusão': row[cols.date],
-                    'Método': row[cols.method],
-                    'Facilitador': row[cols.fac]
+                    'Método': row[cols.method]
                 });
             }
             
