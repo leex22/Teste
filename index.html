@@ -98,7 +98,7 @@
                     <ul class="list-disc pl-5 space-y-2">
                         <li><strong>Cobertura = Alcance:</strong> Gráficos com a palavra "Cobertura" olham para o total de pessoas na empresa (Base FCP Staff). Medem se a cultura de treinamento está a alcançar todos.</li>
                         <li><strong>Eficiência = Performance:</strong> Olham apenas para quem se inscreveu. Medem se os cursos são bons e retêm os alunos até ao fim.</li>
-                        <li><strong>🎯 O Modo Metas (Switch):</strong> Ao ligar o interruptor, o dashboard esconde os cursos comuns, foca o layout num "Funil de Cobrança" e lista quem está pendente no topo da tabela.</li>
+                        <li><strong>🎯 O Modo Metas (Switch):</strong> Ao ligar o interruptor, o dashboard esconde os cursos comuns, foca o layout num "Funil de Cobrança" e lista quem está pendente no topo da tabela. Pode agora analisar toda a equipa filtrando pelo <strong>Gerente (Supervisor)</strong>.</li>
                     </ul>
                 </div>
             </div>
@@ -111,11 +111,11 @@
     <div id="authOverlay">
         <div class="auth-card">
             <h2 class="auth-title">Dashboard De Treinamentos</h2>
-            <p class="auth-subtitle">Digite a senha para acessar</p>
+            <p class="auth-subtitle">Digite a senha para aceder</p>
             <div class="auth-input-container">
                 <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') window.efetuarLogin()">
             </div>
-            <button onclick="window.efetuarLogin()" class="auth-button">Acessar o Dashboard</button>
+            <button onclick="window.efetuarLogin()" class="auth-button">Aceder ao Dashboard</button>
             <p id="authError" class="error-msg">Senha incorreta. Tente "1234".</p>
         </div>
     </div>
@@ -158,13 +158,14 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div id="filterMethod" class="relative"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
-                        <div id="filterCourse" class="relative"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
-                        <div id="filterEvent" class="relative"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropEvent" class="dropdown-content"></div></div>
-                        <div id="filterCluster" class="relative"><label class="label-filter">Cluster (Staff)</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
-                        <div id="filterFac" class="relative"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
-                        <div id="filterRole" class="relative"><label class="label-filter">Função / Cargo (Staff)</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
+                    <div class="flex flex-wrap gap-3">
+                        <div id="filterManager" class="relative flex-1 min-w-[140px]"><label class="label-filter text-indigo-600 dark:text-indigo-400">Gerente (Supervisor)</label><button onclick="toggleDropdown('dropManager')" id="btnManager" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropManager" class="dropdown-content"></div></div>
+                        <div id="filterFac" class="relative flex-1 min-w-[140px]"><label class="label-filter">Facilitador</label><button onclick="toggleDropdown('dropFac')" id="btnFac" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropFac" class="dropdown-content"></div></div>
+                        <div id="filterCluster" class="relative flex-1 min-w-[140px]"><label class="label-filter">Cluster (Staff)</label><button onclick="toggleDropdown('dropCluster')" id="btnCluster" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCluster" class="dropdown-content"></div></div>
+                        <div id="filterRole" class="relative flex-1 min-w-[140px]"><label class="label-filter">Função / Cargo</label><button onclick="toggleDropdown('dropRole')" id="btnRole" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropRole" class="dropdown-content"></div></div>
+                        <div id="filterCourse" class="relative flex-1 min-w-[140px]"><label class="label-filter">Curso</label><button onclick="toggleDropdown('dropCourse')" id="btnCourse" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropCourse" class="dropdown-content"></div></div>
+                        <div id="filterMethod" class="relative flex-1 min-w-[140px]"><label class="label-filter">Método</label><button onclick="toggleDropdown('dropMethod')" id="btnMethod" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropMethod" class="dropdown-content"></div></div>
+                        <div id="filterEvent" class="relative flex-1 min-w-[140px]"><label class="label-filter">Evento</label><button onclick="toggleDropdown('dropEvent')" id="btnEvent" class="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 rounded-md w-full text-left text-sm transition-colors"><span>Selecionar...</span><span class="text-[10px]">▼</span></button><div id="dropEvent" class="dropdown-content"></div></div>
                     </div>
                 </div>
 
@@ -232,29 +233,29 @@
                 <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">🚀 Funil de Execução (Foco na Cobrança)</h3>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
-                        <span class="tooltip-text">Público total (Pessoas ou Instituições) monitorizado nos filtros atuais.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase" id="mmLblAlvo">Público Alvo</p>
+                        <span class="tooltip-text">Público total (Pessoas ou Instituições) sob gestão do filtro atual com metas obrigatórias.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase" id="mmLblAlvo">👥 Público Alvo</p>
                         <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="mmKpiAlvo">0</h2>
                     </div>
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-green-500 shadow-sm text-center">
-                        <span class="tooltip-text">Volume do público alvo que já atingiu o objetivo.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Concluídos</p>
+                        <span class="tooltip-text">Volume exato do público alvo que já concluiu o treinamento exigido.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">✅ Treinados</p>
                         <h2 class="text-2xl font-bold text-green-600 dark:text-green-400" id="mmKpiConcluidos">0</h2>
                     </div>
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm text-center">
-                        <span class="tooltip-text">Número exato de conversões que faltam para a meta ficar verde.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Faltam (Meta Verde)</p>
+                        <span class="tooltip-text">A sua lista de cobrança. Conversões exatas que faltam para o semáforo ficar verde.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">🚨 Faltam Treinar</p>
                         <h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="mmKpiFaltam">0</h2>
                     </div>
                     <div id="mmCardStatus" class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-teal-500 shadow-sm text-center transition-all duration-300">
-                        <span class="tooltip-text">Percentagem atual de alcance da meta.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Cobertura Atual</p>
+                        <span class="tooltip-text">Percentagem atual de alcance da meta estipulada.</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">🚦 Status da Meta</p>
                         <h2 class="text-2xl font-bold text-teal-600 dark:text-teal-400" id="mmKpiStatus">0%</h2>
                         <p id="mmKpiMetaLabel" class="text-[9px] font-bold text-slate-400 mt-1 hidden"></p>
                     </div>
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-amber-500 shadow-sm text-center">
-                        <span class="tooltip-text">Pessoas do público-alvo que iniciaram, mas estão pendentes/dropout.</span>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Pendentes</p>
+                        <span class="tooltip-text">Pessoas do público-alvo que iniciaram, mas estão pendentes. Cobre estes primeiro!</span>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">⏳ Em Andamento</p>
                         <h2 class="text-2xl font-bold text-amber-600 dark:text-amber-400" id="mmKpiPendentes">0</h2>
                     </div>
                 </div>
@@ -300,7 +301,7 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Alcance Facilitador (%)</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual de sucesso da equipe de cada facilitador.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual de sucesso da equipa de cada facilitador.</p>
                         </div>
                         <button onclick="exportSingleChart('cardFacilitadores', 'cobertura-facilitador')" class="btn-export-mini mt-1">PNG</button>
                     </div>
@@ -338,7 +339,7 @@
                     <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">📋 Detalhamento Enriquecido</h3>
                     <p id="tableActionPlanText" class="text-[10px] text-red-500 font-bold uppercase hidden mt-1">⚠️ Ordenado por Prioridade de Ação (Lista de Cobrança)</p>
                 </div>
-                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar FCP ID, Nome, Curso, Evento..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                <input type="text" id="tableSearch" placeholder="🔍 Pesquisar FCP ID, Nome, Curso, Gerente..." onkeyup="filterTable()" class="md:w-72 text-sm bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
             </div>
             <div class="overflow-x-auto max-h-96">
                 <table>
@@ -346,10 +347,10 @@
                         <tr>
                             <th>FCP ID</th>
                             <th>Nome (Email)</th>
-                            <th>Cargo Real (Staff)</th>
-                            <th>Cluster (Staff)</th>
+                            <th>Gerente (Sup.)</th>
+                            <th>Cargo Real</th>
+                            <th>Cluster</th>
                             <th>Curso</th>
-                            <th>Evento</th>
                             <th>Status</th>
                             <th>Data</th>
                         </tr>
@@ -401,7 +402,7 @@
         var charts = {};
         
         var countStaffAtivo = 0;
-        var selectedFilters = { roles: [], clusters: [], courses: [], methods: [], events: [], facs: [] };
+        var selectedFilters = { roles: [], clusters: [], courses: [], methods: [], events: [], facs: [], managers: [] };
         
         var cols = { 
             email: 'Email', 
@@ -411,12 +412,14 @@
             date: 'ACTIVITY_DATE_TIME', 
             method: 'Training Method', 
             fac: 'Partnership Facilitator',
+            manager: 'Supervisor', 
             staffRole: 'Staff_Role', 
             staffCluster: 'Staff_Cluster', 
             staffCreated: 'Staff_CreatedDate'
         };
 
         var filterMappings = {
+            'managers': cols.manager,
             'methods': cols.method,
             'courses': cols.course,
             'events': cols.event,
@@ -426,6 +429,7 @@
         };
 
         function getDropId(filterKey) {
+            if (filterKey === 'managers') return 'dropManager';
             if (filterKey === 'methods') return 'dropMethod';
             if (filterKey === 'courses') return 'dropCourse';
             if (filterKey === 'events') return 'dropEvent';
@@ -520,6 +524,7 @@
                 var tEvent = t['EVENT_NAME'] || t['Event'] || t['Event Name'] || 'Sem Evento'; 
                 var roleFCP = staffRecord['Role At FCP'] || staffRecord['Role at FCP'] || 'Não Identificado';
                 var clusterFCP = staffRecord['FCP Cluster'] || staffRecord['FCP_CLUSTER'] || 'Não Identificado';
+                var managerFCP = staffRecord['Partnership Facilitator Supervisor'] || staffRecord['Supervisor'] || 'Não Identificado';
                 var createdDate = staffRecord['Created Date'] || staffRecord['Created_Date'] || null;
                 
                 var fcpID = t['FCP_COMBINED'] || t['FCP ID'] || staffRecord['FCP ID'] || 'N/A';
@@ -538,6 +543,7 @@
                 joinedRow[cols.event] = tEvent;
                 joinedRow[cols.staffRole] = roleFCP;
                 joinedRow[cols.staffCluster] = clusterFCP;
+                joinedRow[cols.manager] = managerFCP;
                 joinedRow[cols.staffCreated] = createdDate;
                 joinedRow['FCP_ID_Display'] = fcpID;
                 joinedRow['NameDisplay'] = nameDisplay;
@@ -551,6 +557,7 @@
         function initDashboard() {
             document.getElementById('dashboardContent').classList.remove('hidden');
 
+            var uniqueManagers = [...new Set(joinedData.map(function(i){return i[cols.manager]}))].sort();
             var uniqueMethods = [...new Set(joinedData.map(function(i){return i[cols.method]}))].sort();
             var uniqueCourses = [...new Set(joinedData.map(function(i){return i[cols.course]}))].sort();
             var uniqueEvents = [...new Set(joinedData.map(function(i){return i[cols.event]}))].sort();
@@ -558,6 +565,7 @@
             var uniqueFacs = [...new Set(joinedData.map(function(i){return i[cols.fac]}))].sort();
             var uniqueRoles = [...new Set(joinedData.map(function(i){return i[cols.staffRole]}))].sort();
 
+            renderDropdown('dropManager', 'managers', uniqueManagers);
             renderDropdown('dropMethod', 'methods', uniqueMethods);
             renderDropdown('dropCourse', 'courses', uniqueCourses);
             renderDropdown('dropEvent', 'events', uniqueEvents);
@@ -674,10 +682,9 @@
             var toggleSwitch = document.getElementById('toggleMetas');
             var metasAtivas = toggleSwitch && toggleSwitch.checked;
             
-            // Lógica de esconder os filtros do Modo Foco
+            // MODO FOCO: Esconder Método e Evento no Modo Metas
             document.getElementById('filterMethod').style.display = metasAtivas ? 'none' : 'block';
             document.getElementById('filterEvent').style.display = metasAtivas ? 'none' : 'block';
-            // NOTA: filterCourse permanece sempre visível
 
             applyFilters();
             updateDropdownsUI();
@@ -688,7 +695,7 @@
         }
 
         function updateFilterButtonsText() {
-            var mappings = { 'methods': 'btnMethod', 'courses': 'btnCourse', 'events': 'btnEvent', 'clusters': 'btnCluster', 'facs': 'btnFac', 'roles': 'btnRole' };
+            var mappings = { 'managers': 'btnManager', 'methods': 'btnMethod', 'courses': 'btnCourse', 'events': 'btnEvent', 'clusters': 'btnCluster', 'facs': 'btnFac', 'roles': 'btnRole' };
             for (var key in selectedFilters) {
                 var btnId = mappings[key];
                 if(btnId) {
@@ -736,8 +743,8 @@
                     var row = joinedData[i];
                     var isValid = true;
                     
-                    // LÓGICA MODO METAS: Se estiver ligado, mostra apenas opções relacionadas aos cursos da meta
-                    if (metasAtivas) {
+                    // INTELIGÊNCIA DO FILTRO CURSO: Mostrar só os da meta
+                    if (metasAtivas && currentFilterKey === 'courses') {
                         var cName = String(row[cols.course]).toLowerCase().trim();
                         if (!cursosComMeta.includes(cName)) isValid = false;
                     }
@@ -843,6 +850,7 @@
                 var cName = String(row[cols.course]).toLowerCase().trim();
                 var passaMeta = metasAtivas ? cursosComMeta.includes(cName) : true;
 
+                var dManager = (selectedFilters.managers.length === 0) || selectedFilters.managers.includes(row[cols.manager]);
                 var dMethod = (selectedFilters.methods.length === 0) || selectedFilters.methods.includes(row[cols.method]);
                 var dCourse = (selectedFilters.courses.length === 0) || selectedFilters.courses.includes(row[cols.course]);
                 var dEvent = (selectedFilters.events.length === 0) || selectedFilters.events.includes(row[cols.event]);
@@ -857,7 +865,7 @@
                     if (dE && rDate > dE) dDate = false;
                 }
                 
-                if (passaMeta && dMethod && dCourse && dEvent && dCluster && dFac && dRole && dDate) {
+                if (passaMeta && dManager && dMethod && dCourse && dEvent && dCluster && dFac && dRole && dDate) {
                     currentFilteredData.push(row);
                 }
             }
@@ -942,12 +950,14 @@
                     if (!validStaffEmails.has(emailStr)) {
                         var roleFCP = row['Role At FCP'] || row['Role at FCP'] || 'Não Identificado';
                         var clusterFCP = row['FCP Cluster'] || row['FCP_CLUSTER'] || 'Não Identificado';
+                        var managerFCP = row['Partnership Facilitator Supervisor'] || row['Supervisor'] || 'Não Identificado';
                         var fcpID = row['FCP ID'] || 'N/A';
 
+                        var dManager = (selectedFilters.managers.length === 0) || selectedFilters.managers.includes(managerFCP);
                         var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(clusterFCP);
                         var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(roleFCP);
                         
-                        if (dCluster && dRole) {
+                        if (dManager && dCluster && dRole) {
                             validStaffEmails.add(emailStr);
                             validFcps.add(fcpID);
                             dynamicStaffCount++;
@@ -1161,12 +1171,14 @@
                     var row = baseStaff[i];
                     var roleFCP = row['Role At FCP'] || row['Role at FCP'] || 'Não Identificado';
                     var clusterFCP = row['FCP Cluster'] || row['FCP_CLUSTER'] || 'Não Identificado';
+                    var managerFCP = row['Partnership Facilitator Supervisor'] || row['Supervisor'] || 'Não Identificado';
                     var fcpID = row['FCP ID'] || 'N/A';
 
+                    var dManager = (selectedFilters.managers.length === 0) || selectedFilters.managers.includes(managerFCP);
                     var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(clusterFCP);
                     var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(roleFCP);
                     
-                    if (dCluster && dRole) {
+                    if (dManager && dCluster && dRole) {
                         if(!validFcpByRole[roleFCP]) validFcpByRole[roleFCP] = new Set();
                         validFcpByRole[roleFCP].add(fcpID);
                     }
@@ -1202,9 +1214,13 @@
                         if (!validEmails.has(emailStr)) {
                             var roleFCP = row['Role At FCP'] || row['Role at FCP'] || 'Não Identificado';
                             var clusterFCP = row['FCP Cluster'] || row['FCP_CLUSTER'] || 'Não Identificado';
+                            var managerFCP = row['Partnership Facilitator Supervisor'] || row['Supervisor'] || 'Não Identificado';
+                            
+                            var dManager = (selectedFilters.managers.length === 0) || selectedFilters.managers.includes(managerFCP);
                             var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(clusterFCP);
                             var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(roleFCP);
-                            if (dCluster && dRole) {
+                            
+                            if (dManager && dCluster && dRole) {
                                 validEmails.add(emailStr);
                                 staffRoleDenominators[roleFCP] = (staffRoleDenominators[roleFCP] || 0) + 1;
                             }
@@ -1299,9 +1315,10 @@
 
                 for(var i=0; i<joinedData.length; i++) {
                     var row = joinedData[i];
+                    var dManager = (selectedFilters.managers.length === 0) || selectedFilters.managers.includes(row[cols.manager]);
                     var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(row[cols.staffCluster]);
                     var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(row[cols.staffRole]);
-                    if (dCluster && dRole) {
+                    if (dManager && dCluster && dRole) {
                         var facName = row[cols.fac];
                         var fcpID = row[cols.staffFcp];
                         if(facName && String(facName).trim() !== "undefined") {
@@ -1337,9 +1354,10 @@
                 var facEmails = {};
                 for(var i=0; i<joinedData.length; i++) {
                     var row = joinedData[i];
+                    var dManager = (selectedFilters.managers.length === 0) || selectedFilters.managers.includes(row[cols.manager]);
                     var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(row[cols.staffCluster]);
                     var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(row[cols.staffRole]);
-                    if (dCluster && dRole) {
+                    if (dManager && dCluster && dRole) {
                         var fac = row[cols.fac];
                         if (fac && String(fac).trim() !== "" && String(fac) !== "undefined") {
                             if (!facEmails[fac]) facEmails[fac] = new Set();
@@ -1460,7 +1478,7 @@
             }
             var d_unique_table = Object.values(uniqueEnrollments);
 
-            // TABELA "PLANO DE AÇÃO" (Adiciona Sem Treinamento e Puxa Pendentes para cima)
+            // TABELA "PLANO DE AÇÃO"
             if (metasAtivas) {
                 if(actionPlanText) actionPlanText.classList.remove('hidden');
                 var tableEmails = new Set();
@@ -1472,15 +1490,18 @@
                     if(sEm && !tableEmails.has(sEm)) {
                         var sRole = sRow['Role At FCP'] || sRow['Role at FCP'] || 'Não Identificado';
                         var sClus = sRow['FCP Cluster'] || sRow['FCP_CLUSTER'] || 'Não Identificado';
+                        var sMan = sRow['Partnership Facilitator Supervisor'] || sRow['Supervisor'] || 'Não Identificado';
                         
+                        var dManager = (selectedFilters.managers.length === 0) || selectedFilters.managers.includes(sMan);
                         var dCluster = (selectedFilters.clusters.length === 0) || selectedFilters.clusters.includes(sClus);
                         var dRole = (selectedFilters.roles.length === 0) || selectedFilters.roles.includes(sRole);
                         
-                        if (dCluster && dRole) {
+                        if (dManager && dCluster && dRole) {
                             var fakeRow = {};
                             fakeRow.FCP_ID_Display = sRow['FCP ID'] || 'N/A';
                             fakeRow.NameDisplay = sRow['First Name'] ? (sRow['First Name'] + ' ' + (sRow['Last Name']||'')) : sEm;
                             fakeRow.Email_Lower = sEm;
+                            fakeRow[cols.manager] = sMan;
                             fakeRow[cols.staffRole] = sRole;
                             fakeRow[cols.staffCluster] = sClus;
                             fakeRow[cols.course] = "Nenhum curso iniciado";
@@ -1513,7 +1534,7 @@
             for (var i = 0; i < d_unique_table.length; i++) {
                 var row = d_unique_table[i];
                 
-                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
+                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.manager] + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
                 if (searchInput && text.indexOf(searchInput) === -1) continue;
 
                 var stLower = String(row[cols.status]).toLowerCase();
@@ -1536,10 +1557,10 @@
                 htmlString += "<tr>";
                 htmlString += "  <td class='font-bold text-slate-600 dark:text-slate-300'>" + row.FCP_ID_Display + "</td>";
                 htmlString += "  <td class='font-medium'>" + row.NameDisplay + " <br><span class='text-[10px] text-slate-400'>" + row.Email_Lower + "</span></td>";
+                htmlString += "  <td class='text-xs truncate max-w-[120px]' title='" + row[cols.manager] + "'>" + row[cols.manager] + "</td>";
                 htmlString += "  <td>" + row[cols.staffRole] + "</td>";
                 htmlString += "  <td>" + row[cols.staffCluster] + "</td>";
                 htmlString += "  <td class='text-xs max-w-xs truncate' title='" + row[cols.course] + "'>" + row[cols.course] + "</td>";
-                htmlString += "  <td class='text-xs max-w-xs truncate' title='" + row[cols.event] + "'>" + row[cols.event] + "</td>";
                 htmlString += "  <td><span class='px-2 py-1 rounded text-[10px] " + statusColor + "'>" + row[cols.status] + "</span></td>";
                 htmlString += "  <td class='text-xs text-slate-500'>" + dataFormatada + "</td>";
                 htmlString += "</tr>";
@@ -1598,13 +1619,14 @@
             for(var j=0; j<d_unique_export.length; j++) {
                 var row = d_unique_export[j];
                 
-                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
+                var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.manager] + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
                 if (searchInput && text.indexOf(searchInput) === -1) continue;
 
                 exportData.push({
                     'FCP ID': row.FCP_ID_Display,
                     'Email': row.Email_Lower,
                     'Nome': row.NameDisplay,
+                    'Gerente (Sup.)': row[cols.manager],
                     'Cargo Staff': row[cols.staffRole],
                     'Cluster Staff': row[cols.staffCluster],
                     'Curso': row[cols.course],
