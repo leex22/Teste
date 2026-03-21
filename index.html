@@ -1037,10 +1037,8 @@
 
             var htmlString = "";
             var rendered = 0;
-            var maxRows = 100;
 
             for (var i = 0; i < d_unique_table.length; i++) {
-                if (rendered >= maxRows) break;
                 var row = d_unique_table[i];
                 
                 var text = (row.FCP_ID_Display + " " + row.NameDisplay + " " + row[cols.course] + " " + row[cols.event] + " " + row[cols.staffCluster]).toLowerCase();
