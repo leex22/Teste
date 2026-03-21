@@ -93,8 +93,8 @@
                 <div>
                     <h3 class="font-bold text-slate-800 dark:text-slate-100 mb-3 text-base">O que cada gráfico mostra:</h3>
                     <ul class="space-y-3">
-                        <li><strong>🎯 Cobertura por Cargo (%):</strong> A percentagem de pessoas dentro de cada função na empresa que já finalizaram os treinamentos. Serve para ver quais os cargos que estão a bater a meta de estudo e quais estão atrasados.</li>
-                        <li><strong>👥 Cobertura Facilitador (%):</strong> A taxa de sucesso de cada facilitador. Mede quantos alunos (em %) debaixo da tutela daquele facilitador já concluíram os cursos, avaliando o engajamento daquela região.</li>
+                        <li><strong>🎯 Alcance por Cargo (%):</strong> A percentagem de pessoas dentro de cada função na igreja que já finalizaram os treinamentos. Serve para ver quais os cargos que estão a bater a meta de treinamento e quais estão atrasados.</li>
+                        <li><strong>👥 Alcance Facilitador (%):</strong> A taxa de sucesso de cada facilitador. Mede quantos parceiros (em %) debaixo da supervisão daquele facilitador já concluíram os cursos, avaliando o engajamento daquela região.</li>
                         <li><strong>📍 Top 5 - Adesão por Cluster:</strong> O ranking das 5 regiões ou grupos que geraram o maior número de alunos únicos participando nos cursos.</li>
                         <li><strong>🏆 Top 5 Cursos:</strong> A lista dos 5 cursos que acumulam o maior número de conclusões reais.</li>
                         <li><strong>📊 Adesão por Modalidade:</strong> A divisão do total de inscrições pelos formatos de ensino (Online, Presencial, Virtual). Mostra como o seu público prefere consumir o conteúdo.</li>
@@ -110,12 +110,12 @@
 
     <div id="authOverlay">
         <div class="auth-card">
-            <h2 class="auth-title">Dashboard FCP</h2>
-            <p class="auth-subtitle">Digite a senha para aceder</p>
+            <h2 class="auth-title">Dashboard De Treinamentos</h2>
+            <p class="auth-subtitle">Digite a senha para acessar</p>
             <div class="auth-input-container">
                 <input type="password" id="passInput" placeholder="••••" onkeypress="if(event.key==='Enter') window.efetuarLogin()">
             </div>
-            <button onclick="window.efetuarLogin()" class="auth-button">Aceder ao Dashboard</button>
+            <button onclick="window.efetuarLogin()" class="auth-button">Acessar o Dashboard</button>
             <p id="authError" class="error-msg">Senha incorreta. Tente "1234".</p>
         </div>
     </div>
@@ -169,7 +169,7 @@
                 <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">👥 Análise de População e Alcance</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-slate-700 shadow-sm text-center">
-                        <span class="tooltip-text">Número de colaboradores na base FCP Staff que correspondem aos filtros atuais de Cargo/Cluster.</span>
+                        <span class="tooltip-text">Número de parceiros na base FCP Staff que correspondem aos filtros atuais de Cargo/Cluster.</span>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Total FCP Staff</p>
                         <h2 class="text-2xl font-bold text-slate-700 dark:text-slate-300" id="kpiTotalStaff">0</h2>
                     </div>
@@ -179,7 +179,7 @@
                         <h2 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="kpiUnique">0</h2>
                     </div>
                     <div class="kpi-card bg-white dark:bg-darkCard p-4 rounded-xl border-l-4 border-red-500 shadow-sm flex flex-col justify-center items-center text-center">
-                        <span class="tooltip-text">Percentagem e número do Staff focado que não realizou atividades neste filtro.</span>
+                        <span class="tooltip-text">Percentagem e número do Staff da igreja que não realizou nenhum treinamento no filtro atual.</span>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Sem Treinamento</p>
                         <div class="flex items-baseline mt-1"><h2 class="text-2xl font-bold text-red-600 dark:text-red-400" id="kpiNoTraining">0%</h2></div>
                     </div>
@@ -221,8 +221,8 @@
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardSkillGap">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Cobertura por Cargo (%)</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual do cargo na base FCP que já concluiu os treinamentos.</p>
+                            <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">🎯 Alcance por Função (%)</h3>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual do cargo na base FCP(Connect) que já concluiu os treinamentos.</p>
                         </div>
                         <button onclick="exportSingleChart('cardSkillGap', 'cobertura-cargo')" class="btn-export-mini mt-1">PNG</button>
                     </div>
@@ -267,8 +267,8 @@
                 <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm relative" id="cardFacilitadores">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Cobertura Facilitador (%)</h3>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual de alunos sob a tutela que concluíram os cursos.</p>
+                            <h3 class="font-bold text-sm uppercase text-slate-700 dark:text-slate-300">👥 Alcance Facilitador (%)</h3>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Percentual de FCP Staff que concluíram os cursos.</p>
                         </div>
                         <button onclick="exportSingleChart('cardFacilitadores', 'cobertura-facilitador')" class="btn-export-mini mt-1">PNG</button>
                     </div>
