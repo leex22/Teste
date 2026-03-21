@@ -634,23 +634,52 @@
             }
         }
 
+        // LÓGICA DE KPIS COM REGRA 2 INTACTA (Cálculo à prova de falhas)
         function calculateKPIs() {
             var d = currentFilteredData;
             var emailsSet = new Set();
             var completedEmailsSet = new Set();
+            var userCourseDict = {};
+
+            for(var i=0; i<d.length; i++) {
+                var email = d[i].Email_Lower;
+                var course = d[i][cols.course];
+                var status = String(d[i][cols.status]).toLowerCase();
+                var method = String(d[i][cols.method]).toLowerCase();
+                
+                emailsSet.add(email);
+                
+                if (status.includes('completed')) {
+                    completedEmailsSet.add(email);
+                }
+
+                var key = email + "|_|" + course;
+
+                if (!userCourseDict[key]) {
+                    userCourseDict[key] = { completed: false, enrolled: false, method: method };
+                }
+
+                if (status.includes('completed')) {
+                    userCourseDict[key].completed = true;
+                }
+                if (status.includes('enrolled')) {
+                    userCourseDict[key].enrolled = true;
+                }
+            }
+
             var concluidos = 0;
             var dropout = 0;
 
-            for(var i=0; i<d.length; i++) {
-                emailsSet.add(d[i].Email_Lower);
-                var status = String(d[i][cols.status]).toLowerCase();
-                
-                if (status.includes('completed')) {
+            var keys = Object.keys(userCourseDict);
+            for(var k=0; k<keys.length; k++) {
+                var record = userCourseDict[keys[k]];
+
+                if (record.completed) {
                     concluidos++;
-                    completedEmailsSet.add(d[i].Email_Lower);
-                }
-                if (status.includes('enrolled')) {
+                } else if (record.enrolled && record.method.includes('computer')) {
                     dropout++;
+                } else if (record.enrolled) {
+                    dropout++; 
                 }
             }
 
@@ -661,8 +690,6 @@
             if (d.length > 0) rate = Math.round((concluidos / d.length) * 100) + '%';
             document.getElementById('kpiRate').innerText = rate;
 
-            // 1. INVERSÃO PERCENTAGEM E QUANTIDADE (Requisito 1)
-            
             // Sem Treinamento
             var semTreino = Math.max(0, countStaffAtivo - emailsSet.size);
             var percSemTreino = countStaffAtivo > 0 ? Math.round((semTreino / countStaffAtivo) * 100) + '%' : '0%';
@@ -686,7 +713,7 @@
             var isDark = document.documentElement.classList.contains('dark');
             var tColor = isDark ? '#cbd5e1' : '#475569';
 
-            // 1. Skill Gap
+            // 1. Skill Gap (Mantido em Barras Horizontais)
             var roleCount = {};
             for(var i=0; i<d.length; i++) {
                 if(String(d[i][cols.status]).toLowerCase().includes('completed')) {
@@ -700,7 +727,7 @@
                 datasets: [{ label: 'Cursos Concluídos', data: roleSorted.map(function(i){return i[1]}), backgroundColor: '#3b82f6', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
-            // 2. Clusters (Top 5) - AGORA EM BARRAS HORIZONTAIS (Requisito 2)
+            // 2. Clusters (Top 5) - AGORA EM BARRAS HORIZONTAIS
             var clusterCount = {};
             for(var j=0; j<d.length; j++) {
                 var cluster = d[j][cols.staffCluster];
@@ -715,7 +742,7 @@
                 datasets: [{ data: clusterDataVals, backgroundColor: '#06b6d4', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
-            // 3. Courses - AGORA EM BARRAS HORIZONTAIS (Requisito 3)
+            // 3. Courses - EM BARRAS HORIZONTAIS
             var courseCount = {};
             for(var k=0; k<d.length; k++) {
                 if(String(d[k][cols.status]).toLowerCase().includes('completed')) {
@@ -729,7 +756,7 @@
                 datasets: [{ data: courseSorted.map(function(i){return i[1]}), backgroundColor: '#10b981', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
-            // 4. Performance Facilitador
+            // 4. Performance Facilitador - EM BARRAS HORIZONTAIS
             var facCount = {};
             for(var f=0; f<d.length; f++) {
                 if(String(d[f][cols.status]).toLowerCase().includes('completed')) {
@@ -745,7 +772,7 @@
                 datasets: [{ data: facSorted.map(function(i){return i[1]}), backgroundColor: '#f59e0b', borderRadius: 4 }]
             }, { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tColor } }, y: { ticks: { color: tColor } } } });
 
-            // 5. Adesão por Modalidade - AGORA EM PIZZA (Requisito 3)
+            // 5. Adesão por Modalidade - PIZZA/PIE
             var modalidadeCount = {};
             for(var n=0; n<d.length; n++) {
                 var mod = d[n][cols.method];
